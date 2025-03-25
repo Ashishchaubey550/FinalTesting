@@ -1,0 +1,1 @@
+relative flex items-center bg-cover h-screen w-full
