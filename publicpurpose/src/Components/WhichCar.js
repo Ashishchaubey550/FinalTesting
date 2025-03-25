@@ -15,14 +15,14 @@ const WhichCar = () => {
     try {
       // Fetch preowned cars
       const preownedResponse = await fetch(
-        "http://localhost:9000/productlist?condition=preowned&limit=4"
+        "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
       );
       const preownedData = await preownedResponse.json();
       setPreownedCars(preownedData);
 
       // Fetch unregistered cars
       const unregisteredResponse = await fetch(
-        "http://localhost:9000/productlist?registrationStatus=unregistered&limit=4"
+        "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
       );
       const unregisteredData = await unregisteredResponse.json();
       setUnregisteredCars(unregisteredData);

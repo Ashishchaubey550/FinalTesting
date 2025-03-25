@@ -14,7 +14,7 @@ const BrandDetails = () => {
   const fetchProducts = async () => {
     try {
       const response = await fetch(
-        `http://localhost:9000/productlist?company=${brandName}`
+        `https://finaltesting-tnim.onrender.com/productlist?company=${brandName}`
       );
       const data = await response.json();
       setProducts(data);
@@ -60,7 +60,7 @@ const BrandDetails = () => {
                 {item.images?.map((image, idx) => (
                   <div key={idx} className="slider-image-container">
                     <img
-                      src={`http://localhost:9000${image}`}
+                      src={`https://finaltesting-tnim.onrender.com${image}`}
                       alt={`Product ${idx + 1}`}
                       className="product-image"
                     />

@@ -34,7 +34,7 @@ function ForgotPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://localhost:9000/forgot-password", {
+            const response = await fetch("https://finaltesting-tnim.onrender.com/forgot-password", {
                 method: "POST",
                 body: JSON.stringify({ email }),
                 headers: {

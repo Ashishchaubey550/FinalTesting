@@ -13,7 +13,7 @@ function ProductList() {
 
   const getProducts = async () => {
     try {
-      let result = await fetch("http://localhost:9000/product");
+      let result = await fetch("https://finaltesting-tnim.onrender.com/product");
       result = await result.json();
       if (result && result.length > 0) {
         setProducts(result);
@@ -27,7 +27,7 @@ function ProductList() {
 
   const deleteCar = async (id) => {
     try {
-      let result = await fetch(`http://localhost:9000/product/${id}`, {
+      let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${id}`, {
         method: "DELETE",
       });
       result = await result.json();
@@ -44,7 +44,7 @@ function ProductList() {
 
     if (key) {
       try {
-        let result = await fetch(`http://localhost:9000/search/${key}`);
+        let result = await fetch(`https://finaltesting-tnim.onrender.com/search/${key}`);
         result = await result.json();
 
         if (result) {
@@ -89,7 +89,7 @@ function ProductList() {
                   item.images.map((image, idx) => (
                     <div key={idx} className="">
                       <img
-                        src={`http://localhost:9000${image}`}
+                        src={`https://finaltesting-tnim.onrender.com${image}`}
                         alt={`Product ${idx + 1}`}
                         className="product-image"
                       />

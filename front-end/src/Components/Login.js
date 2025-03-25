@@ -16,7 +16,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://localhost:9000/login", {
+            const response = await fetch("https://finaltesting-tnim.onrender.com/login", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
                 headers: {

@@ -40,7 +40,7 @@ const Signup = () => {
         setIsLoading(true); // Start loading
 
         try {
-            let result = await fetch("http://localhost:9000/register", {
+            let result = await fetch("https://finaltesting-tnim.onrender.com/register", {
                 method: 'POST',
                 body: JSON.stringify({ name, password, email }),
                 headers: {

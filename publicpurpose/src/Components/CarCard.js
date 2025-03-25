@@ -23,7 +23,7 @@ const CarCard = ({ car }) => {
             {car.images?.map((image, idx) => (
               <div key={idx}>
                 <img
-                  src={`http://localhost:9000${image}`}
+                  src={`https://finaltesting-tnim.onrender.com${image}`}
                   alt={`${car.model} ${idx + 1}`}
                   className="w-full h-48 object-cover rounded-lg"
                 />

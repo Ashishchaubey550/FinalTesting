@@ -21,7 +21,7 @@ const handleSubmit = async (e) => {
 
     try {
         console.log('Sending request to reset password:', token);
-        const response = await fetch(`http://localhost:9000/reset-password/${token}`, {
+        const response = await fetch(`https://finaltesting-tnim.onrender.com/reset-password/${token}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -49,7 +49,7 @@ function AddProduct() {
         });
 
         try {
-            let result = await fetch("http://localhost:9000/add", {
+            let result = await fetch("https://finaltesting-tnim.onrender.com/add", {
                 method: "POST",
                 body: formData,
             });
