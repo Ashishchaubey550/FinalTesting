@@ -26,7 +26,7 @@ function Footer() {
             <i className="ri-alarm-line p-2 text-3xl text-white bg-red-500 line rounded-full"></i>
           </div>
           <div className="flex flex-col text-left  text-white">
-            <h1>Mon-Sat</h1>
+            <h1>Mon-Sun</h1>
             <p>10:00 AM - 7:00 PM</p>
           </div>
         </div>
