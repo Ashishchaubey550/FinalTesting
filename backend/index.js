@@ -16,7 +16,8 @@ const app = express();
 app.use(express.json());
 const allowedOrigins = [
   "https://final-testingpublicsite.vercel.app",
-  "https://final-testing-adminpage.vercel.app"
+  "https://final-testing-adminpage.vercel.app",
+  "https://www.thevaluedrive.in"
 ];
 
 app.use(
