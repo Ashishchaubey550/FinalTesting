@@ -13,10 +13,10 @@ const AboutRamGroup = () => {
           About Value Drive
         </div>
         <div className="text-base lg:text-[1.1rem] font-medium text-gray-600">
-        We are proud to be a sub-dealer of Ram Group since 2019, dedicated to delivering top-quality automotive solutions. With a commitment to excellence, we strive to provide the best products and services to our customers, ensuring satisfaction and reliability at every step.
+        We are proud to be a sub-dealer of Raam Group since 2019, dedicated to delivering top-quality automotive solutions. With a commitment to excellence, we strive to provide the best products and services to our customers, ensuring satisfaction and reliability at every step.
         </div>
         <div className="text-base lg:text-[1.1rem] font-medium text-gray-600">
-        Our team of 5000+ professionals at Value Drive is the backbone of our success. Their expertise, dedication, and customer-centric approach enable us to offer unparalleled support and seamless service. We take pride in being part of a brand that stands for trust and innovation.
+        Our team of Well Trained professionals at Value Drive is the backbone of our success. Their expertise, dedication, and customer-centric approach enable us to offer unparalleled support and seamless service. We take pride in being part of a brand that stands for trust and innovation.
         Whether it's Banjara or Value Drive I showroom, our commitment remains the same—providing an exceptional experience to our customers. Our showrooms are designed to offer a premium and hassle-free journey, ensuring that every customer finds the perfect solution tailored to their needs.
         </div>
       </div>

@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     question: "What is the background of Value Drive?",
-    answer: "Established in 2019, Value Drive is a part of the renowned Ram Group. With a strong presence in the automotive industry, we have successfully sold over 5,000+ used cars to satisfied customers. Backed by a team of 2,000+ employees, Ram Group has strategic partnerships with leading brands such as Toyota, MG, Hyundai, Honda, Mercedes, and Ather, ensuring quality and trust in every transaction.",
+    answer: "Established in 2019, Value Drive is a part of the renowned Raam Group. With a strong presence in the automotive industry, we have successfully sold over 5,000+ used cars to satisfied customers. Backed by a team of 2,000+ employees, Raam Group has strategic partnerships with leading brands such as Toyota, MG, Hyundai, Honda, Mercedes, and Ather, ensuring quality and trust in every transaction.",
   },
 ];
 
