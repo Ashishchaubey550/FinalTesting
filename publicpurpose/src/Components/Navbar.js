@@ -28,20 +28,22 @@ const Navbar = () => {
   return (
     <div
       className={`w-full transition-all duration-300 fixed z-10
-        ${isScrolled ? "bg-white shadow-md" : "bg-transparent text-white"}
-        px-4 md:px-10 py-2 flex justify-between items-center`}
+        ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}
+        px-4 md:px-10 py-2 flex justify-between items-center h-[80px] md:h-auto`}
     >
       {/* Logo */}
       <img
         src={LOGO}
         alt="Brand Logo"
-        className="w-40 h-14 md:w-80 md:h-28 bg-white block"
+        className="w-32 h-12 md:w-80 md:h-28 bg-white block"
       />
 
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className={`md:hidden z-50 ${isScrolled ? "text-gray-800" : "text-white"}`}
+        className={`md:hidden z-50 absolute right-4 top-6 text-2xl
+          ${isScrolled ? "text-gray-800 bg-white/20" : "text-white bg-black/20"}
+          p-2 rounded-lg backdrop-blur-sm transition-all`}
       >
         {isMenuOpen ? (
           <svg
@@ -88,7 +90,7 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-40 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-95 z-40 flex flex-col items-center justify-center">
           <div className="space-y-8 text-center">
             {navLink.map((item, index) => (
               <Link
@@ -105,6 +107,7 @@ const Navbar = () => {
               href="https://wa.me/7987200339?text=Hello,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20test%20drive"
               target="_blank"
               className="bg-red-500 hover:bg-black text-white font-semibold w-full text-lg py-4"
+              fullWidth
             >
               Book A Test Drive
             </Button>
