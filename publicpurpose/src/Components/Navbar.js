@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import LOGO from "../images/logowithoutbg.png";
 import { Button } from "@mantine/core";
+import reasure from "../images/mgreasure.webp";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,12 +15,14 @@ const Navbar = () => {
     { name: "Contact Us", path: "/ContactUs" },
   ];
 
+  // Scroll handler
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 2);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Mobile menu scroll lock
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
     return () => (document.body.style.overflow = "auto");
@@ -27,62 +30,56 @@ const Navbar = () => {
 
   return (
     <div
-      className={`w-full transition-all duration-300 fixed z-10
-        ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}
-        px-4 md:px-10 py-2 flex justify-between items-center h-[80px] md:h-auto`}
+      className={`w-full transition-all duration-300 ease-in-out justify-between px-10 py-2 z-10 fixed flex items-center ${
+        isScrolled ? "bg-white shadow-md" : "bg-transparent text-white"
+      }`}
     >
-      {/* Logo */}
-      <img
-        src={LOGO}
-        alt="Brand Logo"
-        className="w-32 h-12 md:w-80 md:h-28 bg-white block"
-      />
+      {/* Logo Section */}
+      <div className="flex items-center">
+        <img
+          src={LOGO}
+          alt="BOth Logo"
+          className="w-40 h-14 md:w-80 md:h-28 bg-white block"
+        />
+      </div>
 
       {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className={`md:hidden z-50 absolute right-4 top-6 text-2xl
-          ${isScrolled ? "text-gray-800 bg-white/20" : "text-white bg-black/20"}
-          p-2 rounded-lg backdrop-blur-sm transition-all`}
-      >
-        {isMenuOpen ? (
+      <div className="md:hidden ml-auto">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`focus:outline-none ${
+            isScrolled ? "text-red-500" : "text-white"
+          }`}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className="w-8 h-8"
-          >
-            <path d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z" />
-          </svg>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-8 h-8"
+            className="w-6 h-6"
           >
             <path d="M3 4H21V6H3V4ZM9 11H21V13H9V11ZM3 18H21V20H3V18Z" />
           </svg>
-        )}
-      </button>
+        </button>
+      </div>
 
       {/* Desktop Navigation */}
-      <div className="hidden md:flex items-center gap-8">
-        {navLink.map((item, index) => (
+      <div className="hidden md:flex md:items-center gap-8 transition-all duration-300 ease-in-out">
+        {navLink.map((elem, index) => (
           <Link
             key={index}
-            to={item.path}
-            className={`font-semibold hover:text-red-500 transition-colors
-              ${isScrolled ? "text-gray-800" : "text-white"}`}
+            to={elem.path}
+            className={`font-semibold hover:text-red-500 text-lg transition-all duration-300 ease-in-out  ${
+              isScrolled ? "text-gray-800" : "text-white"
+            }`}
           >
-            {item.name}
+            {elem.name}
           </Link>
         ))}
         <Button
           component="a"
           href="https://wa.me/7987200339?text=Hello,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20test%20drive%20for%20your%20vehicle.%20Could%20you%20please%20provide%20me%20with%20more%20details?"
           target="_blank"
-          className="bg-red-500 hover:bg-black text-white font-semibold"
+          className="bg-red-500 hover:bg-black text-white font-semibold px-6 py-3 transition-all duration-300 ease-in-out"
         >
           Book A Test Drive
         </Button>
@@ -90,27 +87,28 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-95 z-40 flex flex-col items-center justify-center">
-          <div className="space-y-8 text-center">
-            {navLink.map((item, index) => (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 z-50"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+            {navLink.map((elem, index) => (
               <Link
                 key={index}
-                to={item.path}
-                className="block text-2xl text-white hover:text-red-500 font-semibold"
+                to={elem.path}
+                className="text-2xl text-white hover:text-red-500 font-semibold"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {item.name}
+                {elem.name}
               </Link>
             ))}
-            <Button
-              component="a"
-              href="https://wa.me/7987200339?text=Hello,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20test%20drive"
+            <a
+              href="https://wa.me/7987200339?text=Hello,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20test%20drive%20for%20your%20vehicle.%20Could%20you%20please%20provide%20me%20with%20more%20details?"
               target="_blank"
-              className="bg-red-500 hover:bg-black text-white font-semibold w-full text-lg py-4"
-              fullWidth
+              className="text-2xl text-white bg-red-500 rounded-lg py-[0.5rem] px-[1rem] font-semibold"
             >
               Book A Test Drive
-            </Button>
+            </a>
           </div>
         </div>
       )}
