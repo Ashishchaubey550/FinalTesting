@@ -40,7 +40,7 @@ const WhichCar = () => {
             Preowned Cars
           </h2>
           <button
-            onClick={() => navigate("/productList?condition=preowned")}
+            onClick={() => navigate("/productList")}
             className="text-red-600 font-semibold hover:underline"
           >
             View All →
@@ -67,7 +67,7 @@ const WhichCar = () => {
             Unregistered Cars
           </h2>
           <button
-            onClick={() => navigate("/productList?registrationStatus=unregistered")}
+            onClick={() => navigate("/productList")}
             className="text-red-600 font-semibold hover:underline"
           >
             View All →
