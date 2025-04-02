@@ -95,7 +95,7 @@ app.post("/login", async (req, res) => {
 });
 
 // Add Product API with new fields
-app.post("/add", multer.array("images", 10), async (req, res) => {
+app.post("/add", multer.array("images", 20), async (req, res) => {
   const { 
     company, 
     model, 
