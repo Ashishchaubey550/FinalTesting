@@ -12,6 +12,7 @@ import ContactUs from './Pages/ContactUs';
 import Services from './Pages/Services';
 import BrandDetails from './Components/BrandDetails';
 import { useEffect } from 'react';
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   return (
