@@ -16,7 +16,7 @@ const CarCard = ({ car }) => {
   };
 
   return (
-    <Link to={`/product/${car._id}`} className="block">
+    <Link to={`/product`} className="block">
       <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
         <div className="flex-grow">
           <Slider {...sliderSettings}>
