@@ -22,48 +22,93 @@ function AddProduct() {
     const navigate = useNavigate();
 
     const addProduct = async () => {
-        // Clear previous errors
-        setError('');
-      
-        // Create FormData
-        const formData = new FormData();
-        
-        // Append all text fields
-        const fields = {
-          company, model, variant, color, distanceCovered,
-          modelYear, registrationYear, fuelType, transmissionType,
-          price: String(price), // Convert to string for proper parsing
-          bodyType, condition, registrationStatus
-        };
-      
-        for (const [key, value] of Object.entries(fields)) {
-          formData.append(key, value);
-        }
-      
-        // Append image files
-        images.forEach((image) => {
-          formData.append("images", image);
-        });
-      
         try {
-          const response = await fetch("https://finaltesting-tnim.onrender.com/add", {
-            method: "POST",
-            body: formData // Let browser set Content-Type header
-          });
-      
-          const data = await response.json();
+          setError('');
           
-          if (!response.ok) {
-            throw new Error(data.error || 'Failed to add car');
+          // Validate required fields
+          const requiredFields = [
+            company, model, variant, color, distanceCovered,
+            modelYear, registrationYear, fuelType, transmissionType,
+            price, bodyType, condition, registrationStatus
+          ];
+          
+          if (requiredFields.some(field => !field) || images.length === 0) {
+            setError("All fields are required with at least one image");
+            return;
           }
       
-          console.log("Car added:", data);
+          // Create FormData with AbortController for timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute timeout
+      
+          const formData = new FormData();
+          const numericFields = {
+            distanceCovered,
+            modelYear,
+            price,
+            registrationYear
+          };
+      
+          // Append text fields
+          Object.entries({
+            company, model, variant, color, 
+            fuelType, transmissionType, bodyType,
+            condition, registrationStatus,
+            ...numericFields
+          }).forEach(([key, value]) => formData.append(key, String(value)));
+      
+          // Append image files
+          images.forEach((image) => formData.append("images", image));
+      
+          const response = await fetch("https://finaltesting-tnim.onrender.com/add", {
+            method: "POST",
+            body: formData,
+            signal: controller.signal
+          });
+      
+          clearTimeout(timeoutId);
+      
+          // Handle response
+          const contentType = response.headers.get('content-type');
+          const data = contentType?.includes('application/json') 
+            ? await response.json()
+            : await response.text();
+      
+          if (!response.ok) {
+            throw new Error(data.error || data || 'Failed to add car');
+          }
+      
           navigate("/");
         } catch (error) {
           console.error("Error:", error);
-          setError(error.message);
+          setError(error.name === 'AbortError' 
+            ? "Request timed out - please try again" 
+            : error.message
+          );
         }
       };
+
+    clearTimeout(timeoutId);
+
+    // Handle response
+    const contentType = response.headers.get('content-type');
+    const data = contentType?.includes('application/json') 
+      ? await response.json()
+      : await response.text();
+
+    if (!response.ok) {
+      throw new Error(data.error || data || 'Failed to add car');
+    }
+
+    navigate("/");
+  } catch (error) {
+    console.error("Error:", error);
+    setError(error.name === 'AbortError' 
+      ? "Request timed out - please try again" 
+      : error.message
+    );
+  }
+};
 
     const handleImageChange = (e) => {
         const selectedFiles = Array.from(e.target.files);

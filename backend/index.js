@@ -25,7 +25,8 @@ cloudinary.config({
 app.use(express.json());
 const allowedOrigins = [
   "https://final-testing-adminpage.vercel.app",
-  "https://www.thevaluedrive.in"
+  "https://www.thevaluedrive.in",
+  "https://thevaluedrive.in" // Add non-www version
 ];
 
 app.use(
@@ -42,6 +43,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.options('*', cors());
+
 
 // Database Connection
 mongoose
@@ -107,23 +110,34 @@ app.post("/login", async (req, res) => {
 // Modified Product Creation with Cloudinary
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
-    // Validate required fields
+    // Validate required fields first
     const requiredFields = [
       'company', 'model', 'color', 'variant', 'distanceCovered',
       'modelYear', 'price', 'registrationYear', 'fuelType',
       'transmissionType', 'bodyType', 'condition', 'registrationStatus'
     ];
-    
-    for (const field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).send({ error: `${field} is required` });
-      }
+
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        error: "Missing required fields",
+        fields: missingFields 
+      });
     }
 
-    // Get Cloudinary URLs from uploaded files
-    const imageUrls = req.files.map(file => file.path);
+    // Parallel uploads with timeout
+    const uploadPromises = req.files.map(file => 
+      cloudinary.uploader.upload(file.path, {
+        folder: 'car_dealer',
+        timeout: 30000 // 30 seconds per image
+      })
+    );
 
-    // Create product with numerical conversions
+    // Handle image uploads
+    const results = await Promise.all(uploadPromises);
+    const imageUrls = results.map(result => result.secure_url);
+
+    // Create product document
     const product = new Product({
       ...req.body,
       distanceCovered: Number(req.body.distanceCovered),
@@ -133,13 +147,19 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
       images: imageUrls
     });
 
-    const result = await product.save();
-    res.status(201).send(result);
+    // Save to database
+    const savedProduct = await product.save();
+    
+    res.status(201).json({
+      success: true,
+      product: savedProduct
+    });
 
   } catch (error) {
-    console.error("Error:", error);
-    res.status(400).send({ 
-      error: error.message,
+    console.error("Add Product Error:", error);
+    res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message,
       ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
     });
   }

@@ -2,14 +2,19 @@ const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Configure Cloudinary
+// Verify Cloudinary config
+if (!process.env.CLOUDINARY_CLOUD_NAME || 
+    !process.env.CLOUDINARY_API_KEY || 
+    !process.env.CLOUDINARY_API_SECRET) {
+  throw new Error("Missing Cloudinary configuration");
+}
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cloudinary storage engine for Multer
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -22,11 +27,11 @@ const storage = new CloudinaryStorage({
 
 module.exports = multer({
   storage: storage,
-  limits: { fileSize: 15 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
     allowedMimeTypes.includes(file.mimetype) 
       ? cb(null, true)
-      : cb(new Error("Only JPEG/JPG/PNG files allowed"), false);
+      : cb(new Error("Invalid file type. Only JPEG/PNG allowed"), false);
   }
 });
