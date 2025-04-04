@@ -22,50 +22,48 @@ function AddProduct() {
     const navigate = useNavigate();
 
     const addProduct = async () => {
-        if (!company || !model || !variant || !color || !distanceCovered || 
-            !modelYear || !registrationYear || !fuelType || !transmissionType || 
-            !price || !bodyType || !condition || !registrationStatus || images.length === 0) {
-            setError("All fields are required, and at least one image must be uploaded.");
-            return false;
-        }
-
+        // Clear previous errors
+        setError('');
+      
+        // Create FormData
         const formData = new FormData();
-        formData.append("company", company);
-        formData.append("model", model);
-        formData.append("variant", variant);
-        formData.append("color", color);
-        formData.append("distanceCovered", distanceCovered);
-        formData.append("modelYear", modelYear);
-        formData.append("registrationYear", registrationYear);
-        formData.append("fuelType", fuelType);
-        formData.append("transmissionType", transmissionType);
-        formData.append("price", price);
-        formData.append("bodyType", bodyType);
-        formData.append("condition", condition);
-        formData.append("registrationStatus", registrationStatus);
-
-        images.forEach((image) => {
-            formData.append("images", image);
-        });
-
-        try {
-            let result = await fetch("https://finaltesting-tnim.onrender.com/add", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!result.ok) {
-                throw new Error("Failed to add car");
-            }
-
-            result = await result.json();
-            console.log("Car added:", result);
-            navigate("/");
-        } catch (error) {
-            console.error("Error:", error);
-            setError("Failed to add the car, please try again.");
+        
+        // Append all text fields
+        const fields = {
+          company, model, variant, color, distanceCovered,
+          modelYear, registrationYear, fuelType, transmissionType,
+          price: String(price), // Convert to string for proper parsing
+          bodyType, condition, registrationStatus
+        };
+      
+        for (const [key, value] of Object.entries(fields)) {
+          formData.append(key, value);
         }
-    };
+      
+        // Append image files
+        images.forEach((image) => {
+          formData.append("images", image);
+        });
+      
+        try {
+          const response = await fetch("https://finaltesting-tnim.onrender.com/add", {
+            method: "POST",
+            body: formData // Let browser set Content-Type header
+          });
+      
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to add car');
+          }
+      
+          console.log("Car added:", data);
+          navigate("/");
+        } catch (error) {
+          console.error("Error:", error);
+          setError(error.message);
+        }
+      };
 
     const handleImageChange = (e) => {
         const selectedFiles = Array.from(e.target.files);

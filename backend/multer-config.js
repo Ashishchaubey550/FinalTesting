@@ -1,16 +1,32 @@
-// multer-config.js
 const multer = require("multer");
-const storage = multer.memoryStorage();
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Cloudinary storage engine for Multer
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'car_dealer',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 1920, height: 1080, crop: 'limit' }],
+    resource_type: 'auto'
+  },
+});
 
 module.exports = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 15 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only JPEG, JPG, and PNG files are allowed!"), false);
-    }
+    allowedMimeTypes.includes(file.mimetype) 
+      ? cb(null, true)
+      : cb(new Error("Only JPEG/JPG/PNG files allowed"), false);
   }
 });

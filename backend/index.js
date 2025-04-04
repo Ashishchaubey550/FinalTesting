@@ -107,58 +107,41 @@ app.post("/login", async (req, res) => {
 // Modified Product Creation with Cloudinary
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
-    const { 
-      company, 
-      model, 
-      color, 
-      variant,
-      distanceCovered, 
-      modelYear, 
-      price,
-      registrationYear, 
-      fuelType,
-      transmissionType,
-      bodyType,
-      condition,
-      registrationStatus
-    } = req.body;
-
-    // Upload images to Cloudinary
-    const imageUrls = [];
-    for (const file of req.files) {
-      const result = await cloudinary.uploader.upload(
-        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
-        {
-          folder: 'car_dealer',
-          resource_type: 'auto'
-        }
-      );
-      imageUrls.push(result.secure_url);
+    // Validate required fields
+    const requiredFields = [
+      'company', 'model', 'color', 'variant', 'distanceCovered',
+      'modelYear', 'price', 'registrationYear', 'fuelType',
+      'transmissionType', 'bodyType', 'condition', 'registrationStatus'
+    ];
+    
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).send({ error: `${field} is required` });
+      }
     }
 
-    // Create product with Cloudinary URLs
+    // Get Cloudinary URLs from uploaded files
+    const imageUrls = req.files.map(file => file.path);
+
+    // Create product with numerical conversions
     const product = new Product({
-      company,
-      model,
-      color,
-      registrationYear,
-      fuelType,
-      transmissionType,
-      variant,
-      distanceCovered: Number(distanceCovered),
-      modelYear: Number(modelYear),
-      price: Number(price),
-      bodyType,
-      images: imageUrls,
-      condition,
-      registrationStatus
+      ...req.body,
+      distanceCovered: Number(req.body.distanceCovered),
+      modelYear: Number(req.body.modelYear),
+      price: Number(req.body.price),
+      registrationYear: Number(req.body.registrationYear),
+      images: imageUrls
     });
 
     const result = await product.save();
     res.status(201).send(result);
+
   } catch (error) {
-    console.error("Error saving product:", error);
-    res.status(400).send({ error: error.message });
+    console.error("Error:", error);
+    res.status(400).send({ 
+      error: error.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
   }
 });
 
