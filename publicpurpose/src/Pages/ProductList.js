@@ -8,12 +8,9 @@ import PriceFilter from "../Components/PriceFilter";
 
 Modal.setAppElement("#root");
 
-// Helper function to normalize brand names
-const normalizeBrand = (brand) => {
-  if (!brand) return "";
-  const lower = brand.toLowerCase().trim();
-  if (lower === "lamborgini") return "lamborghini";
-  return lower;
+const normalizeString = (str) => {
+  if (!str) return "";
+  return str.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
 function ProductList() {
@@ -21,9 +18,8 @@ function ProductList() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [isMobile, setIsMobile] = useState(false); // State to detect mobile devices
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Default price range in rupees: 50,000 to 7,000,000
   const defaultPriceRange = [50000, 7000000];
   const [priceRange, setPriceRange] = useState(defaultPriceRange);
 
@@ -37,7 +33,6 @@ function ProductList() {
   const [showPreowned, setShowPreowned] = useState(false);
   const [showUnregistered, setShowUnregistered] = useState(false);
 
-  // Slider settings
   const sliderSettings = {
     dots: true,
     arrows: true,
@@ -47,403 +42,169 @@ function ProductList() {
     slidesToScroll: 1,
   };
 
-  // Detect mobile devices
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch products
-  useEffect(() => {
-    getProducts();
-  }, []);
+  useEffect(() => { getProducts(); }, []);
 
   const getProducts = async () => {
     try {
-      let result = await fetch("https://finaltesting-tnim.onrender.com/product");
-      result = await result.json();
-      if (result && result.length > 0) {
-        const normalizedProducts = result.map((p) => ({
+      const response = await fetch("https://finaltesting-tnim.onrender.com/product");
+      const result = await response.json();
+      if (result?.length) {
+        const normalizedProducts = result.map(p => ({
           ...p,
-          company: normalizeBrand(p.company),
+          company: normalizeString(p.company),
+          color: normalizeString(p.color),
+          bodyType: normalizeString(p.bodyType),
+          fuelType: normalizeString(p.fuelType)
         }));
         setProducts(normalizedProducts);
         setFilteredProducts(normalizedProducts);
-      } else {
-        setProducts([]);
-        setFilteredProducts([]);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Fetch error:", error);
       setProducts([]);
       setFilteredProducts([]);
     }
   };
 
-  // Filter products
-  const filterProducts = useCallback(
-    (
-      priceRange,
-      brands,
-      colors,
-      bodyTypes,
-      fuelTypes,
-      modelYears,
-      distances,
-      preowned,
-      unregistered,
-      dataset = products
-    ) => {
-      const filtered = dataset.filter((p) => {
-        const priceInRupees = p.price * 100000; // Convert lakhs to rupees
-        const productCompany = p.company || "";
-        const productColor = (p.color || "").toLowerCase();
-        const productBodyType = (p.bodyType || "").toLowerCase();
-        const productFuelType = (p.fuelType || "").toLowerCase();
-        const isPreowned = p.condition === "preowned";
-        const isUnregistered = p.registrationStatus === "unregistered";
-
-        return (
-          priceInRupees >= priceRange[0] &&
-          priceInRupees <= priceRange[1] &&
-          (brands.length === 0 || brands.includes(productCompany)) &&
-          (colors.length === 0 || colors.includes(productColor)) &&
-          (bodyTypes.length === 0 || bodyTypes.includes(productBodyType)) &&
-          (fuelTypes.length === 0 || fuelTypes.includes(productFuelType)) &&
-          (modelYears.length === 0 || modelYears.includes(p.modelYear)) &&
-          (distances.length === 0 || distances.includes(p.distanceCovered)) &&
-          (!preowned || isPreowned) &&
-          (!unregistered || isUnregistered)
-        );
-      });
-      setFilteredProducts(filtered.length ? filtered : dataset);
-    },
-    [products]
-  );
-
-  // Handle price change
-  const handlePriceChange = useCallback(
-    (range) => {
-      setPriceRange(range);
-      filterProducts(
-        range,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle brand change
-  const handleBrandChange = useCallback(
-    (event) => {
-      const selectedBrand = event.target.value;
-      const newSelectedBrands = selectedBrands.includes(selectedBrand)
-        ? selectedBrands.filter((brand) => brand !== selectedBrand)
-        : [...selectedBrands, selectedBrand];
-      setSelectedBrands(newSelectedBrands);
-      filterProducts(
-        priceRange,
-        newSelectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle color change
-  const handleColorChange = useCallback(
-    (event) => {
-      const selectedColor = event.target.value.toLowerCase();
-      const newSelectedColors = selectedColors.includes(selectedColor)
-        ? selectedColors.filter((color) => color !== selectedColor)
-        : [...selectedColors, selectedColor];
-      setSelectedColors(newSelectedColors);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        newSelectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle body type change
-  const handleBodyTypeChange = useCallback(
-    (event) => {
-      const selectedBodyType = event.target.value.toLowerCase();
-      const newSelectedBodyTypes = selectedBodyTypes.includes(selectedBodyType)
-        ? selectedBodyTypes.filter((bodyType) => bodyType !== selectedBodyType)
-        : [...selectedBodyTypes, selectedBodyType];
-      setSelectedBodyTypes(newSelectedBodyTypes);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        newSelectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle fuel type change
-  const handleFuelTypeChange = useCallback(
-    (event) => {
-      const selectedFuelType = event.target.value.toLowerCase();
-      const newSelectedFuelTypes = selectedFuelTypes.includes(selectedFuelType)
-        ? selectedFuelTypes.filter((fuelType) => fuelType !== selectedFuelType)
-        : [...selectedFuelTypes, selectedFuelType];
-      setSelectedFuelTypes(newSelectedFuelTypes);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        newSelectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle model year change
-  const handleModelYearChange = useCallback(
-    (event) => {
-      const year = Number(event.target.value);
-      const newSelectedModelYears = selectedModelYears.includes(year)
-        ? selectedModelYears.filter((y) => y !== year)
-        : [...selectedModelYears, year];
-      setSelectedModelYears(newSelectedModelYears);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        newSelectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle distance change
-  const handleDistanceChange = useCallback(
-    (event) => {
-      const dist = Number(event.target.value);
-      const newSelectedDistances = selectedDistances.includes(dist)
-        ? selectedDistances.filter((d) => d !== dist)
-        : [...selectedDistances, dist];
-      setSelectedDistances(newSelectedDistances);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        newSelectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      filterProducts,
-    ]
-  );
-
-  // Handle preowned toggle
-  const handlePreownedToggle = useCallback(() => {
-    const newValue = !showPreowned;
-    setShowPreowned(newValue);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      newValue,
-      showUnregistered
-    );
-  }, [
+  const filterProducts = useCallback((
     priceRange,
-    selectedBrands,
-    selectedColors,
-    selectedBodyTypes,
-    selectedFuelTypes,
-    selectedModelYears,
-    selectedDistances,
-    showPreowned,
-    showUnregistered,
-    filterProducts,
-  ]);
+    brands,
+    colors,
+    bodyTypes,
+    fuelTypes,
+    modelYears,
+    distances,
+    preowned,
+    unregistered,
+    dataset = products
+  ) => {
+    const filtered = dataset.filter(p => {
+      const priceInRupees = p.price * 100000;
+      return (
+        priceInRupees >= priceRange[0] &&
+        priceInRupees <= priceRange[1] &&
+        (!brands.length || brands.includes(p.company)) &&
+        (!colors.length || colors.includes(p.color)) &&
+        (!bodyTypes.length || bodyTypes.includes(p.bodyType)) &&
+        (!fuelTypes.length || fuelTypes.includes(p.fuelType)) &&
+        (!modelYears.length || modelYears.includes(p.modelYear)) &&
+        (!distances.length || distances.includes(p.distanceCovered)) &&
+        (!preowned || p.condition === "preowned") &&
+        (!unregistered || p.registrationStatus === "unregistered")
+      );
+    });
+    setFilteredProducts(filtered);
+  }, [products]);
 
-  // Handle unregistered toggle
-  const handleUnregisteredToggle = useCallback(() => {
-    const newValue = !showUnregistered;
-    setShowUnregistered(newValue);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      newValue
-    );
-  }, [
-    priceRange,
-    selectedBrands,
-    selectedColors,
-    selectedBodyTypes,
-    selectedFuelTypes,
-    selectedModelYears,
-    selectedDistances,
-    showPreowned,
-    showUnregistered,
-    filterProducts,
-  ]);
+  const createFilterHandler = (state, setState, filterType) => 
+    useCallback(({ target: { value } }) => {
+      const normalizedValue = normalizeString(value);
+      const newState = state.includes(normalizedValue)
+        ? state.filter(item => item !== normalizedValue)
+        : [...state, normalizedValue];
+      setState(newState);
+      filterProducts(
+        priceRange,
+        filterType === 'brand' ? newState : selectedBrands,
+        filterType === 'color' ? newState : selectedColors,
+        filterType === 'bodyType' ? newState : selectedBodyTypes,
+        filterType === 'fuelType' ? newState : selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+       selectedFuelTypes, selectedModelYears, selectedDistances, 
+       showPreowned, showUnregistered, filterProducts]);
 
-  // Search handler
-  const searchHandle = useCallback(
-    async (event) => {
-      const key = event.target.value;
-      if (key) {
-        try {
-          let result = await fetch(`https://finaltesting-tnim.onrender.com/search/${key}`);
-          result = await result.json();
-          if (result) {
-            const normalizedResult = result.map((p) => ({
-              ...p,
-              company: normalizeBrand(p.company),
-            }));
-            filterProducts(
-              priceRange,
-              selectedBrands,
-              selectedColors,
-              selectedBodyTypes,
-              selectedFuelTypes,
-              selectedModelYears,
-              selectedDistances,
-              showPreowned,
-              showUnregistered,
-              normalizedResult
-            );
-          }
-        } catch (error) {
-          console.error("Error searching products:", error);
-        }
-      } else {
+  const handleBrandChange = createFilterHandler(selectedBrands, setSelectedBrands, 'brand');
+  const handleColorChange = createFilterHandler(selectedColors, setSelectedColors, 'color');
+  const handleBodyTypeChange = createFilterHandler(selectedBodyTypes, setSelectedBodyTypes, 'bodyType');
+  const handleFuelTypeChange = createFilterHandler(selectedFuelTypes, setSelectedFuelTypes, 'fuelType');
+
+  const handleNumericFilter = (state, setState, filterProp) => 
+    useCallback(({ target: { value } }) => {
+      const numericValue = Number(value);
+      const newState = state.includes(numericValue)
+        ? state.filter(item => item !== numericValue)
+        : [...state, numericValue];
+      setState(newState);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        filterProp === 'modelYear' ? newState : selectedModelYears,
+        filterProp === 'distance' ? newState : selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+       selectedFuelTypes, selectedModelYears, selectedDistances, 
+       showPreowned, showUnregistered, filterProducts]);
+
+  const handleModelYearChange = handleNumericFilter(selectedModelYears, setSelectedModelYears, 'modelYear');
+  const handleDistanceChange = handleNumericFilter(selectedDistances, setSelectedDistances, 'distance');
+
+  const createToggleHandler = (state, setState, filterProp) => 
+    useCallback(() => {
+      const newValue = !state;
+      setState(newValue);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        filterProp === 'preowned' ? newValue : showPreowned,
+        filterProp === 'unregistered' ? newValue : showUnregistered
+      );
+    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+       selectedFuelTypes, selectedModelYears, selectedDistances, 
+       showPreowned, showUnregistered, filterProducts]);
+
+  const handlePreownedToggle = createToggleHandler(showPreowned, setShowPreowned, 'preowned');
+  const handleUnregisteredToggle = createToggleHandler(showUnregistered, setShowUnregistered, 'unregistered');
+
+  const searchHandle = useCallback(async ({ target: { value } }) => {
+    if (!value) {
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered,
+        products
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://finaltesting-tnim.onrender.com/search/${value}`);
+      const result = await response.json();
+      if (result) {
+        const normalizedResults = result.map(p => ({
+          ...p,
+          company: normalizeString(p.company),
+          color: normalizeString(p.color),
+          bodyType: normalizeString(p.bodyType),
+          fuelType: normalizeString(p.fuelType)
+        }));
         filterProducts(
           priceRange,
           selectedBrands,
@@ -454,43 +215,32 @@ function ProductList() {
           selectedDistances,
           showPreowned,
           showUnregistered,
-          products
+          normalizedResults
         );
       }
-    },
-    [
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      products,
-      filterProducts,
-    ]
-  );
+    } catch (error) {
+      console.error("Search error:", error);
+    }
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, products, filterProducts]);
 
-  // Open modal (only for desktop)
-  const openModal = useCallback(
-    (product) => {
-      if (!isMobile) {
-        setCurrentProduct(product);
-        setIsModalOpen(true);
-      }
-    },
-    [isMobile]
-  );
+  const uniqueValues = (prop, sortFn) => 
+    [...new Set(products.map(p => p[prop]))]
+      .filter(Boolean)
+      .sort(sortFn || ((a, b) => a.localeCompare(b)));
 
-  // Close modal
-  const closeModal = useCallback(() => {
-    setIsModalOpen(false);
-    setCurrentProduct(null);
-  }, []);
+  const uniqueBrands = useMemo(() => uniqueValues('company'), [products]);
+  const uniqueColors = useMemo(() => uniqueValues('color'), [products]);
+  const uniqueBodyTypes = useMemo(() => uniqueValues('bodyType'), [products]);
+  const uniqueFuelTypes = useMemo(() => uniqueValues('fuelType'), [products]);
+  const uniqueModelYears = useMemo(() => 
+    uniqueValues('modelYear', (a, b) => b - a).slice(0, 5), 
+  [products]);
+  const uniqueDistances = useMemo(() => 
+    uniqueValues('distanceCovered').slice(0, 5), 
+  [products]);
 
-  // Clear filters
   const clearFilters = useCallback(() => {
     setSelectedBrands([]);
     setSelectedColors([]);
@@ -504,50 +254,29 @@ function ProductList() {
     setFilteredProducts(products);
   }, [products]);
 
-  // Compute unique filter options
-  const uniqueBrands = useMemo(
-    () => [...new Set(products.map((p) => p.company))].filter(Boolean),
-    [products]
-  );
-  const uniqueColors = useMemo(
-    () =>
-      [...new Set(products.map((p) => (p.color || "").toLowerCase()))].filter(
-        Boolean
-      ),
-    [products]
-  );
-  const uniqueBodyTypes = useMemo(
-    () =>
-      [
-        ...new Set(products.map((p) => (p.bodyType || "").toLowerCase())),
-      ].filter(Boolean),
-    [products]
-  );
-  const uniqueFuelTypes = useMemo(
-    () =>
-      [
-        ...new Set(products.map((p) => (p.fuelType || "").toLowerCase())),
-      ].filter(Boolean),
-    [products]
-  );
-  const uniqueModelYears = useMemo(
-    () =>
-      [...new Set(products.map((p) => p.modelYear))]
-        .sort((a, b) => a - b)
-        .filter(Boolean),
-    [products]
-  );
-  const uniqueDistances = useMemo(
-    () =>
-      [...new Set(products.map((p) => p.distanceCovered))]
-        .sort((a, b) => a - b)
-        .filter(Boolean),
-    [products]
+  const renderFilterCheckbox = (items, handler, transform = (v) => v) => (
+    items.map(item => (
+      <label key={item} className="flex items-center gap-2 mb-2">
+        <input
+          type="checkbox"
+          value={item}
+          checked={selectedBrands.includes(item) || selectedColors.includes(item) || 
+                   selectedBodyTypes.includes(item) || selectedFuelTypes.includes(item)}
+          onChange={handler}
+          className="peer hidden"
+        />
+        <div className="w-6 h-6 border-2 border-red-500 rounded-sm flex items-center justify-center
+          peer-checked:bg-red-300 peer-checked:border-red-500">
+          {(selectedBrands.includes(item) || selectedColors.includes(item) || 
+           selectedBodyTypes.includes(item) || selectedFuelTypes.includes(item)) && '✓'}
+        </div>
+        <span className="capitalize">{transform(item)}</span>
+      </label>
+    ))
   );
 
   return (
     <div className="flex flex-col">
-      {/* Banner Section */}
       <div className="relative w-full">
         <img
           src={contactbg}
@@ -564,26 +293,21 @@ function ProductList() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-col lg:flex-row mt-10">
-        {/* Filters Section */}
         <div className="w-full lg:w-1/4 p-4 lg:p-10 bg-gray-50">
           <div className="mb-4">
             <button
-              className="clear-filters-btn bg-red-500 text-sm text-white font-semibold px-2.5 py-3 rounded-lg hover:bg-black hover:text-white duration-300 transition-all ease-in-out w-full sm:w-auto"
+              className="clear-filters-btn bg-red-500 text-white font-semibold px-2.5 py-3 rounded-lg hover:bg-black transition-all w-full"
               onClick={clearFilters}
             >
               Clear All Filters
             </button>
           </div>
 
-          {/* Preowned and Unregistered filters */}
           <div className="mb-4 flex flex-wrap gap-2">
             <button
               className={`filter-btn px-4 py-2 rounded-lg font-semibold ${
-                showPreowned
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                showPreowned ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
               onClick={handlePreownedToggle}
             >
@@ -591,9 +315,7 @@ function ProductList() {
             </button>
             <button
               className={`filter-btn px-4 py-2 rounded-lg font-semibold ${
-                showUnregistered
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                showUnregistered ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
               onClick={handleUnregisteredToggle}
             >
@@ -601,365 +323,52 @@ function ProductList() {
             </button>
           </div>
 
-          <PriceFilter onPriceChange={handlePriceChange} />
+          <PriceFilter onPriceChange={setPriceRange} />
 
-          {/* Collapsible Filters for Mobile */}
           <div className="lg:hidden">
             <details className="mb-4">
               <summary className="font-bold text-xl cursor-pointer">Filters</summary>
               <div className="mt-2 space-y-4">
-                {/* Brand Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">Brand</h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueBrands.map((brand) => (
-                      <label
-                        key={brand}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2 text-black font-bold"
-                      >
-                        <input
-                          type="checkbox"
-                          value={brand}
-                          checked={selectedBrands.includes(brand)}
-                          onChange={handleBrandChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        <span className="peer-checked:text-red-500">
-                          {brand.charAt(0).toUpperCase() + brand.slice(1)}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Color Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">Color</h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueColors.map((color) => (
-                      <label
-                        key={color}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2"
-                      >
-                        <input
-                          type="checkbox"
-                          value={color}
-                          checked={selectedColors.includes(color)}
-                          onChange={handleColorChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        {color.charAt(0).toUpperCase() + color.slice(1)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Body Type Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">Body Type</h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueBodyTypes.map((bodyType) => (
-                      <label
-                        key={bodyType}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2"
-                      >
-                        <input
-                          type="checkbox"
-                          value={bodyType}
-                          checked={selectedBodyTypes.includes(bodyType)}
-                          onChange={handleBodyTypeChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        {bodyType.charAt(0).toUpperCase() + bodyType.slice(1)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Fuel Type Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">Fuel Type</h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueFuelTypes.map((fuelType) => (
-                      <label
-                        key={fuelType}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2"
-                      >
-                        <input
-                          type="checkbox"
-                          value={fuelType}
-                          checked={selectedFuelTypes.includes(fuelType)}
-                          onChange={handleFuelTypeChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        {fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Model Year Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">Model Year</h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueModelYears.slice(0, 5).map((year) => (
-                      <label
-                        key={year}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2 text-black font-bold"
-                      >
-                        <input
-                          type="checkbox"
-                          value={year}
-                          checked={selectedModelYears.includes(year)}
-                          onChange={handleModelYearChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        <span className="peer-checked:text-red-500">{year}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Distance Covered Filter */}
-                <div>
-                  <h3 className="font-bold text-lg text-black">
-                    Distance Covered (km)
-                  </h3>
-                  <div className="flex flex-col mt-2 gap-1">
-                    {uniqueDistances.slice(0, 5).map((dist) => (
-                      <label
-                        key={dist}
-                        title="Click to toggle filter"
-                        className="flex items-center gap-2 text-black font-bold"
-                      >
-                        <input
-                          type="checkbox"
-                          value={dist}
-                          checked={selectedDistances.includes(dist)}
-                          onChange={handleDistanceChange}
-                          className="peer hidden"
-                        />
-                        <div
-                          className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                          peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                        ></div>
-                        <span className="peer-checked:text-red-500">{dist} km</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                <FilterSection title="Brand" items={uniqueBrands} handler={handleBrandChange} />
+                <FilterSection title="Color" items={uniqueColors} handler={handleColorChange} />
+                <FilterSection title="Body Type" items={uniqueBodyTypes} handler={handleBodyTypeChange} />
+                <FilterSection title="Fuel Type" items={uniqueFuelTypes} handler={handleFuelTypeChange} />
+                <FilterSection 
+                  title="Model Year" 
+                  items={uniqueModelYears} 
+                  handler={handleModelYearChange}
+                  transform={v => v}
+                />
+                <FilterSection 
+                  title="Distance (km)" 
+                  items={uniqueDistances} 
+                  handler={handleDistanceChange}
+                  transform={v => `${v} km`}
+                />
               </div>
             </details>
           </div>
 
-          {/* Desktop Filters */}
-          <div className="hidden lg:block">
-            {/* Brand Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">Brand</h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueBrands.map((brand) => (
-                  <label
-                    key={brand}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2 text-black font-bold"
-                  >
-                    <input
-                      type="checkbox"
-                      value={brand}
-                      checked={selectedBrands.includes(brand)}
-                      onChange={handleBrandChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    <span className="peer-checked:text-red-500">
-                      {brand.charAt(0).toUpperCase() + brand.slice(1)}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Color Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">Color</h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueColors.map((color) => (
-                  <label
-                    key={color}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      value={color}
-                      checked={selectedColors.includes(color)}
-                      onChange={handleColorChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    {color.charAt(0).toUpperCase() + color.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Body Type Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">Body Type</h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueBodyTypes.map((bodyType) => (
-                  <label
-                    key={bodyType}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      value={bodyType}
-                      checked={selectedBodyTypes.includes(bodyType)}
-                      onChange={handleBodyTypeChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    {bodyType.charAt(0).toUpperCase() + bodyType.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Fuel Type Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">Fuel Type</h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueFuelTypes.map((fuelType) => (
-                  <label
-                    key={fuelType}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      value={fuelType}
-                      checked={selectedFuelTypes.includes(fuelType)}
-                      onChange={handleFuelTypeChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    {fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Model Year Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">Model Year</h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueModelYears.slice(0, 5).map((year) => (
-                  <label
-                    key={year}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2 text-black font-bold"
-                  >
-                    <input
-                      type="checkbox"
-                      value={year}
-                      checked={selectedModelYears.includes(year)}
-                      onChange={handleModelYearChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    <span className="peer-checked:text-red-500">{year}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Distance Covered Filter */}
-            <div className="mt-4">
-              <h3 className="font-bold text-xl sm:text-2xl text-black">
-                Distance Covered (km)
-              </h3>
-              <div className="flex flex-col mt-2 gap-1">
-                {uniqueDistances.slice(0, 5).map((dist) => (
-                  <label
-                    key={dist}
-                    title="Click to toggle filter"
-                    className="flex items-center gap-2 text-black font-bold"
-                  >
-                    <input
-                      type="checkbox"
-                      value={dist}
-                      checked={selectedDistances.includes(dist)}
-                      onChange={handleDistanceChange}
-                      className="peer hidden"
-                    />
-                    <div
-                      className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
-                      peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
-                    ></div>
-                    <span className="peer-checked:text-red-500">{dist} km</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+          <div className="hidden lg:block space-y-6 mt-6">
+            <FilterSection title="Brand" items={uniqueBrands} handler={handleBrandChange} />
+            <FilterSection title="Color" items={uniqueColors} handler={handleColorChange} />
+            <FilterSection title="Body Type" items={uniqueBodyTypes} handler={handleBodyTypeChange} />
+            <FilterSection title="Fuel Type" items={uniqueFuelTypes} handler={handleFuelTypeChange} />
+            <FilterSection 
+              title="Model Year" 
+              items={uniqueModelYears} 
+              handler={handleModelYearChange}
+              transform={v => v}
+            />
+            <FilterSection 
+              title="Distance (km)" 
+              items={uniqueDistances} 
+              handler={handleDistanceChange}
+              transform={v => `${v} km`}
+            />
           </div>
         </div>
 
-        {/* Product List Section */}
         <div className="w-full lg:w-3/4 p-4 lg:p-10">
           <input
             className="search-input w-full p-2 mb-4 border border-gray-300 rounded-lg"
@@ -967,105 +376,17 @@ function ProductList() {
             placeholder="Search Product"
             onChange={searchHandle}
           />
+          
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProducts.map((item) => (
-                <div
+              {filteredProducts.map(item => (
+                <ProductCard 
                   key={item._id}
-                  className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => openModal(item)}
-                >
-                  <Slider {...sliderSettings} className="product-slider">
-                    {item.images &&
-                      item.images.map((image, idx) => (
-                        <div key={idx} className="slider-image-container">
-                          <img
-                            src={`https://finaltesting-tnim.onrender.com${image}`}
-                            alt={`Product ${idx + 1}`}
-                            className="product-image w-full h-48 object-cover rounded-lg"
-                          />
-                        </div>
-                      ))}
-                  </Slider>
-                  <h3 className="mt-4 text-xl font-bold">Model: {item.model}</h3>
-                  <p className="text-gray-700">
-                    Company:{" "}
-                    {item.company.charAt(0).toUpperCase() +
-                      item.company.slice(1)}
-                  </p>
-                  <p className="text-gray-700">Color: {item.color}</p>
-                  <p className="text-gray-700">
-                    Distance Covered: {item.distanceCovered} km
-                  </p>
-                  <p className="text-gray-700">
-                    Model Year: {item.modelYear}
-                  </p>
-                  <p className="text-gray-700">Body Type: {item.bodyType}</p>
-                  <p className="text-gray-700">Fuel Type: {item.fuelType}</p>
-                  <p className="text-gray-700">Price: ₹{item.price} Lakhs</p>
-                  <p className="text-gray-700">Variant: {item.variant}</p>
-                  <p className="text-gray-700">
-                    Registration Year: {item.registrationYear}
-                  </p>
-                  <p className="text-gray-700">
-                    Transmission Type: {item.transmissionType}
-                  </p>
-                  <p className="text-gray-700">
-                    Condition: {item.condition || "N/A"}
-                  </p>
-                  <p className="text-gray-700">
-                    Registration Status: {item.registrationStatus || "N/A"}
-                  </p>
-
-                  <div className="product-actions mt-4 flex flex-col sm:flex-row gap-2">
-                    <button
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center justify-center gap-2 sm:w-auto w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const message =
-                          `Hello! I'm interested in this car:\n\n` +
-                          `- Model: ${item.model}\n` +
-                          `- Company: ${item.company}\n` +
-                          `- Color: ${item.color}\n` +
-                          `- Distance Covered: ${item.distanceCovered} km\n` +
-                          `- Model Year: ${item.modelYear}\n` +
-                          `- Price: ₹${item.price} Lakhs\n` +
-                          `- Variant: ${item.variant}\n` +
-                          `- Registration Year: ${item.registrationYear}\n` +
-                          `- Fuel Type: ${item.fuelType}\n` +
-                          `- Body Type: ${item.bodyType}\n` +
-                          `- Transmission Type: ${item.transmissionType}\n` +
-                          `- Condition: ${item.condition || "N/A"}\n` +
-                          `- Registration Status: ${item.registrationStatus || "N/A"}\n\n` +
-                          `Can you provide more details?`;
-                        window.open(
-                          `https://wa.me/8121021135?text=${encodeURIComponent(
-                            message
-                          )}`,
-                          "_blank"
-                        );
-                      }}
-                    >
-                      <i className="ri-whatsapp-line"></i> 
-                      <span className="hidden sm:inline">WhatsApp</span>
-                    </button>
-                    <button
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2 sm:w-auto w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(
-                          `https://wa.me/8121021135?text=${encodeURIComponent(
-                            "Hello! I'm interested in purchasing a car and would like to learn more about your available options. Could you assist me with the details?"
-                          )}`,
-                          "_blank"
-                        );
-                      }}
-                    >
-                      <i className="ri-phone-line"></i> 
-                      <span className="hidden sm:inline">Call</span>
-                    </button>
-                  </div>
-                </div>
+                  item={item}
+                  openModal={openModal}
+                  sliderSettings={sliderSettings}
+                  isMobile={isMobile}
+                />
               ))}
             </div>
           ) : (
@@ -1076,19 +397,118 @@ function ProductList() {
         </div>
       </div>
 
-      {/* Modal - Hidden on mobile */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        className={`full-view-modal mx-auto ${isMobile ? 'hidden' : ''}`}
-        overlayClassName={isMobile ? 'hidden' : ''}
+        className="mx-auto max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center"
       >
-        {currentProduct && !isMobile && (
-          <FullViewSlider product={currentProduct} closeModal={closeModal} />
-        )}
+        {currentProduct && <FullViewSlider product={currentProduct} closeModal={closeModal} />}
       </Modal>
     </div>
   );
 }
+
+const FilterSection = ({ title, items, handler, transform = (v) => v }) => (
+  <div>
+    <h3 className="font-bold text-lg mb-2">{title}</h3>
+    <div className="space-y-2">
+      {items.map(item => (
+        <label key={item} className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            value={item}
+            checked={handler === handleBrandChange ? selectedBrands.includes(item) :
+                    handler === handleColorChange ? selectedColors.includes(item) :
+                    handler === handleBodyTypeChange ? selectedBodyTypes.includes(item) :
+                    handler === handleFuelTypeChange ? selectedFuelTypes.includes(item) :
+                    false}
+            onChange={handler}
+            className="form-checkbox h-5 w-5 text-red-500"
+          />
+          <span className="capitalize">{transform(item)}</span>
+        </label>
+      ))}
+    </div>
+  </div>
+);
+
+const ProductCard = ({ item, openModal, sliderSettings, isMobile }) => (
+  <div
+    className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+    onClick={() => !isMobile && openModal(item)}
+  >
+    <Slider {...sliderSettings}>
+      {item.images?.map((image, idx) => (
+        <div key={idx}>
+          <img
+            src={`https://finaltesting-tnim.onrender.com${image}`}
+            alt={`Product ${idx + 1}`}
+            className="w-full h-48 object-cover rounded-lg"
+          />
+        </div>
+      ))}
+    </Slider>
+    <ProductInfo item={item} />
+    <ProductActions item={item} />
+  </div>
+);
+
+const ProductInfo = ({ item }) => (
+  <div className="mt-4">
+    <h3 className="text-xl font-bold">Model: {item.model}</h3>
+    <InfoItem label="Company" value={item.company} />
+    <InfoItem label="Color" value={item.color} />
+    <InfoItem label="Distance" value={`${item.distanceCovered} km`} />
+    <InfoItem label="Year" value={item.modelYear} />
+    <InfoItem label="Body Type" value={item.bodyType} />
+    <InfoItem label="Fuel Type" value={item.fuelType} />
+    <InfoItem label="Price" value={`₹${item.price} Lakhs`} />
+    <InfoItem label="Variant" value={item.variant} />
+    <InfoItem label="Reg. Year" value={item.registrationYear} />
+    <InfoItem label="Transmission" value={item.transmissionType} />
+    <InfoItem label="Condition" value={item.condition || "N/A"} />
+    <InfoItem label="Reg. Status" value={item.registrationStatus || "N/A"} />
+  </div>
+);
+
+const InfoItem = ({ label, value }) => (
+  <p className="text-gray-700">
+    <span className="font-semibold">{label}:</span> {value}
+  </p>
+);
+
+const ProductActions = ({ item }) => {
+  const message = `Hello! I'm interested in this car:\n${Object.entries(item)
+    .map(([key, val]) => `- ${key}: ${val}`)
+    .join('\n')}\n\nCan you provide more details?`;
+
+  return (
+    <div className="product-actions mt-4 flex gap-2">
+      <ActionButton
+        color="bg-green-500"
+        icon="ri-whatsapp-line"
+        label="WhatsApp"
+        onClick={() => window.open(`https://wa.me/8121021135?text=${encodeURIComponent(message)}`, '_blank')}
+      />
+      <ActionButton
+        color="bg-blue-500"
+        icon="ri-phone-line"
+        label="Call"
+        onClick={() => window.open('tel:+918121021135', '_blank')}
+      />
+    </div>
+  );
+};
+
+const ActionButton = ({ color, icon, label, onClick }) => (
+  <button
+    className={`${color} text-white px-4 py-2 rounded-lg hover:${color.replace('500', '600')} flex items-center gap-2 w-full justify-center`}
+    onClick={onClick}
+  >
+    <i className={icon}></i>
+    <span className="hidden sm:inline">{label}</span>
+  </button>
+);
 
 export default ProductList;
