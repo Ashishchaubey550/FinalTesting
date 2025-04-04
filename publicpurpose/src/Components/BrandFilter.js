@@ -27,6 +27,8 @@ const BRAND_NORMALIZATION = {
     
     // BMW
     "bmw": "BMW",
+    "BMW": "BMW",
+    "Bmw": "BMW",
     "bayerische motoren werke": "BMW",
     
     // Renault
