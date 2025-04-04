@@ -103,79 +103,168 @@ function ProductList() {
     setFilteredProducts(filtered);
   }, [products]);
 
-  const createFilterHandler = (state, setState, filterType) => 
-    useCallback(({ target: { value } }) => {
-      const normalizedValue = normalizeString(value);
-      const newState = state.includes(normalizedValue)
-        ? state.filter(item => item !== normalizedValue)
-        : [...state, normalizedValue];
-      setState(newState);
-      filterProducts(
-        priceRange,
-        filterType === 'brand' ? newState : selectedBrands,
-        filterType === 'color' ? newState : selectedColors,
-        filterType === 'bodyType' ? newState : selectedBodyTypes,
-        filterType === 'fuelType' ? newState : selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
-       selectedFuelTypes, selectedModelYears, selectedDistances, 
-       showPreowned, showUnregistered, filterProducts]);
+  // Move handler functions inside the main component
+  const handleBrandChange = useCallback(({ target: { value } }) => {
+    const normalizedValue = normalizeString(value);
+    const newSelectedBrands = selectedBrands.includes(normalizedValue)
+      ? selectedBrands.filter(item => item !== normalizedValue)
+      : [...selectedBrands, normalizedValue];
+    setSelectedBrands(newSelectedBrands);
+    filterProducts(
+      priceRange,
+      newSelectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
-  const handleBrandChange = createFilterHandler(selectedBrands, setSelectedBrands, 'brand');
-  const handleColorChange = createFilterHandler(selectedColors, setSelectedColors, 'color');
-  const handleBodyTypeChange = createFilterHandler(selectedBodyTypes, setSelectedBodyTypes, 'bodyType');
-  const handleFuelTypeChange = createFilterHandler(selectedFuelTypes, setSelectedFuelTypes, 'fuelType');
+  const handleColorChange = useCallback(({ target: { value } }) => {
+    const normalizedValue = normalizeString(value);
+    const newSelectedColors = selectedColors.includes(normalizedValue)
+      ? selectedColors.filter(item => item !== normalizedValue)
+      : [...selectedColors, normalizedValue];
+    setSelectedColors(newSelectedColors);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      newSelectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
-  const handleNumericFilter = (state, setState, filterProp) => 
-    useCallback(({ target: { value } }) => {
-      const numericValue = Number(value);
-      const newState = state.includes(numericValue)
-        ? state.filter(item => item !== numericValue)
-        : [...state, numericValue];
-      setState(newState);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        filterProp === 'modelYear' ? newState : selectedModelYears,
-        filterProp === 'distance' ? newState : selectedDistances,
-        showPreowned,
-        showUnregistered
-      );
-    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
-       selectedFuelTypes, selectedModelYears, selectedDistances, 
-       showPreowned, showUnregistered, filterProducts]);
+  const handleBodyTypeChange = useCallback(({ target: { value } }) => {
+    const normalizedValue = normalizeString(value);
+    const newSelectedBodyTypes = selectedBodyTypes.includes(normalizedValue)
+      ? selectedBodyTypes.filter(item => item !== normalizedValue)
+      : [...selectedBodyTypes, normalizedValue];
+    setSelectedBodyTypes(newSelectedBodyTypes);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      newSelectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
-  const handleModelYearChange = handleNumericFilter(selectedModelYears, setSelectedModelYears, 'modelYear');
-  const handleDistanceChange = handleNumericFilter(selectedDistances, setSelectedDistances, 'distance');
+  const handleFuelTypeChange = useCallback(({ target: { value } }) => {
+    const normalizedValue = normalizeString(value);
+    const newSelectedFuelTypes = selectedFuelTypes.includes(normalizedValue)
+      ? selectedFuelTypes.filter(item => item !== normalizedValue)
+      : [...selectedFuelTypes, normalizedValue];
+    setSelectedFuelTypes(newSelectedFuelTypes);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      newSelectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
-  const createToggleHandler = (state, setState, filterProp) => 
-    useCallback(() => {
-      const newValue = !state;
-      setState(newValue);
-      filterProducts(
-        priceRange,
-        selectedBrands,
-        selectedColors,
-        selectedBodyTypes,
-        selectedFuelTypes,
-        selectedModelYears,
-        selectedDistances,
-        filterProp === 'preowned' ? newValue : showPreowned,
-        filterProp === 'unregistered' ? newValue : showUnregistered
-      );
-    }, [state, priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
-       selectedFuelTypes, selectedModelYears, selectedDistances, 
-       showPreowned, showUnregistered, filterProducts]);
+  const handleModelYearChange = useCallback(({ target: { value } }) => {
+    const numericValue = Number(value);
+    const newSelectedModelYears = selectedModelYears.includes(numericValue)
+      ? selectedModelYears.filter(item => item !== numericValue)
+      : [...selectedModelYears, numericValue];
+    setSelectedModelYears(newSelectedModelYears);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      newSelectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
-  const handlePreownedToggle = createToggleHandler(showPreowned, setShowPreowned, 'preowned');
-  const handleUnregisteredToggle = createToggleHandler(showUnregistered, setShowUnregistered, 'unregistered');
+  const handleDistanceChange = useCallback(({ target: { value } }) => {
+    const numericValue = Number(value);
+    const newSelectedDistances = selectedDistances.includes(numericValue)
+      ? selectedDistances.filter(item => item !== numericValue)
+      : [...selectedDistances, numericValue];
+    setSelectedDistances(newSelectedDistances);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      newSelectedDistances,
+      showPreowned,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
+
+  const handlePreownedToggle = useCallback(() => {
+    const newValue = !showPreowned;
+    setShowPreowned(newValue);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      newValue,
+      showUnregistered
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
+
+  const handleUnregisteredToggle = useCallback(() => {
+    const newValue = !showUnregistered;
+    setShowUnregistered(newValue);
+    filterProducts(
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      newValue
+    );
+  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, 
+     selectedFuelTypes, selectedModelYears, selectedDistances, 
+     showPreowned, showUnregistered, filterProducts]);
 
   const searchHandle = useCallback(async ({ target: { value } }) => {
     if (!value) {
@@ -268,6 +357,131 @@ function ProductList() {
     setIsModalOpen(false);
     setCurrentProduct(null);
   }, []);
+
+  const FilterSection = ({ title, items, handler, transform = (v) => v }) => (
+    <div>
+      <h3 className="font-bold text-lg mb-2">{title}</h3>
+      <div className="space-y-2">
+        {items.map(item => (
+          <label key={item} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              value={item}
+              checked={
+                handler === handleBrandChange ? selectedBrands.includes(item) :
+                handler === handleColorChange ? selectedColors.includes(item) :
+                handler === handleBodyTypeChange ? selectedBodyTypes.includes(item) :
+                handler === handleFuelTypeChange ? selectedFuelTypes.includes(item) :
+                false
+              }
+              onChange={handler}
+              className="form-checkbox h-5 w-5 text-red-500"
+            />
+            <span className="capitalize">{transform(item)}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  const ProductCard = ({ item }) => (
+    <div
+      className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+      onClick={() => !isMobile && openModal(item)}
+    >
+      <Slider {...sliderSettings}>
+        {item.images?.map((image, idx) => (
+          <div key={idx}>
+            <img
+              src={`https://finaltesting-tnim.onrender.com${image}`}
+              alt={`Product ${idx + 1}`}
+              className="w-full h-48 object-cover rounded-lg"
+            />
+          </div>
+        ))}
+      </Slider>
+      <div className="mt-4">
+        <h3 className="text-xl font-bold">Model: {item.model}</h3>
+        <p className="text-gray-700">
+          <span className="font-semibold">Company:</span> {item.company.charAt(0).toUpperCase() + item.company.slice(1)}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Color:</span> {item.color}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Distance:</span> {item.distanceCovered} km
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Year:</span> {item.modelYear}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Body Type:</span> {item.bodyType}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Fuel Type:</span> {item.fuelType}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Price:</span> ₹{item.price} Lakhs
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Variant:</span> {item.variant}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Reg. Year:</span> {item.registrationYear}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Transmission:</span> {item.transmissionType}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Condition:</span> {item.condition || "N/A"}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Reg. Status:</span> {item.registrationStatus || "N/A"}
+        </p>
+      </div>
+
+      <div className="product-actions mt-4 flex gap-2">
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center justify-center gap-2 w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            const message = `Hello! I'm interested in this car:\n\n` +
+              Object.entries({
+                Model: item.model,
+                Company: item.company,
+                Color: item.color,
+                'Distance Covered': `${item.distanceCovered} km`,
+                'Model Year': item.modelYear,
+                Price: `₹${item.price} Lakhs`,
+                Variant: item.variant,
+                'Registration Year': item.registrationYear,
+                'Fuel Type': item.fuelType,
+                'Body Type': item.bodyType,
+                'Transmission Type': item.transmissionType,
+                Condition: item.condition || "N/A",
+                'Registration Status': item.registrationStatus || "N/A"
+              })
+              .map(([key, val]) => `- ${key}: ${val}`)
+              .join('\n') + `\n\nCan you provide more details?`;
+            window.open(`https://wa.me/8121021135?text=${encodeURIComponent(message)}`, '_blank');
+          }}
+        >
+          <i className="ri-whatsapp-line"></i>
+          <span className="hidden sm:inline">WhatsApp</span>
+        </button>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2 w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open('tel:+918121021135', '_blank');
+          }}
+        >
+          <i className="ri-phone-line"></i>
+          <span className="hidden sm:inline">Call</span>
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col">
@@ -377,9 +591,6 @@ function ProductList() {
                 <ProductCard 
                   key={item._id}
                   item={item}
-                  openModal={openModal}
-                  sliderSettings={sliderSettings}
-                  isMobile={isMobile}
                 />
               ))}
             </div>
@@ -402,130 +613,5 @@ function ProductList() {
     </div>
   );
 }
-
-const FilterSection = ({ title, items, handler, transform = (v) => v }) => (
-  <div>
-    <h3 className="font-bold text-lg mb-2">{title}</h3>
-    <div className="space-y-2">
-      {items.map(item => (
-        <label key={item} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            value={item}
-            checked={
-              handler === handleBrandChange ? selectedBrands.includes(item) :
-              handler === handleColorChange ? selectedColors.includes(item) :
-              handler === handleBodyTypeChange ? selectedBodyTypes.includes(item) :
-              handler === handleFuelTypeChange ? selectedFuelTypes.includes(item) :
-              false
-            }
-            onChange={handler}
-            className="form-checkbox h-5 w-5 text-red-500"
-          />
-          <span className="capitalize">{transform(item)}</span>
-        </label>
-      ))}
-    </div>
-  </div>
-);
-
-const ProductCard = ({ item, openModal, sliderSettings, isMobile }) => (
-  <div
-    className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-    onClick={() => !isMobile && openModal(item)}
-  >
-    <Slider {...sliderSettings}>
-      {item.images?.map((image, idx) => (
-        <div key={idx}>
-          <img
-            src={`https://finaltesting-tnim.onrender.com${image}`}
-            alt={`Product ${idx + 1}`}
-            className="w-full h-48 object-cover rounded-lg"
-          />
-        </div>
-      ))}
-    </Slider>
-    <div className="mt-4">
-      <h3 className="text-xl font-bold">Model: {item.model}</h3>
-      <p className="text-gray-700">
-        <span className="font-semibold">Company:</span> {item.company.charAt(0).toUpperCase() + item.company.slice(1)}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Color:</span> {item.color}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Distance:</span> {item.distanceCovered} km
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Year:</span> {item.modelYear}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Body Type:</span> {item.bodyType}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Fuel Type:</span> {item.fuelType}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Price:</span> ₹{item.price} Lakhs
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Variant:</span> {item.variant}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Reg. Year:</span> {item.registrationYear}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Transmission:</span> {item.transmissionType}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Condition:</span> {item.condition || "N/A"}
-      </p>
-      <p className="text-gray-700">
-        <span className="font-semibold">Reg. Status:</span> {item.registrationStatus || "N/A"}
-      </p>
-    </div>
-
-    <div className="product-actions mt-4 flex gap-2">
-      <button
-        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center justify-center gap-2 w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          const message = `Hello! I'm interested in this car:\n\n` +
-            Object.entries({
-              Model: item.model,
-              Company: item.company,
-              Color: item.color,
-              'Distance Covered': `${item.distanceCovered} km`,
-              'Model Year': item.modelYear,
-              Price: `₹${item.price} Lakhs`,
-              Variant: item.variant,
-              'Registration Year': item.registrationYear,
-              'Fuel Type': item.fuelType,
-              'Body Type': item.bodyType,
-              'Transmission Type': item.transmissionType,
-              Condition: item.condition || "N/A",
-              'Registration Status': item.registrationStatus || "N/A"
-            })
-            .map(([key, val]) => `- ${key}: ${val}`)
-            .join('\n') + `\n\nCan you provide more details?`;
-          window.open(`https://wa.me/8121021135?text=${encodeURIComponent(message)}`, '_blank');
-        }}
-      >
-        <i className="ri-whatsapp-line"></i>
-        <span className="hidden sm:inline">WhatsApp</span>
-      </button>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2 w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          window.open('tel:+918121021135', '_blank');
-        }}
-      >
-        <i className="ri-phone-line"></i>
-        <span className="hidden sm:inline">Call</span>
-      </button>
-    </div>
-  </div>
-);
 
 export default ProductList;
