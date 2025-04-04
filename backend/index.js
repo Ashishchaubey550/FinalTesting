@@ -99,6 +99,8 @@ app.post("/login", async (req, res) => {
 // Product Routes
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
+    console.log("Request Body:", req.body); // 🎯 Check incoming data
+    console.log("Uploaded Files:", req.files); // 
     // Validation
     const requiredFields = [
       'company', 'model', 'color', 'variant', 'distanceCovered',
@@ -115,8 +117,11 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
     }
 
     // Get Cloudinary URLs from uploaded files
-    const imageUrls = req.files.map(file => file.path);
 
+    const imageUrls = req.files.map(file => {
+      console.log("File Object:", file); // 🎯 Debug file structure
+      return file.secure_url;
+    });    
     // Create product
     const product = new Product({
       ...req.body,
@@ -127,12 +132,14 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
       images: imageUrls
     });
 
+    
     const savedProduct = await product.save();
     
     res.status(201).json({
       success: true,
       product: savedProduct
     });
+    
 
   } catch (error) {
     console.error("Add Product Error:", error);
