@@ -14,13 +14,13 @@ const normalizeString = (str) => {
   return str.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
-// // Specific normalization for brand names
-// const normalizeBrand = (brand) => {
-//   const normalized = normalizeString(brand);
-//   if (normalized === "lamborgini") return "lamborghini";
-//   if (normalized === "morris garages") return "mg";
-//   return normalized;
-// };
+// Specific normalization for brand names
+const normalizeBrand = (brand) => {
+  const normalized = normalizeString(brand);
+  if (normalized === "lamborgini") return "lamborghini";
+  if (normalized === "morris garages") return "mg";
+  return normalized;
+};
 
 // Normalize color names
 const normalizeColor = (color) => {
