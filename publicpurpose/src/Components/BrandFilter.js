@@ -157,7 +157,7 @@ const BrandFilter = () => {
             <p className="text-sm sm:text-base mb-2 font-semibold text-center line-clamp-1">
               {brand}
             </p>
-            <p className="text-xs sm:text-sm text-gray-600 text-center">
+            <p className="text-xs sm:text-sm mt-2 text-gray-600 text-center">
               {count}+ cars
             </p>
           </button>
