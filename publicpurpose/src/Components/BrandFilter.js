@@ -149,7 +149,7 @@ const BrandFilter = () => {
             <img
               src={BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car"}
               alt={brand}
-              className="w-12 sm:w-16 h-12 sm:h-16 object-contain mb-0 sm:mb-0"
+              className="w-12 sm:w-16 h-12 sm:h-16 object-contain sm:mb-0"
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/64?text=Car";
               }}
