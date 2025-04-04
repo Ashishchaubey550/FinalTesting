@@ -1,4 +1,3 @@
-// app.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -10,8 +9,6 @@ const User = require("./DB/User");
 const Product = require("./DB/Product");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const cloudinary = require('cloudinary').v2;
-
 
 const app = express();
 
@@ -20,7 +17,7 @@ app.use(express.json());
 const allowedOrigins = [
   "https://final-testing-adminpage.vercel.app",
   "https://www.thevaluedrive.in",
-  "https://thevaluedrive.in" // Add non-www version
+  "https://thevaluedrive.in"
 ];
 
 app.use(
@@ -37,17 +34,14 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options('*', cors());
-
 
 // Database Connection
-mongoose
-  .connect(process.env.MONGO_URI, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-  })
-  .then(() => console.log("Database connected"))
-  .catch((err) => console.error("Database connection error:", err));
+mongoose.connect(process.env.MONGO_URI, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true 
+})
+.then(() => console.log("Database connected"))
+.catch((err) => console.error("Database connection error:", err));
 
 // User Routes (Unchanged)
 app.post("/register", async (req, res) => {
@@ -102,9 +96,10 @@ app.post("/login", async (req, res) => {
 });
 
 // Modified Product Creation with Cloudinary
+// Product Routes
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
-    // Validate required fields first
+    // Validation
     const requiredFields = [
       'company', 'model', 'color', 'variant', 'distanceCovered',
       'modelYear', 'price', 'registrationYear', 'fuelType',
@@ -119,19 +114,10 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
       });
     }
 
-    // Parallel uploads with timeout
-    const uploadPromises = req.files.map(file => 
-      cloudinary.uploader.upload(file.path, {
-        folder: 'car_dealer',
-        timeout: 30000 // 30 seconds per image
-      })
-    );
+    // Get Cloudinary URLs from uploaded files
+    const imageUrls = req.files.map(file => file.path);
 
-    // Handle image uploads
-    const results = await Promise.all(uploadPromises);
-    const imageUrls = results.map(result => result.secure_url);
-
-    // Create product document
+    // Create product
     const product = new Product({
       ...req.body,
       distanceCovered: Number(req.body.distanceCovered),
@@ -141,7 +127,6 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
       images: imageUrls
     });
 
-    // Save to database
     const savedProduct = await product.save();
     
     res.status(201).json({
@@ -153,11 +138,11 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
     console.error("Add Product Error:", error);
     res.status(500).json({
       error: "Internal Server Error",
-      message: error.message,
-      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+      message: error.message
     });
   }
 });
+
 
 // Rest of Product Routes (Unchanged)
 app.get("/product", async (req, res) => {

@@ -1,23 +1,30 @@
 const multer = require('multer');
-const cloudinary = require('cloudinary').v2; // ✅ FIXED HERE
+const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Configure Multer Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: (req, file) => ({
+  params: {
     folder: 'car_dealer',
-    public_id: `${Date.now()}-${file.originalname}`,
-    resource_type: 'auto',
-    allowed_formats: ['jpg', 'jpeg', 'png']
-  })
+    format: 'jpg',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      const originalName = file.originalname.split('.')[0];
+      return `${timestamp}-${originalName}`;
+    }
+  }
 });
 
+// Configure Multer Middleware
 module.exports = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -25,7 +32,7 @@ module.exports = multer({
     if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type'), false);
+      cb(new Error('Only JPG/PNG files allowed'), false);
     }
   }
 });
