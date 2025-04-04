@@ -132,7 +132,11 @@ function ProductList() {
       ) : (
         <p className="text-center text-gray-500 text-lg py-8">No cars found</p>
       )}
+      <div>
+        placeholder
+      </div>
     </div>
+    
   );
 }
 
