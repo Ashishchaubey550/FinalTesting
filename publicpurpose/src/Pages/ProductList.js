@@ -8,78 +8,46 @@ import PriceFilter from "../Components/PriceFilter";
 
 Modal.setAppElement("#root");
 
-// Enhanced Normalization Functions
+// Helper function to normalize strings for consistent filtering
 const normalizeString = (str) => {
   if (!str) return "";
   return str.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
+// Specific normalization for brand names
 const normalizeBrand = (brand) => {
   const normalized = normalizeString(brand);
-  const brandMappings = {
-    "lamborgini": "lamborghini",
-    "morris garages": "mg",
-    "mg motors": "mg",
-    "maruti": "maruti suzuki",
-    "mercedes-benz": "mercedes",
-    "benz": "mercedes",
-    "toyota": "toyota",
-    "hyundai": "hyundai",
-    "honda": "honda",
-    "ford": "ford",
-    "volkswagen": "volkswagen",
-    "tata": "tata",
-    "kia": "kia",
-    "renault": "renault",
-    "nissan": "nissan",
-    "bmw": "bmw"
-  };
-  return brandMappings[normalized] || normalized;
+  if (normalized === "lamborgini") return "lamborghini";
+  if (normalized === "morris garages") return "mg";
+  return normalized;
 };
 
+// Normalize color names
 const normalizeColor = (color) => {
   const normalized = normalizeString(color);
-  const colorMappings = {
-    "aurora silver": "silver",
-    "starry black": "black",
-    "metallic grey": "gray",
-    "pearl white": "white",
-    "glacier white": "white",
-    "midnight black": "black",
-    "phantom black": "black",
-    "deep blue": "blue",
-    "fiery red": "red"
-  };
-  return colorMappings[normalized] || normalized;
+  // Handle common color variations
+  if (normalized.includes("aurora silver")) return "silver";
+  if (normalized.includes("starry black")) return "black";
+  return normalized;
 };
 
+// Normalize body types
 const normalizeBodyType = (bodyType) => {
   const normalized = normalizeString(bodyType);
-  const bodyTypeMappings = {
-    "suv": "suv",
-    "sedan": "sedan",
-    "hatchback": "hatchback",
-    "muv": "muv",
-    "crossover": "crossover",
-    "convertible": "convertible",
-    "coupe": "coupe",
-    "pickup": "pickup",
-    "van": "van"
-  };
-  return bodyTypeMappings[normalized] || normalized;
+  // Standardize body type names
+  if (normalized.includes("suv")) return "suv";
+  if (normalized.includes("sedan")) return "sedan";
+  if (normalized.includes("hatchback")) return "hatchback";
+  return normalized;
 };
 
+// Normalize fuel types
 const normalizeFuelType = (fuelType) => {
   const normalized = normalizeString(fuelType);
-  const fuelTypeMappings = {
-    "petrol": "petrol",
-    "diesel": "diesel",
-    "electric": "electric",
-    "hybrid": "hybrid",
-    "cng": "cng",
-    "lpg": "lpg"
-  };
-  return fuelTypeMappings[normalized] || normalized;
+  if (normalized.includes("petrol")) return "petrol";
+  if (normalized.includes("diesel")) return "diesel";
+  if (normalized.includes("electric")) return "electric";
+  return normalized;
 };
 
 function ProductList() {
@@ -88,8 +56,6 @@ function ProductList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // Default price range in rupees: 50,000 to 7,000,000
   const defaultPriceRange = [50000, 7000000];
@@ -104,7 +70,6 @@ function ProductList() {
   const [selectedDistances, setSelectedDistances] = useState([]);
   const [showPreowned, setShowPreowned] = useState(false);
   const [showUnregistered, setShowUnregistered] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Slider settings
   const sliderSettings = {
@@ -133,30 +98,20 @@ function ProductList() {
 
   const getProducts = async () => {
     try {
-      setLoading(true);
-      const response = await fetch("https://finaltesting-tnim.onrender.com/product");
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch products: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (result?.length > 0) {
+      let result = await fetch("https://finaltesting-tnim.onrender.com/product");
+      result = await result.json();
+      if (result && result.length > 0) {
         const normalizedProducts = result.map((p) => ({
           ...p,
           company: normalizeBrand(p.company),
           color: normalizeColor(p.color),
           bodyType: normalizeBodyType(p.bodyType),
           fuelType: normalizeFuelType(p.fuelType),
+          // Ensure numeric values
           distanceCovered: Number(p.distanceCovered) || 0,
           modelYear: Number(p.modelYear) || 0,
-          price: Number(p.price) || 0,
-          condition: p.condition ? normalizeString(p.condition) : '',
-          registrationStatus: p.registrationStatus ? normalizeString(p.registrationStatus) : '',
-          searchText: `${p.model} ${p.company} ${p.color} ${p.bodyType} ${p.fuelType}`.toLowerCase()
+          price: Number(p.price) || 0
         }));
-        
         setProducts(normalizedProducts);
         setFilteredProducts(normalizedProducts);
       } else {
@@ -165,15 +120,12 @@ function ProductList() {
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      setError(error.message);
       setProducts([]);
       setFilteredProducts([]);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Enhanced filter function
+  // Filter products
   const filterProducts = useCallback(
     (
       priceRange,
@@ -185,53 +137,48 @@ function ProductList() {
       distances,
       preowned,
       unregistered,
-      search = "",
       dataset = products
     ) => {
       const filtered = dataset.filter((p) => {
-        const priceInRupees = p.price * 100000;
+        const priceInRupees = p.price * 100000; // Convert lakhs to rupees
         const isPreowned = p.condition === "preowned";
         const isUnregistered = p.registrationStatus === "unregistered";
-        
-        // Check if distance falls within selected ranges
-        const distanceMatch = distances.length === 0 || 
-          distances.some(range => {
-            if (range === "0-10,000 km") return p.distanceCovered <= 10000;
-            if (range === "10,001-30,000 km") return p.distanceCovered > 10000 && p.distanceCovered <= 30000;
-            if (range === "30,001-50,000 km") return p.distanceCovered > 30000 && p.distanceCovered <= 50000;
-            if (range === "50,001-80,000 km") return p.distanceCovered > 50000 && p.distanceCovered <= 80000;
-            if (range === "80,001+ km") return p.distanceCovered > 80000;
-            return false;
-          });
-
-        // Search filter
-        const searchMatch = !search || p.searchText.includes(search.toLowerCase());
 
         return (
           priceInRupees >= priceRange[0] &&
           priceInRupees <= priceRange[1] &&
-          (brands.length === 0 || brands.some(b => p.company.includes(b))) &&
-          (colors.length === 0 || colors.some(c => p.color.includes(c))) &&
-          (bodyTypes.length === 0 || bodyTypes.some(bt => p.bodyType.includes(bt))) &&
-          (fuelTypes.length === 0 || fuelTypes.some(ft => p.fuelType.includes(ft))) &&
+          (brands.length === 0 || brands.includes(p.company)) &&
+          (colors.length === 0 || colors.includes(p.color)) &&
+          (bodyTypes.length === 0 || bodyTypes.includes(p.bodyType)) &&
+          (fuelTypes.length === 0 || fuelTypes.includes(p.fuelType)) &&
           (modelYears.length === 0 || modelYears.includes(p.modelYear)) &&
-          distanceMatch &&
+          (distances.length === 0 || distances.includes(p.distanceCovered)) &&
           (!preowned || isPreowned) &&
-          (!unregistered || isUnregistered) &&
-          searchMatch
+          (!unregistered || isUnregistered)
         );
       });
-      
       setFilteredProducts(filtered.length ? filtered : []);
     },
     [products]
   );
 
-  // Handler functions
-  const handlePriceChange = useCallback((range) => {
-    setPriceRange(range);
-    filterProducts(
-      range,
+  // Handle price change
+  const handlePriceChange = useCallback(
+    (range) => {
+      setPriceRange(range);
+      filterProducts(
+        range,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
       selectedBrands,
       selectedColors,
       selectedBodyTypes,
@@ -240,19 +187,33 @@ function ProductList() {
       selectedDistances,
       showPreowned,
       showUnregistered,
-      searchQuery
-    );
-  }, [filterProducts, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, searchQuery]);
+      filterProducts,
+    ]
+  );
 
-  const handleBrandChange = useCallback((event) => {
-    const selectedBrand = normalizeBrand(event.target.value);
-    const newSelectedBrands = selectedBrands.includes(selectedBrand)
-      ? selectedBrands.filter((brand) => brand !== selectedBrand)
-      : [...selectedBrands, selectedBrand];
-    setSelectedBrands(newSelectedBrands);
-    filterProducts(
+  // Handle brand change
+  const handleBrandChange = useCallback(
+    (event) => {
+      const selectedBrand = normalizeBrand(event.target.value);
+      const newSelectedBrands = selectedBrands.includes(selectedBrand)
+        ? selectedBrands.filter((brand) => brand !== selectedBrand)
+        : [...selectedBrands, selectedBrand];
+      setSelectedBrands(newSelectedBrands);
+      filterProducts(
+        priceRange,
+        newSelectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
       priceRange,
-      newSelectedBrands,
+      selectedBrands,
       selectedColors,
       selectedBodyTypes,
       selectedFuelTypes,
@@ -260,110 +221,181 @@ function ProductList() {
       selectedDistances,
       showPreowned,
       showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
+      filterProducts,
+    ]
+  );
 
-  const handleColorChange = useCallback((event) => {
-    const selectedColor = normalizeColor(event.target.value);
-    const newSelectedColors = selectedColors.includes(selectedColor)
-      ? selectedColors.filter((color) => color !== selectedColor)
-      : [...selectedColors, selectedColor];
-    setSelectedColors(newSelectedColors);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      newSelectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
-
-  const handleBodyTypeChange = useCallback((event) => {
-    const selectedBodyType = normalizeBodyType(event.target.value);
-    const newSelectedBodyTypes = selectedBodyTypes.includes(selectedBodyType)
-      ? selectedBodyTypes.filter((bodyType) => bodyType !== selectedBodyType)
-      : [...selectedBodyTypes, selectedBodyType];
-    setSelectedBodyTypes(newSelectedBodyTypes);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      newSelectedBodyTypes,
-      selectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
-
-  const handleFuelTypeChange = useCallback((event) => {
-    const selectedFuelType = normalizeFuelType(event.target.value);
-    const newSelectedFuelTypes = selectedFuelTypes.includes(selectedFuelType)
-      ? selectedFuelTypes.filter((fuelType) => fuelType !== selectedFuelType)
-      : [...selectedFuelTypes, selectedFuelType];
-    setSelectedFuelTypes(newSelectedFuelTypes);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      newSelectedFuelTypes,
-      selectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
-
-  const handleModelYearChange = useCallback((event) => {
-    const year = Number(event.target.value);
-    const newSelectedModelYears = selectedModelYears.includes(year)
-      ? selectedModelYears.filter((y) => y !== year)
-      : [...selectedModelYears, year];
-    setSelectedModelYears(newSelectedModelYears);
-    filterProducts(
-      priceRange,
-      selectedBrands,
-      selectedColors,
-      selectedBodyTypes,
-      selectedFuelTypes,
-      newSelectedModelYears,
-      selectedDistances,
-      showPreowned,
-      showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
-
-  const handleDistanceChange = useCallback((event) => {
-    const dist = event.target.value;
-    const newSelectedDistances = selectedDistances.includes(dist)
-      ? selectedDistances.filter((d) => d !== dist)
-      : [...selectedDistances, dist];
-    setSelectedDistances(newSelectedDistances);
-    filterProducts(
+  // Handle color change
+  const handleColorChange = useCallback(
+    (event) => {
+      const selectedColor = normalizeColor(event.target.value);
+      const newSelectedColors = selectedColors.includes(selectedColor)
+        ? selectedColors.filter((color) => color !== selectedColor)
+        : [...selectedColors, selectedColor];
+      setSelectedColors(newSelectedColors);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        newSelectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
       priceRange,
       selectedBrands,
       selectedColors,
       selectedBodyTypes,
       selectedFuelTypes,
       selectedModelYears,
-      newSelectedDistances,
+      selectedDistances,
       showPreowned,
       showUnregistered,
-      searchQuery
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
+      filterProducts,
+    ]
+  );
 
+  // Handle body type change
+  const handleBodyTypeChange = useCallback(
+    (event) => {
+      const selectedBodyType = normalizeBodyType(event.target.value);
+      const newSelectedBodyTypes = selectedBodyTypes.includes(selectedBodyType)
+        ? selectedBodyTypes.filter((bodyType) => bodyType !== selectedBodyType)
+        : [...selectedBodyTypes, selectedBodyType];
+      setSelectedBodyTypes(newSelectedBodyTypes);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        newSelectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered,
+      filterProducts,
+    ]
+  );
+
+  // Handle fuel type change
+  const handleFuelTypeChange = useCallback(
+    (event) => {
+      const selectedFuelType = normalizeFuelType(event.target.value);
+      const newSelectedFuelTypes = selectedFuelTypes.includes(selectedFuelType)
+        ? selectedFuelTypes.filter((fuelType) => fuelType !== selectedFuelType)
+        : [...selectedFuelTypes, selectedFuelType];
+      setSelectedFuelTypes(newSelectedFuelTypes);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        newSelectedFuelTypes,
+        selectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered,
+      filterProducts,
+    ]
+  );
+
+  // Handle model year change
+  const handleModelYearChange = useCallback(
+    (event) => {
+      const year = Number(event.target.value);
+      const newSelectedModelYears = selectedModelYears.includes(year)
+        ? selectedModelYears.filter((y) => y !== year)
+        : [...selectedModelYears, year];
+      setSelectedModelYears(newSelectedModelYears);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        newSelectedModelYears,
+        selectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered,
+      filterProducts,
+    ]
+  );
+
+  // Handle distance change
+  const handleDistanceChange = useCallback(
+    (event) => {
+      const dist = Number(event.target.value);
+      const newSelectedDistances = selectedDistances.includes(dist)
+        ? selectedDistances.filter((d) => d !== dist)
+        : [...selectedDistances, dist];
+      setSelectedDistances(newSelectedDistances);
+      filterProducts(
+        priceRange,
+        selectedBrands,
+        selectedColors,
+        selectedBodyTypes,
+        selectedFuelTypes,
+        selectedModelYears,
+        newSelectedDistances,
+        showPreowned,
+        showUnregistered
+      );
+    },
+    [
+      priceRange,
+      selectedBrands,
+      selectedColors,
+      selectedBodyTypes,
+      selectedFuelTypes,
+      selectedModelYears,
+      selectedDistances,
+      showPreowned,
+      showUnregistered,
+      filterProducts,
+    ]
+  );
+
+  // Handle preowned toggle
   const handlePreownedToggle = useCallback(() => {
     const newValue = !showPreowned;
     setShowPreowned(newValue);
@@ -376,11 +408,22 @@ function ProductList() {
       selectedModelYears,
       selectedDistances,
       newValue,
-      showUnregistered,
-      searchQuery
+      showUnregistered
     );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
+  }, [
+    priceRange,
+    selectedBrands,
+    selectedColors,
+    selectedBodyTypes,
+    selectedFuelTypes,
+    selectedModelYears,
+    selectedDistances,
+    showPreowned,
+    showUnregistered,
+    filterProducts,
+  ]);
 
+  // Handle unregistered toggle
   const handleUnregisteredToggle = useCallback(() => {
     const newValue = !showUnregistered;
     setShowUnregistered(newValue);
@@ -393,15 +436,72 @@ function ProductList() {
       selectedModelYears,
       selectedDistances,
       showPreowned,
-      newValue,
-      searchQuery
+      newValue
     );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts, searchQuery]);
+  }, [
+    priceRange,
+    selectedBrands,
+    selectedColors,
+    selectedBodyTypes,
+    selectedFuelTypes,
+    selectedModelYears,
+    selectedDistances,
+    showPreowned,
+    showUnregistered,
+    filterProducts,
+  ]);
 
-  const handleSearch = useCallback((e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    filterProducts(
+  // Search handler
+  const searchHandle = useCallback(
+    async (event) => {
+      const key = event.target.value;
+      if (key) {
+        try {
+          let result = await fetch(`https://finaltesting-tnim.onrender.com/search/${key}`);
+          result = await result.json();
+          if (result) {
+            const normalizedResult = result.map((p) => ({
+              ...p,
+              company: normalizeBrand(p.company),
+              color: normalizeColor(p.color),
+              bodyType: normalizeBodyType(p.bodyType),
+              fuelType: normalizeFuelType(p.fuelType),
+              distanceCovered: Number(p.distanceCovered) || 0,
+              modelYear: Number(p.modelYear) || 0,
+              price: Number(p.price) || 0
+            }));
+            filterProducts(
+              priceRange,
+              selectedBrands,
+              selectedColors,
+              selectedBodyTypes,
+              selectedFuelTypes,
+              selectedModelYears,
+              selectedDistances,
+              showPreowned,
+              showUnregistered,
+              normalizedResult
+            );
+          }
+        } catch (error) {
+          console.error("Error searching products:", error);
+        }
+      } else {
+        filterProducts(
+          priceRange,
+          selectedBrands,
+          selectedColors,
+          selectedBodyTypes,
+          selectedFuelTypes,
+          selectedModelYears,
+          selectedDistances,
+          showPreowned,
+          showUnregistered,
+          products
+        );
+      }
+    },
+    [
       priceRange,
       selectedBrands,
       selectedColors,
@@ -411,22 +511,29 @@ function ProductList() {
       selectedDistances,
       showPreowned,
       showUnregistered,
-      query
-    );
-  }, [priceRange, selectedBrands, selectedColors, selectedBodyTypes, selectedFuelTypes, selectedModelYears, selectedDistances, showPreowned, showUnregistered, filterProducts]);
+      products,
+      filterProducts,
+    ]
+  );
 
-  const openModal = useCallback((product) => {
-    if (!isMobile) {
-      setCurrentProduct(product);
-      setIsModalOpen(true);
-    }
-  }, [isMobile]);
+  // Open modal (only for desktop)
+  const openModal = useCallback(
+    (product) => {
+      if (!isMobile) {
+        setCurrentProduct(product);
+        setIsModalOpen(true);
+      }
+    },
+    [isMobile]
+  );
 
+  // Close modal
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setCurrentProduct(null);
   }, []);
 
+  // Clear filters
   const clearFilters = useCallback(() => {
     setSelectedBrands([]);
     setSelectedColors([]);
@@ -437,77 +544,66 @@ function ProductList() {
     setShowPreowned(false);
     setShowUnregistered(false);
     setPriceRange(defaultPriceRange);
-    setSearchQuery("");
     setFilteredProducts(products);
   }, [products]);
 
-  // Enhanced unique values calculation
-  const uniqueBrands = useMemo(() => {
-    const brands = [...new Set(products.map(p => p.company))].filter(Boolean);
-    return brands.sort((a, b) => a.localeCompare(b));
-  }, [products]);
+  // Compute unique filter options with normalized values
+  const uniqueBrands = useMemo(
+    () => [...new Set(products.map((p) => p.company))].filter(Boolean).sort(),
+    [products]
+  );
+  
+  const uniqueColors = useMemo(
+    () => [...new Set(products.map((p) => p.color))].filter(Boolean).sort(),
+    [products]
+  );
+  
+  const uniqueBodyTypes = useMemo(
+    () => [...new Set(products.map((p) => p.bodyType))].filter(Boolean).sort(),
+    [products]
+  );
+  
+  const uniqueFuelTypes = useMemo(
+    () => [...new Set(products.map((p) => p.fuelType))].filter(Boolean).sort(),
+    [products]
+  );
+  
+  const uniqueModelYears = useMemo(
+    () => [...new Set(products.map((p) => p.modelYear))]
+      .filter(year => !isNaN(year) && year !== 0)
+      .sort((a, b) => b - a), // Sort descending (newest first)
+    [products]
+  );
+  
+  const uniqueDistances = useMemo(
+    () => {
+      const distances = [...new Set(products.map((p) => p.distanceCovered))]
+        .filter(dist => !isNaN(dist) && dist !== 0)
+        .sort((a, b) => a - b);
+      
+      // Group distances into ranges for better filtering
+      const distanceRanges = [
+        { label: "0-10,000 km", min: 0, max: 10000 },
+        { label: "10,001-30,000 km", min: 10001, max: 30000 },
+        { label: "30,001-50,000 km", min: 30001, max: 50000 },
+        { label: "50,001-80,000 km", min: 50001, max: 80000 },
+        { label: "80,001+ km", min: 80001, max: Infinity }
+      ];
+      
+      return distanceRanges.filter(range => 
+        distances.some(dist => dist >= range.min && dist <= range.max)
+      ).map(range => range.label);
+    },
+    [products]
+  );
 
-  const uniqueColors = useMemo(() => {
-    const colors = [...new Set(products.map(p => p.color))].filter(Boolean);
-    return colors.sort((a, b) => a.localeCompare(b));
-  }, [products]);
-
-  const uniqueBodyTypes = useMemo(() => {
-    const types = [...new Set(products.map(p => p.bodyType))].filter(Boolean);
-    return types.sort((a, b) => a.localeCompare(b));
-  }, [products]);
-
-  const uniqueFuelTypes = useMemo(() => {
-    const types = [...new Set(products.map(p => p.fuelType))].filter(Boolean);
-    return types.sort((a, b) => a.localeCompare(b));
-  }, [products]);
-
-  const uniqueModelYears = useMemo(() => {
-    const years = [...new Set(products.map(p => p.modelYear))]
-      .filter(year => !isNaN(year) && year !== 0);
-    return years.sort((a, b) => b - a); // Newest first
-  }, [products]);
-
-  const uniqueDistances = useMemo(() => {
-    const distanceRanges = [
-      "0-10,000 km",
-      "10,001-30,000 km", 
-      "30,001-50,000 km",
-      "50,001-80,000 km",
-      "80,001+ km"
-    ];
-    return distanceRanges;
-  }, []);
-
+  // Display name formatting
   const formatDisplayName = (str) => {
     if (!str) return "";
     return str.split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
-
-  // Loading and error states
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl">Loading products...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen">
-        <div className="text-xl text-red-500 mb-4">Error: {error}</div>
-        <button 
-          onClick={getProducts}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col">
@@ -565,15 +661,11 @@ function ProductList() {
             </button>
           </div>
 
-          <PriceFilter 
-            onPriceChange={handlePriceChange} 
-            defaultRange={defaultPriceRange}
-            currentRange={priceRange}
-          />
+          <PriceFilter onPriceChange={handlePriceChange} />
 
           {/* Collapsible Filters for Mobile */}
           <div className="lg:hidden">
-            <details className="mb-4" open>
+            <details className="mb-4">
               <summary className="font-bold text-xl cursor-pointer">Filters</summary>
               <div className="mt-2 space-y-4">
                 {/* Brand Filter */}
@@ -583,7 +675,7 @@ function ProductList() {
                     {uniqueBrands.map((brand) => (
                       <label
                         key={brand}
-                        title={`Filter by ${brand}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2 text-black font-bold"
                       >
                         <input
@@ -596,7 +688,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         <span className="peer-checked:text-red-500">
                           {formatDisplayName(brand)}
@@ -613,7 +705,7 @@ function ProductList() {
                     {uniqueColors.map((color) => (
                       <label
                         key={color}
-                        title={`Filter by ${color}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2"
                       >
                         <input
@@ -626,7 +718,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         {formatDisplayName(color)}
                       </label>
@@ -641,7 +733,7 @@ function ProductList() {
                     {uniqueBodyTypes.map((bodyType) => (
                       <label
                         key={bodyType}
-                        title={`Filter by ${bodyType}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2"
                       >
                         <input
@@ -654,7 +746,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         {formatDisplayName(bodyType)}
                       </label>
@@ -669,7 +761,7 @@ function ProductList() {
                     {uniqueFuelTypes.map((fuelType) => (
                       <label
                         key={fuelType}
-                        title={`Filter by ${fuelType}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2"
                       >
                         <input
@@ -682,7 +774,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         {formatDisplayName(fuelType)}
                       </label>
@@ -697,7 +789,7 @@ function ProductList() {
                     {uniqueModelYears.map((year) => (
                       <label
                         key={year}
-                        title={`Filter by ${year}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2 text-black font-bold"
                       >
                         <input
@@ -710,7 +802,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         <span className="peer-checked:text-red-500">{year}</span>
                       </label>
@@ -727,7 +819,7 @@ function ProductList() {
                     {uniqueDistances.map((dist) => (
                       <label
                         key={dist}
-                        title={`Filter by ${dist}`}
+                        title="Click to toggle filter"
                         className="flex items-center gap-2 text-black font-bold"
                       >
                         <input
@@ -740,7 +832,7 @@ function ProductList() {
                         <div
                           className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                           peer-checked:bg-red-300 peer-checked:border-red-500
-                          peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                          peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         <span className="peer-checked:text-red-500">{dist}</span>
                       </label>
@@ -752,15 +844,15 @@ function ProductList() {
           </div>
 
           {/* Desktop Filters */}
-          <div className="hidden lg:block space-y-6">
+          <div className="hidden lg:block">
             {/* Brand Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">Brand</h3>
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">Brand</h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueBrands.map((brand) => (
                   <label
                     key={brand}
-                    title={`Filter by ${brand}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2 text-black font-bold"
                   >
                     <input
@@ -773,7 +865,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     <span className="peer-checked:text-red-500">
                       {formatDisplayName(brand)}
@@ -784,13 +876,13 @@ function ProductList() {
             </div>
 
             {/* Color Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">Color</h3>
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">Color</h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueColors.map((color) => (
                   <label
                     key={color}
-                    title={`Filter by ${color}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2"
                   >
                     <input
@@ -803,7 +895,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     {formatDisplayName(color)}
                   </label>
@@ -812,13 +904,13 @@ function ProductList() {
             </div>
 
             {/* Body Type Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">Body Type</h3>
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">Body Type</h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueBodyTypes.map((bodyType) => (
                   <label
                     key={bodyType}
-                    title={`Filter by ${bodyType}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2"
                   >
                     <input
@@ -831,7 +923,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     {formatDisplayName(bodyType)}
                   </label>
@@ -840,13 +932,13 @@ function ProductList() {
             </div>
 
             {/* Fuel Type Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">Fuel Type</h3>
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">Fuel Type</h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueFuelTypes.map((fuelType) => (
                   <label
                     key={fuelType}
-                    title={`Filter by ${fuelType}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2"
                   >
                     <input
@@ -859,7 +951,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     {formatDisplayName(fuelType)}
                   </label>
@@ -868,13 +960,13 @@ function ProductList() {
             </div>
 
             {/* Model Year Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">Model Year</h3>
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">Model Year</h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueModelYears.map((year) => (
                   <label
                     key={year}
-                    title={`Filter by ${year}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2 text-black font-bold"
                   >
                     <input
@@ -887,7 +979,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     <span className="peer-checked:text-red-500">{year}</span>
                   </label>
@@ -896,15 +988,15 @@ function ProductList() {
             </div>
 
             {/* Distance Covered Filter */}
-            <div>
-              <h3 className="font-bold text-xl text-black">
+            <div className="mt-4">
+              <h3 className="font-bold text-xl sm:text-2xl text-black">
                 Distance Covered
               </h3>
               <div className="flex flex-col mt-2 gap-1">
                 {uniqueDistances.map((dist) => (
                   <label
                     key={dist}
-                    title={`Filter by ${dist}`}
+                    title="Click to toggle filter"
                     className="flex items-center gap-2 text-black font-bold"
                   >
                     <input
@@ -917,7 +1009,7 @@ function ProductList() {
                     <div
                       className="w-6 h-6 flex items-center justify-center border-2 border-red-500 rounded-sm
                       peer-checked:bg-red-300 peer-checked:border-red-500
-                      peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:text-sm"
+                      peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     <span className="peer-checked:text-red-500">{dist}</span>
                   </label>
@@ -929,114 +1021,114 @@ function ProductList() {
 
         {/* Product List Section */}
         <div className="w-full lg:w-3/4 p-4 lg:p-10">
-          <div className="relative mb-6">
-            <input
-              className="search-input w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              type="text"
-              placeholder="Search by model, brand, color, etc."
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            <svg
-              className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          
+          <input
+            className="search-input w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            type="text"
+            placeholder="Search Product"
+            onChange={searchHandle}
+          />
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProducts.map((item) => (
                 <div
                   key={item._id}
-                  className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow bg-white"
+                  className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
                   onClick={() => openModal(item)}
                 >
                   <Slider {...sliderSettings} className="product-slider">
-                    {item.images?.map((image, idx) => (
-                      <div key={idx} className="slider-image-container">
-                        <img
-                          src={`https://finaltesting-tnim.onrender.com${image}`}
-                          alt={`${item.model} ${idx + 1}`}
-                          className="product-image w-full h-48 object-cover rounded-lg"
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/300x200?text=Car+Image";
-                          }}
-                        />
-                      </div>
-                    ))}
+                    {item.images &&
+                      item.images.map((image, idx) => (
+                        <div key={idx} className="slider-image-container">
+                          <img
+                            src={`https://finaltesting-tnim.onrender.com${image}`}
+                            alt={`Product ${idx + 1}`}
+                            className="product-image w-full h-48 object-cover rounded-lg"
+                          />
+                        </div>
+                      ))}
                   </Slider>
-                  
-                  <div className="mt-4 space-y-2">
-                    <h3 className="text-xl font-bold text-gray-900">{item.model}</h3>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Brand:</span> {formatDisplayName(item.company)}
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Color:</span> {formatDisplayName(item.color)}
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Distance:</span> {item.distanceCovered.toLocaleString()} km
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Year:</span> {item.modelYear}
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Body:</span> {formatDisplayName(item.bodyType)}
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-semibold">Fuel:</span> {formatDisplayName(item.fuelType)}
-                    </p>
-                    <p className="text-gray-700 font-bold text-lg">
-                      <span className="font-semibold">Price:</span> ₹{(item.price * 100000).toLocaleString()}
-                    </p>
-                  </div>
+                  <h3 className="mt-4 text-xl font-bold">Model: {item.model}</h3>
+                  <p className="text-gray-700">
+                    Company: {formatDisplayName(item.company)}
+                  </p>
+                  <p className="text-gray-700">Color: {formatDisplayName(item.color)}</p>
+                  <p className="text-gray-700">
+                    Distance Covered: {item.distanceCovered.toLocaleString()} km
+                  </p>
+                  <p className="text-gray-700">
+                    Model Year: {item.modelYear}
+                  </p>
+                  <p className="text-gray-700">Body Type: {formatDisplayName(item.bodyType)}</p>
+                  <p className="text-gray-700">Fuel Type: {formatDisplayName(item.fuelType)}</p>
+                  <p className="text-gray-700">Price: ₹{(item.price * 100000).toLocaleString()}</p>
+                  <p className="text-gray-700">Variant: {item.variant}</p>
+                  <p className="text-gray-700">
+                    Registration Year: {item.registrationYear}
+                  </p>
+                  <p className="text-gray-700">
+                    Transmission Type: {item.transmissionType}
+                  </p>
+                  <p className="text-gray-700">
+                    Condition: {formatDisplayName(item.condition) || "N/A"}
+                  </p>
+                  <p className="text-gray-700">
+                    Registration Status: {formatDisplayName(item.registrationStatus) || "N/A"}
+                  </p>
 
                   <div className="product-actions mt-4 flex flex-col sm:flex-row gap-2">
                     <button
-                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center justify-center gap-2 sm:w-auto w-full"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const message = `I'm interested in this car:\n\n*Model:* ${item.model}\n*Brand:* ${formatDisplayName(item.company)}\n*Price:* ₹${(item.price * 100000).toLocaleString()}\n*Year:* ${item.modelYear}\n*Color:* ${formatDisplayName(item.color)}\n\nCan you provide more details?`;
+                        const message =
+                          `Hello! I'm interested in this car:\n\n` +
+                          `- Model: ${item.model}\n` +
+                          `- Company: ${formatDisplayName(item.company)}\n` +
+                          `- Color: ${formatDisplayName(item.color)}\n` +
+                          `- Distance Covered: ${item.distanceCovered.toLocaleString()} km\n` +
+                          `- Model Year: ${item.modelYear}\n` +
+                          `- Price: ₹${(item.price * 100000).toLocaleString()}\n` +
+                          `- Variant: ${item.variant}\n` +
+                          `- Registration Year: ${item.registrationYear}\n` +
+                          `- Fuel Type: ${formatDisplayName(item.fuelType)}\n` +
+                          `- Body Type: ${formatDisplayName(item.bodyType)}\n` +
+                          `- Transmission Type: ${item.transmissionType}\n` +
+                          `- Condition: ${formatDisplayName(item.condition) || "N/A"}\n` +
+                          `- Registration Status: ${formatDisplayName(item.registrationStatus) || "N/A"}\n\n` +
+                          `Can you provide more details?`;
                         window.open(
-                          `https://wa.me/8121021135?text=${encodeURIComponent(message)}`,
+                          `https://wa.me/8121021135?text=${encodeURIComponent(
+                            message
+                          )}`,
                           "_blank"
                         );
                       }}
                     >
-                      <i className="ri-whatsapp-line"></i>
-                      <span>WhatsApp</span>
+                      <i className="ri-whatsapp-line"></i> 
+                      <span className="hidden sm:inline">WhatsApp</span>
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2 sm:w-auto w-full"
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.location.href = "tel:+918121021135";
+                        window.open(
+                          `https://wa.me/8121021135?text=${encodeURIComponent(
+                            "Hello! I'm interested in purchasing a car and would like to learn more about your available options. Could you assist me with the details?"
+                          )}`,
+                          "_blank"
+                        );
                       }}
                     >
-                      <i className="ri-phone-line"></i>
-                      <span>Call</span>
+                      <i className="ri-phone-line"></i> 
+                      <span className="hidden sm:inline">Call</span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="h-96 flex flex-col justify-center items-center">
-              <p className="text-gray-700 text-xl mb-4">No products match your filters</p>
-              <button
-                onClick={clearFilters}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              >
-                Clear All Filters
-              </button>
+            <div className="h-96 flex justify-center items-center">
+              <p className="text-gray-700">No products found</p>
             </div>
           )}
         </div>
@@ -1048,19 +1140,6 @@ function ProductList() {
         onRequestClose={closeModal}
         className={`full-view-modal mx-auto ${isMobile ? 'hidden' : ''}`}
         overlayClassName={isMobile ? 'hidden' : ''}
-        style={{
-          content: {
-            maxWidth: '900px',
-            margin: 'auto',
-            borderRadius: '12px',
-            padding: '0',
-            border: 'none'
-          },
-          overlay: {
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            zIndex: 1000
-          }
-        }}
       >
         {currentProduct && !isMobile && (
           <FullViewSlider product={currentProduct} closeModal={closeModal} />
