@@ -1,3 +1,4 @@
+// app.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -9,8 +10,16 @@ const User = require("./DB/User");
 const Product = require("./DB/Product");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Middleware
 app.use(express.json());
@@ -28,20 +37,22 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // Enable if using cookies or authentication
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allow these methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Customize if needed
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Connection
+// Database Connection
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+  })
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database connection error:", err));
 
-// Register API
+// User Routes (Unchanged)
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -68,7 +79,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login API
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -94,50 +104,56 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Add Product API with new fields
+// Modified Product Creation with Cloudinary
 app.post("/add", multer.array("images", 20), async (req, res) => {
-  const { 
-    company, 
-    model, 
-    color, 
-    variant,
-    distanceCovered, 
-    modelYear, 
-    price,
-    registrationYear, 
-    fuelType,
-    transmissionType,
-    bodyType,
-    condition,
-    registrationStatus
-  } = req.body;
-  
-  const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
-
-  if (!company || !model || !color || !registrationYear || !fuelType || 
-      !transmissionType || !variant || !distanceCovered || !modelYear || 
-      !bodyType || !price || images.length === 0 || !condition || !registrationStatus) {
-    return res.status(400).send({ error: "All fields and at least one image are required." });
-  }
-
-  const product = new Product({
-    company,
-    model,
-    color,
-    registrationYear,
-    fuelType,
-    transmissionType,
-    variant,
-    distanceCovered: Number(distanceCovered),
-    modelYear: Number(modelYear),
-    price: Number(price),
-    bodyType,
-    images,
-    condition,
-    registrationStatus
-  });
-
   try {
+    const { 
+      company, 
+      model, 
+      color, 
+      variant,
+      distanceCovered, 
+      modelYear, 
+      price,
+      registrationYear, 
+      fuelType,
+      transmissionType,
+      bodyType,
+      condition,
+      registrationStatus
+    } = req.body;
+
+    // Upload images to Cloudinary
+    const imageUrls = [];
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        {
+          folder: 'car_dealer',
+          resource_type: 'auto'
+        }
+      );
+      imageUrls.push(result.secure_url);
+    }
+
+    // Create product with Cloudinary URLs
+    const product = new Product({
+      company,
+      model,
+      color,
+      registrationYear,
+      fuelType,
+      transmissionType,
+      variant,
+      distanceCovered: Number(distanceCovered),
+      modelYear: Number(modelYear),
+      price: Number(price),
+      bodyType,
+      images: imageUrls,
+      condition,
+      registrationStatus
+    });
+
     const result = await product.save();
     res.status(201).send(result);
   } catch (error) {
@@ -146,7 +162,7 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
   }
 });
 
-// Get All Products with Filtering
+// Rest of Product Routes (Unchanged)
 app.get("/product", async (req, res) => {
   try {
     const { 
@@ -178,13 +194,11 @@ app.get("/product", async (req, res) => {
   }
 });
 
-// Delete Product
 app.delete('/product/:id', async (req, res) => {
   const result = await Product.deleteOne({ _id: req.params.id });
   res.send(result);
 });
 
-// Get Single Product
 app.get("/product/:id", async (req, res) => {
   let result = await Product.findOne({ _id: req.params.id });
   if (result) {
@@ -194,7 +208,6 @@ app.get("/product/:id", async (req, res) => {
   }
 });
 
-// Update Product
 app.put("/product/:id", async (req, res) => {
   let result = await Product.updateOne(
     { _id: req.params.id },
@@ -203,7 +216,6 @@ app.put("/product/:id", async (req, res) => {
   res.send(result);
 });
 
-// Enhanced Search with New Filters
 app.get("/search/:key", async (req, res) => {
   try {
     const searchKey = req.params.key;
@@ -227,7 +239,6 @@ app.get("/search/:key", async (req, res) => {
       ];
     }
 
-    // Add new filters
     if (condition) query.condition = condition;
     if (registrationStatus) query.registrationStatus = registrationStatus;
     if (minPrice && maxPrice) query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
@@ -248,7 +259,6 @@ app.get("/search/:key", async (req, res) => {
   }
 });
 
-// Product List with Filtering
 app.get("/productlist", async (req, res) => {
   try {
     const { 
@@ -280,7 +290,7 @@ app.get("/productlist", async (req, res) => {
   }
 });
 
-// Password Reset Routes (unchanged)
+// Password Reset Routes
 app.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -349,6 +359,6 @@ app.post('/reset-password/:token', async (req, res) => {
   res.status(200).json({ success: true, message: "Password reset successfully." });
 });
 
-// Start the server
+// Server Startup
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
