@@ -88,28 +88,6 @@ function AddProduct() {
         }
       };
 
-    clearTimeout(timeoutId);
-
-    // Handle response
-    const contentType = response.headers.get('content-type');
-    const data = contentType?.includes('application/json') 
-      ? await response.json()
-      : await response.text();
-
-    if (!response.ok) {
-      throw new Error(data.error || data || 'Failed to add car');
-    }
-
-    navigate("/");
-  } catch (error) {
-    console.error("Error:", error);
-    setError(error.name === 'AbortError' 
-      ? "Request timed out - please try again" 
-      : error.message
-    );
-  }
-};
-
     const handleImageChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
         setImages((prevImages) => [...prevImages, ...selectedFiles]);
