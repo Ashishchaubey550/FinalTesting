@@ -154,7 +154,7 @@ const BrandFilter = () => {
                 e.target.src = "https://via.placeholder.com/64?text=Car";
               }}
             />
-            <p className="text-sm sm:text-base font-semibold text-center line-clamp-1">
+            <p className="text-sm sm:text-base mb-2 font-semibold text-center line-clamp-1">
               {brand}
             </p>
             <p className="text-xs sm:text-sm text-gray-600 text-center">
