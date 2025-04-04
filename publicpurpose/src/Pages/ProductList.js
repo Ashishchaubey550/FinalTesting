@@ -8,12 +8,46 @@ import PriceFilter from "../Components/PriceFilter";
 
 Modal.setAppElement("#root");
 
-// Helper function to normalize brand names
+// Helper function to normalize strings for consistent filtering
+const normalizeString = (str) => {
+  if (!str) return "";
+  return str.toLowerCase().trim().replace(/\s+/g, ' ');
+};
+
+// Specific normalization for brand names
 const normalizeBrand = (brand) => {
-  if (!brand) return "";
-  const lower = brand.toLowerCase().trim();
-  if (lower === "lamborgini") return "lamborghini";
-  return lower;
+  const normalized = normalizeString(brand);
+  if (normalized === "lamborgini") return "lamborghini";
+  if (normalized === "morris garages") return "mg";
+  return normalized;
+};
+
+// Normalize color names
+const normalizeColor = (color) => {
+  const normalized = normalizeString(color);
+  // Handle common color variations
+  if (normalized.includes("aurora silver")) return "silver";
+  if (normalized.includes("starry black")) return "black";
+  return normalized;
+};
+
+// Normalize body types
+const normalizeBodyType = (bodyType) => {
+  const normalized = normalizeString(bodyType);
+  // Standardize body type names
+  if (normalized.includes("suv")) return "suv";
+  if (normalized.includes("sedan")) return "sedan";
+  if (normalized.includes("hatchback")) return "hatchback";
+  return normalized;
+};
+
+// Normalize fuel types
+const normalizeFuelType = (fuelType) => {
+  const normalized = normalizeString(fuelType);
+  if (normalized.includes("petrol")) return "petrol";
+  if (normalized.includes("diesel")) return "diesel";
+  if (normalized.includes("electric")) return "electric";
+  return normalized;
 };
 
 function ProductList() {
@@ -21,7 +55,7 @@ function ProductList() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [isMobile, setIsMobile] = useState(false); // State to detect mobile devices
+  const [isMobile, setIsMobile] = useState(false);
 
   // Default price range in rupees: 50,000 to 7,000,000
   const defaultPriceRange = [50000, 7000000];
@@ -70,6 +104,13 @@ function ProductList() {
         const normalizedProducts = result.map((p) => ({
           ...p,
           company: normalizeBrand(p.company),
+          color: normalizeColor(p.color),
+          bodyType: normalizeBodyType(p.bodyType),
+          fuelType: normalizeFuelType(p.fuelType),
+          // Ensure numeric values
+          distanceCovered: Number(p.distanceCovered) || 0,
+          modelYear: Number(p.modelYear) || 0,
+          price: Number(p.price) || 0
         }));
         setProducts(normalizedProducts);
         setFilteredProducts(normalizedProducts);
@@ -100,27 +141,23 @@ function ProductList() {
     ) => {
       const filtered = dataset.filter((p) => {
         const priceInRupees = p.price * 100000; // Convert lakhs to rupees
-        const productCompany = p.company || "";
-        const productColor = (p.color || "").toLowerCase();
-        const productBodyType = (p.bodyType || "").toLowerCase();
-        const productFuelType = (p.fuelType || "").toLowerCase();
         const isPreowned = p.condition === "preowned";
         const isUnregistered = p.registrationStatus === "unregistered";
 
         return (
           priceInRupees >= priceRange[0] &&
           priceInRupees <= priceRange[1] &&
-          (brands.length === 0 || brands.includes(productCompany)) &&
-          (colors.length === 0 || colors.includes(productColor)) &&
-          (bodyTypes.length === 0 || bodyTypes.includes(productBodyType)) &&
-          (fuelTypes.length === 0 || fuelTypes.includes(productFuelType)) &&
+          (brands.length === 0 || brands.includes(p.company)) &&
+          (colors.length === 0 || colors.includes(p.color)) &&
+          (bodyTypes.length === 0 || bodyTypes.includes(p.bodyType)) &&
+          (fuelTypes.length === 0 || fuelTypes.includes(p.fuelType)) &&
           (modelYears.length === 0 || modelYears.includes(p.modelYear)) &&
           (distances.length === 0 || distances.includes(p.distanceCovered)) &&
           (!preowned || isPreowned) &&
           (!unregistered || isUnregistered)
         );
       });
-      setFilteredProducts(filtered.length ? filtered : dataset);
+      setFilteredProducts(filtered.length ? filtered : []);
     },
     [products]
   );
@@ -157,7 +194,7 @@ function ProductList() {
   // Handle brand change
   const handleBrandChange = useCallback(
     (event) => {
-      const selectedBrand = event.target.value;
+      const selectedBrand = normalizeBrand(event.target.value);
       const newSelectedBrands = selectedBrands.includes(selectedBrand)
         ? selectedBrands.filter((brand) => brand !== selectedBrand)
         : [...selectedBrands, selectedBrand];
@@ -191,7 +228,7 @@ function ProductList() {
   // Handle color change
   const handleColorChange = useCallback(
     (event) => {
-      const selectedColor = event.target.value.toLowerCase();
+      const selectedColor = normalizeColor(event.target.value);
       const newSelectedColors = selectedColors.includes(selectedColor)
         ? selectedColors.filter((color) => color !== selectedColor)
         : [...selectedColors, selectedColor];
@@ -225,7 +262,7 @@ function ProductList() {
   // Handle body type change
   const handleBodyTypeChange = useCallback(
     (event) => {
-      const selectedBodyType = event.target.value.toLowerCase();
+      const selectedBodyType = normalizeBodyType(event.target.value);
       const newSelectedBodyTypes = selectedBodyTypes.includes(selectedBodyType)
         ? selectedBodyTypes.filter((bodyType) => bodyType !== selectedBodyType)
         : [...selectedBodyTypes, selectedBodyType];
@@ -259,7 +296,7 @@ function ProductList() {
   // Handle fuel type change
   const handleFuelTypeChange = useCallback(
     (event) => {
-      const selectedFuelType = event.target.value.toLowerCase();
+      const selectedFuelType = normalizeFuelType(event.target.value);
       const newSelectedFuelTypes = selectedFuelTypes.includes(selectedFuelType)
         ? selectedFuelTypes.filter((fuelType) => fuelType !== selectedFuelType)
         : [...selectedFuelTypes, selectedFuelType];
@@ -426,6 +463,12 @@ function ProductList() {
             const normalizedResult = result.map((p) => ({
               ...p,
               company: normalizeBrand(p.company),
+              color: normalizeColor(p.color),
+              bodyType: normalizeBodyType(p.bodyType),
+              fuelType: normalizeFuelType(p.fuelType),
+              distanceCovered: Number(p.distanceCovered) || 0,
+              modelYear: Number(p.modelYear) || 0,
+              price: Number(p.price) || 0
             }));
             filterProducts(
               priceRange,
@@ -504,46 +547,63 @@ function ProductList() {
     setFilteredProducts(products);
   }, [products]);
 
-  // Compute unique filter options
+  // Compute unique filter options with normalized values
   const uniqueBrands = useMemo(
-    () => [...new Set(products.map((p) => p.company))].filter(Boolean),
+    () => [...new Set(products.map((p) => p.company))].filter(Boolean).sort(),
     [products]
   );
+  
   const uniqueColors = useMemo(
-    () =>
-      [...new Set(products.map((p) => (p.color || "").toLowerCase()))].filter(
-        Boolean
-      ),
+    () => [...new Set(products.map((p) => p.color))].filter(Boolean).sort(),
     [products]
   );
+  
   const uniqueBodyTypes = useMemo(
-    () =>
-      [
-        ...new Set(products.map((p) => (p.bodyType || "").toLowerCase())),
-      ].filter(Boolean),
+    () => [...new Set(products.map((p) => p.bodyType))].filter(Boolean).sort(),
     [products]
   );
+  
   const uniqueFuelTypes = useMemo(
-    () =>
-      [
-        ...new Set(products.map((p) => (p.fuelType || "").toLowerCase())),
-      ].filter(Boolean),
+    () => [...new Set(products.map((p) => p.fuelType))].filter(Boolean).sort(),
     [products]
   );
+  
   const uniqueModelYears = useMemo(
-    () =>
-      [...new Set(products.map((p) => p.modelYear))]
-        .sort((a, b) => a - b)
-        .filter(Boolean),
+    () => [...new Set(products.map((p) => p.modelYear))]
+      .filter(year => !isNaN(year) && year !== 0)
+      .sort((a, b) => b - a), // Sort descending (newest first)
     [products]
   );
+  
   const uniqueDistances = useMemo(
-    () =>
-      [...new Set(products.map((p) => p.distanceCovered))]
-        .sort((a, b) => a - b)
-        .filter(Boolean),
+    () => {
+      const distances = [...new Set(products.map((p) => p.distanceCovered))]
+        .filter(dist => !isNaN(dist) && dist !== 0)
+        .sort((a, b) => a - b);
+      
+      // Group distances into ranges for better filtering
+      const distanceRanges = [
+        { label: "0-10,000 km", min: 0, max: 10000 },
+        { label: "10,001-30,000 km", min: 10001, max: 30000 },
+        { label: "30,001-50,000 km", min: 30001, max: 50000 },
+        { label: "50,001-80,000 km", min: 50001, max: 80000 },
+        { label: "80,001+ km", min: 80001, max: Infinity }
+      ];
+      
+      return distanceRanges.filter(range => 
+        distances.some(dist => dist >= range.min && dist <= range.max)
+      ).map(range => range.label);
+    },
     [products]
   );
+
+  // Display name formatting
+  const formatDisplayName = (str) => {
+    if (!str) return "";
+    return str.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return (
     <div className="flex flex-col">
@@ -631,7 +691,7 @@ function ProductList() {
                           peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
                         <span className="peer-checked:text-red-500">
-                          {brand.charAt(0).toUpperCase() + brand.slice(1)}
+                          {formatDisplayName(brand)}
                         </span>
                       </label>
                     ))}
@@ -660,7 +720,7 @@ function ProductList() {
                           peer-checked:bg-red-300 peer-checked:border-red-500
                           peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
-                        {color.charAt(0).toUpperCase() + color.slice(1)}
+                        {formatDisplayName(color)}
                       </label>
                     ))}
                   </div>
@@ -688,7 +748,7 @@ function ProductList() {
                           peer-checked:bg-red-300 peer-checked:border-red-500
                           peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
-                        {bodyType.charAt(0).toUpperCase() + bodyType.slice(1)}
+                        {formatDisplayName(bodyType)}
                       </label>
                     ))}
                   </div>
@@ -716,7 +776,7 @@ function ProductList() {
                           peer-checked:bg-red-300 peer-checked:border-red-500
                           peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
-                        {fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                        {formatDisplayName(fuelType)}
                       </label>
                     ))}
                   </div>
@@ -726,7 +786,7 @@ function ProductList() {
                 <div>
                   <h3 className="font-bold text-lg text-black">Model Year</h3>
                   <div className="flex flex-col mt-2 gap-1">
-                    {uniqueModelYears.slice(0, 5).map((year) => (
+                    {uniqueModelYears.map((year) => (
                       <label
                         key={year}
                         title="Click to toggle filter"
@@ -753,10 +813,10 @@ function ProductList() {
                 {/* Distance Covered Filter */}
                 <div>
                   <h3 className="font-bold text-lg text-black">
-                    Distance Covered (km)
+                    Distance Covered
                   </h3>
                   <div className="flex flex-col mt-2 gap-1">
-                    {uniqueDistances.slice(0, 5).map((dist) => (
+                    {uniqueDistances.map((dist) => (
                       <label
                         key={dist}
                         title="Click to toggle filter"
@@ -774,7 +834,7 @@ function ProductList() {
                           peer-checked:bg-red-300 peer-checked:border-red-500
                           peer-checked:before:content-['x'] peer-checked:before:text-xl"
                         ></div>
-                        <span className="peer-checked:text-red-500">{dist} km</span>
+                        <span className="peer-checked:text-red-500">{dist}</span>
                       </label>
                     ))}
                   </div>
@@ -808,7 +868,7 @@ function ProductList() {
                       peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
                     <span className="peer-checked:text-red-500">
-                      {brand.charAt(0).toUpperCase() + brand.slice(1)}
+                      {formatDisplayName(brand)}
                     </span>
                   </label>
                 ))}
@@ -837,7 +897,7 @@ function ProductList() {
                       peer-checked:bg-red-300 peer-checked:border-red-500
                       peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
-                    {color.charAt(0).toUpperCase() + color.slice(1)}
+                    {formatDisplayName(color)}
                   </label>
                 ))}
               </div>
@@ -865,7 +925,7 @@ function ProductList() {
                       peer-checked:bg-red-300 peer-checked:border-red-500
                       peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
-                    {bodyType.charAt(0).toUpperCase() + bodyType.slice(1)}
+                    {formatDisplayName(bodyType)}
                   </label>
                 ))}
               </div>
@@ -893,7 +953,7 @@ function ProductList() {
                       peer-checked:bg-red-300 peer-checked:border-red-500
                       peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
-                    {fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                    {formatDisplayName(fuelType)}
                   </label>
                 ))}
               </div>
@@ -903,7 +963,7 @@ function ProductList() {
             <div className="mt-4">
               <h3 className="font-bold text-xl sm:text-2xl text-black">Model Year</h3>
               <div className="flex flex-col mt-2 gap-1">
-                {uniqueModelYears.slice(0, 5).map((year) => (
+                {uniqueModelYears.map((year) => (
                   <label
                     key={year}
                     title="Click to toggle filter"
@@ -930,10 +990,10 @@ function ProductList() {
             {/* Distance Covered Filter */}
             <div className="mt-4">
               <h3 className="font-bold text-xl sm:text-2xl text-black">
-                Distance Covered (km)
+                Distance Covered
               </h3>
               <div className="flex flex-col mt-2 gap-1">
-                {uniqueDistances.slice(0, 5).map((dist) => (
+                {uniqueDistances.map((dist) => (
                   <label
                     key={dist}
                     title="Click to toggle filter"
@@ -951,7 +1011,7 @@ function ProductList() {
                       peer-checked:bg-red-300 peer-checked:border-red-500
                       peer-checked:before:content-['x'] peer-checked:before:text-xl"
                     ></div>
-                    <span className="peer-checked:text-red-500">{dist} km</span>
+                    <span className="peer-checked:text-red-500">{dist}</span>
                   </label>
                 ))}
               </div>
@@ -989,20 +1049,18 @@ function ProductList() {
                   </Slider>
                   <h3 className="mt-4 text-xl font-bold">Model: {item.model}</h3>
                   <p className="text-gray-700">
-                    Company:{" "}
-                    {item.company.charAt(0).toUpperCase() +
-                      item.company.slice(1)}
+                    Company: {formatDisplayName(item.company)}
                   </p>
-                  <p className="text-gray-700">Color: {item.color}</p>
+                  <p className="text-gray-700">Color: {formatDisplayName(item.color)}</p>
                   <p className="text-gray-700">
-                    Distance Covered: {item.distanceCovered} km
+                    Distance Covered: {item.distanceCovered.toLocaleString()} km
                   </p>
                   <p className="text-gray-700">
                     Model Year: {item.modelYear}
                   </p>
-                  <p className="text-gray-700">Body Type: {item.bodyType}</p>
-                  <p className="text-gray-700">Fuel Type: {item.fuelType}</p>
-                  <p className="text-gray-700">Price: ₹{item.price} Lakhs</p>
+                  <p className="text-gray-700">Body Type: {formatDisplayName(item.bodyType)}</p>
+                  <p className="text-gray-700">Fuel Type: {formatDisplayName(item.fuelType)}</p>
+                  <p className="text-gray-700">Price: ₹{(item.price * 100000).toLocaleString()}</p>
                   <p className="text-gray-700">Variant: {item.variant}</p>
                   <p className="text-gray-700">
                     Registration Year: {item.registrationYear}
@@ -1011,10 +1069,10 @@ function ProductList() {
                     Transmission Type: {item.transmissionType}
                   </p>
                   <p className="text-gray-700">
-                    Condition: {item.condition || "N/A"}
+                    Condition: {formatDisplayName(item.condition) || "N/A"}
                   </p>
                   <p className="text-gray-700">
-                    Registration Status: {item.registrationStatus || "N/A"}
+                    Registration Status: {formatDisplayName(item.registrationStatus) || "N/A"}
                   </p>
 
                   <div className="product-actions mt-4 flex flex-col sm:flex-row gap-2">
@@ -1025,18 +1083,18 @@ function ProductList() {
                         const message =
                           `Hello! I'm interested in this car:\n\n` +
                           `- Model: ${item.model}\n` +
-                          `- Company: ${item.company}\n` +
-                          `- Color: ${item.color}\n` +
-                          `- Distance Covered: ${item.distanceCovered} km\n` +
+                          `- Company: ${formatDisplayName(item.company)}\n` +
+                          `- Color: ${formatDisplayName(item.color)}\n` +
+                          `- Distance Covered: ${item.distanceCovered.toLocaleString()} km\n` +
                           `- Model Year: ${item.modelYear}\n` +
-                          `- Price: ₹${item.price} Lakhs\n` +
+                          `- Price: ₹${(item.price * 100000).toLocaleString()}\n` +
                           `- Variant: ${item.variant}\n` +
                           `- Registration Year: ${item.registrationYear}\n` +
-                          `- Fuel Type: ${item.fuelType}\n` +
-                          `- Body Type: ${item.bodyType}\n` +
+                          `- Fuel Type: ${formatDisplayName(item.fuelType)}\n` +
+                          `- Body Type: ${formatDisplayName(item.bodyType)}\n` +
                           `- Transmission Type: ${item.transmissionType}\n` +
-                          `- Condition: ${item.condition || "N/A"}\n` +
-                          `- Registration Status: ${item.registrationStatus || "N/A"}\n\n` +
+                          `- Condition: ${formatDisplayName(item.condition) || "N/A"}\n` +
+                          `- Registration Status: ${formatDisplayName(item.registrationStatus) || "N/A"}\n\n` +
                           `Can you provide more details?`;
                         window.open(
                           `https://wa.me/8121021135?text=${encodeURIComponent(
