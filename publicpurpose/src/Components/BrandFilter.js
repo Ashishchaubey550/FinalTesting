@@ -29,7 +29,7 @@ const BrandFilter = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await fetch("https://finaltesting-tnim.onrender.com/product");
+      const response = await fetch("https://finaltesting-tnim.onrender.com/productlist");
       const data = await response.json();
       if (data && data.length > 0) {
         const brandCounts = data.reduce((acc, item) => {
