@@ -2,31 +2,62 @@ import { Button, Skeleton } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// Brand normalization mapping
+const BRAND_NORMALIZATION = {
+  "morris garages": "MG",
+  "mg motors": "MG",
+  "mg": "MG",
+  "maruti": "MARUTI SUZUKI",
+  "maruti suzuki": "MARUTI SUZUKI",
+  "mercedes": "MERCEDES",
+  "mercedes-benz": "MERCEDES",
+  "benz": "MERCEDES",
+  // Add other brand variations as needed
+};
+
+// Brand logo images
+const BRAND_IMAGES = {
+  "MARUTI SUZUKI": "https://mda.spinny.com/spinny-web/media/cars/makes/maruti-suzuki/logos/maruti-suzuki.webp",
+  "HONDA": "https://mda.spinny.com/spinny-web/media/cars/makes/honda/logos/honda.webp",
+  "FORD": "https://spn-sta.spinny.com/spinny-web/oth/raMicD2JTFa1JOLFZewdpg/raw/file.webp",
+  "BMW": "https://mda.spinny.com/spinny-web/media/cars/makes/bmw/logos/v1.png",
+  "MERCEDES": "https://mda.spinny.com/spinny-web/media/cars/makes/mercedes-benz/logos/v1.png",
+  "RENAULT": "https://mda.spinny.com/spinny-web/media/cars/makes/renault/logos/renault.webp",
+  "MG": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
+  "HYUNDAI": "https://mda.spinny.com/spinny-web/media/cars/makes/hyundai/logos/hyundai.webp",
+  "VOLKSWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
+  "CHEVROLET": "https://www.carlogos.org/logo/Chevrolet-logo-2013-1920x1080.png",
+  "KIA": "https://mda.spinny.com/spinny-web/media/cars/makes/kia/logos/v1.webp",
+  "TATA": "https://mda.spinny.com/spinny-web/media/cars/makes/tata/logos/tata.webp",
+  "NISSAN": "https://e7.pngegg.com/pngimages/132/969/png-clipart-nissan-car-logo-automotive-industry-brand-nissan-emblem-trademark.png",
+  "TOYOTA": "https://www.carlogos.org/logo/Toyota-logo-1989-1920x1080.png",
+  "MAHINDRA": "https://www.carlogos.org/logo/Mahindra-logo-2000x2500.png"
+};
+
+const normalizeBrand = (brandName) => {
+  if (!brandName) return '';
+  
+  const lowerBrand = brandName.toLowerCase().trim();
+  
+  // Check if we have a normalization mapping
+  for (const [key, value] of Object.entries(BRAND_NORMALIZATION)) {
+    if (lowerBrand.includes(key)) {
+      return value;
+    }
+  }
+  
+  // Default case - capitalize first letters of each word
+  return lowerBrand
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const BrandFilter = () => {
   const navigate = useNavigate();
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Static mapping of brand images
-  const brandImages = {
-    "MARUTI SUZUKI": "https://mda.spinny.com/spinny-web/media/cars/makes/maruti-suzuki/logos/maruti-suzuki.webp",
-    "HONDA": "https://mda.spinny.com/spinny-web/media/cars/makes/honda/logos/honda.webp",
-    "FORD": "https://spn-sta.spinny.com/spinny-web/oth/raMicD2JTFa1JOLFZewdpg/raw/file.webp",
-    "BMW": "https://mda.spinny.com/spinny-web/media/cars/makes/bmw/logos/v1.png",
-    "MERCEDES": "https://mda.spinny.com/spinny-web/media/cars/makes/mercedes-benz/logos/v1.png",
-    "RENAULT": "https://mda.spinny.com/spinny-web/media/cars/makes/renault/logos/renault.webp",
-    "MG": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
-    "Morris Garages": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
-    "HYUNDAI": "https://mda.spinny.com/spinny-web/media/cars/makes/hyundai/logos/hyundai.webp",
-    "VOLKSWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
-    "CHEVROLET": "https://www.carlogos.org/logo/Chevrolet-logo-2013-1920x1080.png",
-    "KIA": "https://mda.spinny.com/spinny-web/media/cars/makes/kia/logos/v1.webp",
-    "TATA": "https://mda.spinny.com/spinny-web/media/cars/makes/tata/logos/tata.webp",
-    "NISSAN": "https://e7.pngegg.com/pngimages/132/969/png-clipart-nissan-car-logo-automotive-industry-brand-nissan-emblem-trademark.png",
-    "TOYOTA": "https://www.carlogos.org/logo/Toyota-logo-1989-1920x1080.png",
-    "MAHINDRA": "https://www.carlogos.org/logo/Mahindra-logo-2000x2500.png"
-  };
 
   useEffect(() => {
     fetchBrands();
@@ -38,24 +69,26 @@ const BrandFilter = () => {
       const response = await fetch("https://finaltesting-tnim.onrender.com/productlist");
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Failed to fetch: ${response.status}`);
       }
       
       const data = await response.json();
       
-      if (data && data.length > 0) {
+      if (data?.length > 0) {
         const brandCounts = data.reduce((acc, item) => {
           if (item.company) {
-            const brandName = item.company.toUpperCase().trim();
-            acc[brandName] = (acc[brandName] || 0) + 1;
+            const normalizedBrand = normalizeBrand(item.company);
+            if (normalizedBrand) {
+              acc[normalizedBrand] = (acc[normalizedBrand] || 0) + 1;
+            }
           }
           return acc;
         }, {});
         
-        // Convert to array and sort by count (descending)
+        // Sort by count (descending) and take top 12
         const sortedBrands = Object.entries(brandCounts)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 12); // Limit to top 12 brands
+          .slice(0, 12);
         
         setBrands(sortedBrands);
       }
@@ -68,7 +101,7 @@ const BrandFilter = () => {
   };
 
   const handleBrandClick = (brand) => {
-    navigate(`/brand/${encodeURIComponent(brand)}`);
+    navigate(`/brand/${encodeURIComponent(brand.toLowerCase())}`);
   };
 
   if (loading) {
@@ -101,12 +134,10 @@ const BrandFilter = () => {
 
   return (
     <div className="brand-filter flex flex-col gap-6 sm:gap-10 justify-center items-center min-h-[40vh] p-4 sm:p-8 lg:p-16">
-      {/* Heading */}
       <h2 className="font-semibold text-2xl sm:text-3xl text-center">
         Explore Popular Brands
       </h2>
 
-      {/* Brand Buttons */}
       <div className="flex flex-wrap gap-4 sm:gap-6 justify-center w-full max-w-6xl">
         {brands.map(([brand, count], index) => (
           <button
@@ -116,7 +147,7 @@ const BrandFilter = () => {
             aria-label={`View ${brand} cars`}
           >
             <img
-              src={brandImages[brand] || "https://via.placeholder.com/64?text=Car"}
+              src={BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car"}
               alt={brand}
               className="w-12 sm:w-16 h-12 sm:h-16 object-contain mb-1 sm:mb-2"
               onError={(e) => {
@@ -133,7 +164,6 @@ const BrandFilter = () => {
         ))}
       </div>
 
-      {/* View All Button */}
       <Link to="/productlist" className="mt-4 sm:mt-6">
         <Button 
           className="text-white font-semibold text-lg sm:text-xl bg-[#e23b3d] px-6 sm:px-8 py-1.5 rounded-xl hover:bg-[#a3282a] transition-all duration-300 shadow-lg"
