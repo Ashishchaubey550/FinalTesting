@@ -4,16 +4,65 @@ import { Link, useNavigate } from "react-router-dom";
 
 // Brand normalization mapping
 const BRAND_NORMALIZATION = {
-  "morris garages": "MG",
-  "mg motors": "MG",
-  "mg": "MG",
-  "maruti": "MARUTI SUZUKI",
-  "maruti suzuki": "MARUTI SUZUKI",
-  "mercedes": "MERCEDES",
-  "mercedes-benz": "MERCEDES",
-  "benz": "MERCEDES",
+    // MG
+    "morris garages": "MG",
+    "mg motors": "MG",
+    "mg": "MG",
+    
+    // Maruti Suzuki
+    "maruti": "MARUTI SUZUKI",
+    "maruti suzuki": "MARUTI SUZUKI",
+    "suzuki": "MARUTI SUZUKI",
+    
+    // Mercedes
+    "mercedes": "MERCEDES",
+    "mercedes-benz": "MERCEDES",
+    "benz": "MERCEDES",
+    
+    // Honda
+    "honda": "HONDA",
+    
+    // Ford
+    "ford": "FORD",
+    
+    // BMW
+    "bmw": "BMW",
+    "bayerische motoren werke": "BMW",
+    
+    // Renault
+    "renault": "RENAULT",
+    
+    // Hyundai
+    "hyundai": "HYUNDAI",
+    
+    // Volkswagen
+    "volkswagen": "VOLKSWAGEN",
+    "vw": "VOLKSWAGEN",
+    
+    // Kia
+    "kia": "KIA",
+    
+    // Tata
+    "tata": "TATA",
+    "tata motors": "TATA",
+    
+    // Toyota
+    "toyota": "TOYOTA",
+    
+    // Mahindra
+    "mahindra": "MAHINDRA",
+    "mahindra and mahindra": "MAHINDRA",
+    "mahindra & mahindra": "MAHINDRA",
+    
+    // Nissan
+    "nissan": "NISSAN",
+    
+    // Chevrolet
+    "chevrolet": "CHEVROLET",
+    "chevy": "CHEVROLET"
+  };
+
   // Add other brand variations as needed
-};
 
 // Brand logo images
 const BRAND_IMAGES = {
