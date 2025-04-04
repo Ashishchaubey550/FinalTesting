@@ -17,6 +17,7 @@ const BrandFilter = () => {
     "MERCEDES": "https://mda.spinny.com/spinny-web/media/cars/makes/mercedes-benz/logos/v1.png",
     "RENAULT": "https://mda.spinny.com/spinny-web/media/cars/makes/renault/logos/renault.webp",
     "MG": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
+    "Morris Garages": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
     "HYUNDAI": "https://mda.spinny.com/spinny-web/media/cars/makes/hyundai/logos/hyundai.webp",
     "VOLKSWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
     "CHEVROLET": "https://www.carlogos.org/logo/Chevrolet-logo-2013-1920x1080.png",
