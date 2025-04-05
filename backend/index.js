@@ -95,6 +95,15 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+// same ouput for image
+app.get("/product", async (req, res) => {
+  const products = await Product.find();
+  console.log("Sample Product:", products[0]); // Check URLs in logs
+  res.send(products);
+});
+
+
 // Modified Product Creation with Cloudinary
 // Product Routes
 app.post("/add", multer.array("images", 20), async (req, res) => {
