@@ -15,22 +15,41 @@ const CarCard = ({ car }) => {
     arrows: false,
   };
 
+  // Image URL normalization
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url.replace('http://', 'https://');
+    if (url.includes('res.cloudinary.com')) return `https://${url}`;
+    return url;
+  };
+
   return (
-    <Link to= "/productList" className="block">
+    <Link to="/productList" className="block">
       <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
         <div className="flex-grow">
           <Slider {...sliderSettings}>
-            {car.images?.map((image, idx) => (
-              <div key={idx}>
-                <img
-                  src={`https://finaltesting-tnim.onrender.com${image}`}
-                  alt={`${car.model} ${idx + 1}`}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-              </div>
-            ))}
+            {car.images
+              ?.filter(img => !!img) // Remove null/undefined
+              .map((image, idx) => {
+                const imageUrl = getImageUrl(image);
+                return (
+                  imageUrl && (
+                    <div key={idx}>
+                      <img
+                        src={imageUrl}
+                        alt={`${car.model} ${idx + 1}`}
+                        className="w-full h-48 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/300x200?text=Car+Image';
+                        }}
+                      />
+                    </div>
+                  )
+                );
+              })}
           </Slider>
           
+          {/* Rest of the UI remains unchanged */}
           <h3 className="font-bold text-lg mt-4 text-gray-800">{car.model}</h3>
           <p className="text-gray-600">{car.company}</p>
         </div>
