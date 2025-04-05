@@ -109,27 +109,57 @@ app.get("/product", async (req, res) => {
 // Backend: Add validation before saving
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
-    // Validate images
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: "At least one image required" });
+    // Validate required fields
+    const requiredFields = [
+      'company', 'model', 'color', 'variant', 'distanceCovered',
+      'modelYear', 'price', 'registrationYear', 'fuelType',
+      'transmissionType', 'bodyType', 'condition', 'registrationStatus'
+    ];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        error: "Missing required fields",
+        fields: missingFields 
+      });
     }
 
-    // Filter out null/undefined files
-    const validFiles = req.files.filter(file => file?.path);
-    
-    // Get image URLs
-    const imageUrls = validFiles.map(file => file.secure_url);
+    // Check if files were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No images uploaded" });
+    }
 
+    // Extract valid Cloudinary URLs
+    const imageUrls = req.files
+      .map(file => file.secure_url)
+      .filter(url => url); // Remove any undefined/null
+
+    if (imageUrls.length === 0) {
+      return res.status(400).json({ error: "Failed to upload images to Cloudinary" });
+    }
+
+    // Create product with sanitized data
     const product = new Product({
       ...req.body,
+      distanceCovered: Number(req.body.distanceCovered),
+      modelYear: Number(req.body.modelYear),
+      price: Number(req.body.price),
+      registrationYear: Number(req.body.registrationYear),
       images: imageUrls
     });
 
-    await product.save();
-    res.status(201).json(product);
+    const savedProduct = await product.save();
+    
+    res.status(201).json({
+      success: true,
+      product: savedProduct
+    });
+
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("Add Product Error:", error);
+    res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message
+    });
   }
 });
 
