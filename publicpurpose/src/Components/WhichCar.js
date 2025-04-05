@@ -13,33 +13,33 @@ const WhichCar = () => {
 
   const fetchCars = async () => {
     try {
-      // Fetch preowned cars
+      // Fetch and process preowned cars
       const preownedResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
       );
       const preownedData = await preownedResponse.json();
       
-      // Process images: Fix URL formatting
       const processedPreowned = preownedData.map(car => ({
         ...car,
         images: (car.images || [])
           .filter(img => !!img)
           .map(img => {
-            // Handle different URL formats
-            if (img.startsWith('http')) {
-              return img.replace('http://', 'https://');
+            // Normalize Cloudinary URLs
+            let url = img;
+            if (url.includes('res.cloudinary.com')) {
+              // Extract path after cloudinary domain
+              const path = url.split('res.cloudinary.com').pop();
+              url = `https://res.cloudinary.com${path}`;
             }
-            if (img.startsWith('//')) {
-              return `https:${img}`;
-            }
-            if (img.startsWith('res.cloudinary.com')) {
-              return `https://${img}`;
-            }
-            return img;
+            // Force HTTPS and fix protocol issues
+            return url
+              .replace('http://', 'https://')
+              .replace('https:/https://', 'https://')
+              .replace('//res.cloudinary.com', 'https://res.cloudinary.com');
           })
       }));
 
-      // Fetch unregistered cars
+      // Fetch and process unregistered cars
       const unregisteredResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
       );
@@ -50,16 +50,15 @@ const WhichCar = () => {
         images: (car.images || [])
           .filter(img => !!img)
           .map(img => {
-            if (img.startsWith('http')) {
-              return img.replace('http://', 'https://');
+            let url = img;
+            if (url.includes('res.cloudinary.com')) {
+              const path = url.split('res.cloudinary.com').pop();
+              url = `https://res.cloudinary.com${path}`;
             }
-            if (img.startsWith('//')) {
-              return `https:${img}`;
-            }
-            if (img.startsWith('res.cloudinary.com')) {
-              return `https://${img}`;
-            }
-            return img;
+            return url
+              .replace('http://', 'https://')
+              .replace('https:/https://', 'https://')
+              .replace('//res.cloudinary.com', 'https://res.cloudinary.com');
           })
       }));
 
