@@ -1120,7 +1120,7 @@ function ProductList() {
                 <div
                   key={item._id}
                   className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow bg-white"
-                  onClick={() => openModal(item)}
+                  // onClick={() => openModal(item)}
                 >
                   <Slider {...sliderSettings} className="product-slider">
                     {item.images?.map(
@@ -1128,6 +1128,8 @@ function ProductList() {
                         image && ( // Key change here
                           <div key={idx} className="slider-image-container">
                             <img
+                                              onClick={() => openModal(item)}
+
                               src={image} // Key change here
                               alt={`${item.model} ${idx + 1}`}
                               className="product-image w-full h-48 object-cover rounded-lg"
