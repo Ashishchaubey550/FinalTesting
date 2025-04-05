@@ -13,29 +13,33 @@ const WhichCar = () => {
 
   const fetchCars = async () => {
     try {
-      // Fetch and process preowned cars
+      // Fetch preowned cars
       const preownedResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
       );
       const preownedData = await preownedResponse.json();
       
-      // Process images: fix URL formatting and filter invalid entries
+      // Process images: Fix URL formatting
       const processedPreowned = preownedData.map(car => ({
         ...car,
         images: (car.images || [])
-          .filter(img => !!img) // Remove null/undefined
+          .filter(img => !!img)
           .map(img => {
-            // Fix URL formatting
+            // Handle different URL formats
             if (img.startsWith('http')) {
               return img.replace('http://', 'https://');
             }
-            return img.startsWith('res.cloudinary.com') 
-              ? `https://${img}`
-              : img;
+            if (img.startsWith('//')) {
+              return `https:${img}`;
+            }
+            if (img.startsWith('res.cloudinary.com')) {
+              return `https://${img}`;
+            }
+            return img;
           })
       }));
 
-      // Fetch and process unregistered cars
+      // Fetch unregistered cars
       const unregisteredResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
       );
@@ -49,9 +53,13 @@ const WhichCar = () => {
             if (img.startsWith('http')) {
               return img.replace('http://', 'https://');
             }
-            return img.startsWith('res.cloudinary.com') 
-              ? `https://${img}`
-              : img;
+            if (img.startsWith('//')) {
+              return `https:${img}`;
+            }
+            if (img.startsWith('res.cloudinary.com')) {
+              return `https://${img}`;
+            }
+            return img;
           })
       }));
 
