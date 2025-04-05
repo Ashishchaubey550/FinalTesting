@@ -1,6 +1,7 @@
-const multer = require('multer'); // Add this import
-const cloudinary = require('cloudinary').v2;
+// multer-config.js
+const cloudinary = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,8 +14,14 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'car_dealer',
     allowed_formats: ['jpg', 'jpeg', 'png'],
-    transformation: [{ width: 800, crop: 'limit' }]
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      return `${timestamp}-${file.originalname.split('.')[0]}`;
+    }
   }
 });
 
-module.exports = multer({ storage });
+module.exports = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
