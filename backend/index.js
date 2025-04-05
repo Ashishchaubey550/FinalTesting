@@ -118,7 +118,7 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
     const validFiles = req.files.filter(file => file?.path);
     
     // Get image URLs
-    const imageUrls = validFiles.map(file => file.secure_url);
+    const imageUrls = validFiles.map(file => file.path); // <- this line changed
 
     const product = new Product({
       ...req.body,
