@@ -13,27 +13,28 @@ const WhichCar = () => {
 
   const fetchCars = async () => {
     try {
-      // Fetch and process preowned cars
+      // Fetch preowned cars
       const preownedResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
       );
       const preownedData = await preownedResponse.json();
       
-      // Filter out null images and ensure valid URLs
+      // Process images: remove nulls and undefined values
       const processedPreowned = preownedData.map(car => ({
         ...car,
-        images: (car.images || []).filter(img => img !== null).map(img => img.startsWith('http') ? img : `https://finaltesting-tnim.onrender.com${img}`)
+        images: (car.images || []).filter(img => !!img) // Remove null/undefined
       }));
 
-      // Fetch and process unregistered cars
+      // Fetch unregistered cars
       const unregisteredResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
       );
       const unregisteredData = await unregisteredResponse.json();
 
+      // Process images similarly
       const processedUnregistered = unregisteredData.map(car => ({
         ...car,
-        images: (car.images || []).filter(img => img !== null).map(img => img.startsWith('http') ? img : `https://finaltesting-tnim.onrender.com${img}`)
+        images: (car.images || []).filter(img => !!img)
       }));
 
       setPreownedCars(processedPreowned);
@@ -45,7 +46,7 @@ const WhichCar = () => {
 
   return (
     <div className="bg-neutral-100 py-12 px-4 sm:px-8 lg:px-16">
-      {/* Preowned Cars Section - No UI changes */}
+      {/* Preowned Cars Section - No changes */}
       <div className="mb-16">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
@@ -72,7 +73,7 @@ const WhichCar = () => {
         )}
       </div>
 
-      {/* Unregistered Cars Section - No UI changes */}
+      {/* Unregistered Cars Section - No changes */}
       <div>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
