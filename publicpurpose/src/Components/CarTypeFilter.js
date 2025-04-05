@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Slider from "react-slick"; // Ensure react-slick is installed
+import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -20,14 +20,20 @@ const CarTypeFilter = () => {
       const response = await fetch(`https://finaltesting-tnim.onrender.com/productlist`);
       const data = await response.json();
 
-      // Normalize bodyType (remove spaces and lowercase)
+      // Normalize bodyType and process images
       const normalizedType = type.toLowerCase().replace(/\s+/g, "");
       const filteredCars = data
         .filter(
           (car) =>
             car.bodyType?.toLowerCase().replace(/\s+/g, "") === normalizedType
         )
-        .slice(0, 4); // Show only 4 cars
+        .slice(0, 4)
+        .map(car => ({
+          ...car,
+          images: (car.images || [])
+            .filter(img => !!img) // Remove null/undefined
+            .map(img => img.startsWith('http') ? img : `https://${img}`) // Ensure valid URLs
+        }));
 
       setCars(filteredCars);
     } catch (error) {
@@ -79,13 +85,18 @@ const CarTypeFilter = () => {
                 {/* Carousel Slider */}
                 <Slider {...sliderSettings}>
                   {car.images?.map((image, idx) => (
-                    <div key={idx} className="slider-image-container">
-                      <img
-                        src={`https://finaltesting-tnim.onrender.com${image}`}
-                        alt={`Car ${idx + 1}`}
-                        className="w-full h-48 sm:h-52 object-cover rounded-lg"
-                      />
-                    </div>
+                    image && (
+                      <div key={idx} className="slider-image-container">
+                        <img
+                          src={image}
+                          alt={`Car ${idx + 1}`}
+                          className="w-full h-48 sm:h-52 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/300x200?text=Car+Image";
+                          }}
+                        />
+                      </div>
+                    )
                   ))}
                 </Slider>
 
