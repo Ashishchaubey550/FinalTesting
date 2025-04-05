@@ -106,56 +106,30 @@ app.get("/product", async (req, res) => {
 
 // Modified Product Creation with Cloudinary
 // Product Routes
+// Backend: Add validation before saving
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
-    console.log("Request Body:", req.body); // 🎯 Check incoming data
-    console.log("Uploaded Files:", req.files); // 
-    // Validation
-    const requiredFields = [
-      'company', 'model', 'color', 'variant', 'distanceCovered',
-      'modelYear', 'price', 'registrationYear', 'fuelType',
-      'transmissionType', 'bodyType', 'condition', 'registrationStatus'
-    ];
-
-    const missingFields = requiredFields.filter(field => !req.body[field]);
-    if (missingFields.length > 0) {
-      return res.status(400).json({ 
-        error: "Missing required fields",
-        fields: missingFields 
-      });
+    // Validate images
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "At least one image required" });
     }
 
-    // Get Cloudinary URLs from uploaded files
+    // Filter out null/undefined files
+    const validFiles = req.files.filter(file => file?.path);
+    
+    // Get image URLs
+    const imageUrls = validFiles.map(file => file.secure_url);
 
-    const imageUrls = req.files.map(file => {
-      console.log("File Object:", file); // 🎯 Debug file structure
-      return file.secure_url;
-    });    
-    // Create product
     const product = new Product({
       ...req.body,
-      distanceCovered: Number(req.body.distanceCovered),
-      modelYear: Number(req.body.modelYear),
-      price: Number(req.body.price),
-      registrationYear: Number(req.body.registrationYear),
       images: imageUrls
     });
 
-    
-    const savedProduct = await product.save();
-    
-    res.status(201).json({
-      success: true,
-      product: savedProduct
-    });
-    
-
+    await product.save();
+    res.status(201).json(product);
   } catch (error) {
-    console.error("Add Product Error:", error);
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message
-    });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

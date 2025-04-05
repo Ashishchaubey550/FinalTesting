@@ -15,10 +15,12 @@ function ProductList() {
   const getProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://finaltesting-tnim.onrender.com/product");
-      
-      if (!response.ok) throw new Error('Failed to fetch');
-      
+      const response = await fetch(
+        "https://finaltesting-tnim.onrender.com/product"
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch");
+
       const result = await response.json();
       setProducts(Array.isArray(result) ? result : []);
     } catch (error) {
@@ -31,12 +33,15 @@ function ProductList() {
 
   const deleteCar = async (id) => {
     try {
-      const response = await fetch(`https://finaltesting-tnim.onrender.com/product/${id}`, {
-        method: "DELETE"
-      });
-      
-      if (!response.ok) throw new Error('Delete failed');
-      
+      const response = await fetch(
+        `https://finaltesting-tnim.onrender.com/product/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) throw new Error("Delete failed");
+
       getProducts(); // Refresh list after deletion
     } catch (error) {
       console.error("Delete error:", error);
@@ -48,20 +53,26 @@ function ProductList() {
     const key = event.target.value.trim();
     clearTimeout(searchTimeout);
 
-    setSearchTimeout(setTimeout(async () => {
-      try {
-        if (!key) return getProducts();
-        
-        const response = await fetch(`https://finaltesting-tnim.onrender.com/search/${encodeURIComponent(key)}`);
-        
-        if (!response.ok) throw new Error('Search failed');
-        
-        const result = await response.json();
-        setProducts(Array.isArray(result) ? result : []);
-      } catch (error) {
-        console.error("Search error:", error);
-      }
-    }, 300));
+    setSearchTimeout(
+      setTimeout(async () => {
+        try {
+          if (!key) return getProducts();
+
+          const response = await fetch(
+            `https://finaltesting-tnim.onrender.com/search/${encodeURIComponent(
+              key
+            )}`
+          );
+
+          if (!response.ok) throw new Error("Search failed");
+
+          const result = await response.json();
+          setProducts(Array.isArray(result) ? result : []);
+        } catch (error) {
+          console.error("Search error:", error);
+        }
+      }, 300)
+    );
   };
 
   // Slider configuration
@@ -75,7 +86,7 @@ function ProductList() {
     arrows: false,
     autoplay: true,
     autoplaySpeed: 5000,
-    pauseOnHover: false
+    pauseOnHover: false,
   };
 
   // Loading state UI
@@ -103,40 +114,44 @@ function ProductList() {
       {products.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((item) => (
-            <div key={item._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            <div
+              key={item._id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+            >
               {/* Image Slider */}
               <div className="relative aspect-w-16 aspect-h-9">
-                {item.images?.length > 0 ? (
+                {/* In your image slider */}
+                {item.images?.filter((url) => url).length > 0 ? (
                   <Slider {...sliderSettings}>
-                    {item.images.map((image, idx) => (
-                      <div key={`${item._id}-${idx}`}>
-                        <img
-                          src={image}
-                          alt={`${item.model || 'Car'} - ${idx + 1}`}
-                          className="w-full h-64 object-cover"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available';
-                          }}
-                        />
-                      </div>
-                    ))}
+                    {item.images
+                      .filter((url) => url)
+                      .map((image, idx) => (
+                        <div key={idx}>
+                          <img
+                            src={image}
+                            alt={`${item.model} ${idx + 1}`}
+                            className="w-full h-64 object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/fallback-image.jpg";
+                            }}
+                          />
+                        </div>
+                      ))}
                   </Slider>
                 ) : (
                   <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-                    <img 
-                      src="https://via.placeholder.com/400x300?text=No+Images" 
-                      alt="No images available"
-                      className="opacity-50"
-                    />
+                    <span>No valid images</span>
                   </div>
                 )}
               </div>
 
               {/* Product Details */}
               <div className="p-4">
-                <h2 className="text-xl font-bold mb-2 text-gray-800">{item.model}</h2>
-                
+                <h2 className="text-xl font-bold mb-2 text-gray-800">
+                  {item.model}
+                </h2>
+
                 <div className="space-y-2 text-gray-600">
                   <div className="flex justify-between">
                     <span className="font-semibold">Brand:</span>
@@ -145,16 +160,16 @@ function ProductList() {
                   <div className="flex justify-between">
                     <span className="font-semibold">Price:</span>
                     <span className="text-blue-600 font-medium">
-                      ₹{(item.price || 0).toLocaleString('en-IN')} Lakhs
+                      ₹{(item.price || 0).toLocaleString("en-IN")} Lakhs
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-semibold">Year:</span>
-                    <span>{item.modelYear || 'N/A'}</span>
+                    <span>{item.modelYear || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-semibold">Color:</span>
-                    <span>{item.color || 'N/A'}</span>
+                    <span>{item.color || "N/A"}</span>
                   </div>
                 </div>
 
@@ -179,7 +194,9 @@ function ProductList() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No cars found matching your criteria</p>
+          <p className="text-gray-500 text-lg">
+            No cars found matching your criteria
+          </p>
         </div>
       )}
     </div>
