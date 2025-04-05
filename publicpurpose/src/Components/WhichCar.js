@@ -13,28 +13,46 @@ const WhichCar = () => {
 
   const fetchCars = async () => {
     try {
-      // Fetch preowned cars
+      // Fetch and process preowned cars
       const preownedResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
       );
       const preownedData = await preownedResponse.json();
       
-      // Process images: remove nulls and undefined values
+      // Process images: fix URL formatting and filter invalid entries
       const processedPreowned = preownedData.map(car => ({
         ...car,
-        images: (car.images || []).filter(img => !!img) // Remove null/undefined
+        images: (car.images || [])
+          .filter(img => !!img) // Remove null/undefined
+          .map(img => {
+            // Fix URL formatting
+            if (img.startsWith('http')) {
+              return img.replace('http://', 'https://');
+            }
+            return img.startsWith('res.cloudinary.com') 
+              ? `https://${img}`
+              : img;
+          })
       }));
 
-      // Fetch unregistered cars
+      // Fetch and process unregistered cars
       const unregisteredResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
       );
       const unregisteredData = await unregisteredResponse.json();
 
-      // Process images similarly
       const processedUnregistered = unregisteredData.map(car => ({
         ...car,
-        images: (car.images || []).filter(img => !!img)
+        images: (car.images || [])
+          .filter(img => !!img)
+          .map(img => {
+            if (img.startsWith('http')) {
+              return img.replace('http://', 'https://');
+            }
+            return img.startsWith('res.cloudinary.com') 
+              ? `https://${img}`
+              : img;
+          })
       }));
 
       setPreownedCars(processedPreowned);
@@ -46,7 +64,7 @@ const WhichCar = () => {
 
   return (
     <div className="bg-neutral-100 py-12 px-4 sm:px-8 lg:px-16">
-      {/* Preowned Cars Section - No changes */}
+      {/* Preowned Cars Section */}
       <div className="mb-16">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
@@ -73,7 +91,7 @@ const WhichCar = () => {
         )}
       </div>
 
-      {/* Unregistered Cars Section - No changes */}
+      {/* Unregistered Cars Section */}
       <div>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
