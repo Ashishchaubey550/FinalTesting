@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Slider from "react-slick";
 import contactbg from "../images/ContactUs.webp";
-import { FaCar, FaGasPump, FaCalendarAlt, FaTachometerAlt, FaMoneyBillWave } from "react-icons/fa";
+import { FaCar, FaGasPump, FaCalendarAlt, FaTachometerAlt, FaMoneyBillWave, FaWhatsapp } from "react-icons/fa";
 import { GiGearStickPattern, GiCarDoor } from "react-icons/gi";
 
 const BrandDetails = () => {
@@ -38,6 +38,14 @@ const BrandDetails = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
+  };
+
+  const handleWhatsAppClick = (product) => {
+    const phoneNumber = "919999999999"; // Replace with your actual WhatsApp number
+    const message = `Hi, I'm interested in this ${product.company} ${product.model} (${product.modelYear}). Could you please provide more details? Price: ₹${product.price} Lakhs`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   if (loading) {
@@ -149,6 +157,17 @@ const BrandDetails = () => {
                         <span>{item.transmissionType}</span>
                       </div>
                     </div>
+
+                    {/* WhatsApp Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => handleWhatsAppClick(item)}
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition-colors duration-300"
+                      >
+                        <FaWhatsapp className="mr-2 text-xl" />
+                        Enquire on WhatsApp
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -165,7 +184,6 @@ const BrandDetails = () => {
             <p className="text-gray-500">
               Check back later or browse other brands
             </p>
-            <h1>Hello22</h1>
           </div>
         )}
       </div>
