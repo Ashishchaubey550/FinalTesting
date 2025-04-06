@@ -69,8 +69,8 @@ const BrandDetails = () => {
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = "/placeholder-car.jpg";
-                          e.target.classList.add("object-contain");
-                          e.target.classList.remove("object-cover");
+                          // e.target.classList.add("object-contain");
+                          // e.target.classList.remove("object-cover");
                         }}
                       />
                     </div>
