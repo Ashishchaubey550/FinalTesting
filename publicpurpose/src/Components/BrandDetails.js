@@ -56,25 +56,26 @@ const BrandDetails = () => {
         <div className="product-grid mt-4 mb-10">
           {products.map((item) => (
             <div key={item._id} className="product-card">
-    <Slider {...sliderSettings}>
-      {item.images.filter(img => img).map((image, idx) => (
-        <div key={`${item._id}-${idx}`} className="h-full">
-          <img
-            src={image}
-            alt={`${item.model || brandName} - View ${idx + 1}`}
-            className="w-full h-full object-contain bg-gray-50"
-            loading="lazy"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/placeholder-car.jpg';
-              e.target.classList.add('object-contain');
-              e.target.classList.remove('object-cover');
-            }}
-          />
-        </div>
-      ))}
-    </Slider>
-
+              <Slider {...sliderSettings}>
+                {item.images
+                  .filter((img) => img)
+                  .map((image, idx) => (
+                    <div key={`${item._id}-${idx}`} className="h-full bg-green-300">
+                      <img
+                        src={image}
+                        alt={`${item.model || brandName} - View ${idx + 1}`}
+                        className="w-full h-full object-contain bg-gray-50"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/placeholder-car.jpg";
+                          e.target.classList.add("object-contain");
+                          e.target.classList.remove("object-cover");
+                        }}
+                      />
+                    </div>
+                  ))}
+              </Slider>
               <h3 className="mt-10 product-model">Model: {item.model}</h3>
               <p className="product-company">Company: {item.company}</p>
               <p className="product-color">Color: {item.color}</p>
