@@ -32,14 +32,6 @@ const BrandDetails = () => {
     slidesToScroll: 1,
   };
 
-  // Function to construct Cloudinary URL
-  const getCloudinaryImageUrl = (imagePath) => {
-    // Extract the public ID from the image path
-    // Assuming the imagePath is something like "/uploads/image-12345.jpg"
-    const publicId = imagePath.split('/').pop().split('.')[0];
-    return `https://res.cloudinary.com/your-cloud-name/image/upload/${publicId}`;
-  };
-
   return (
     <div className="brand-details min-h-[60vh]">
       <div className="relative w-full">
@@ -52,7 +44,7 @@ const BrandDetails = () => {
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="border border-gray-300 w-96 mb-4"></span>
           <h1 className=" text-center font-extrabold text-5xl text-white">
-            Product Page
+            Proudct Page
           </h1>
           <span className="border border-gray-300 w-96 mt-4"></span>
         </div>
@@ -64,17 +56,26 @@ const BrandDetails = () => {
         <div className="product-grid mt-4 mb-10">
           {products.map((item) => (
             <div key={item._id} className="product-card">
-              <Slider {...sliderSettings} className="product-slider">
-                {item.images?.map((image, idx) => (
-                  <div key={idx} className="slider-image-container">
-                    <img
-                      src={getCloudinaryImageUrl(image)}
-                      alt={`Product ${idx + 1}`}
-                      className="product-image"
-                    />
-                  </div>
-                ))}
-              </Slider>
+                  <Slider {...sliderSettings} className="product-slider">
+                    {item.images?.map(
+                      (image, idx) =>
+                        image && ( // Key change here
+                          <div key={idx} className="slider-image-container">
+                            <img
+                                              onClick={() => openModal(item)}
+
+                              src={image} // Key change here
+                              alt={`${item.model} ${idx + 1}`}
+                              className="product-image w-full h-48 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://via.placeholder.com/300x200?text=Car+Image";
+                              }}
+                            />
+                          </div>
+                        )
+                    )}
+                  </Slider>
               <h3 className="mt-10 product-model">Model: {item.model}</h3>
               <p className="product-company">Company: {item.company}</p>
               <p className="product-color">Color: {item.color}</p>
