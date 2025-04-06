@@ -32,6 +32,14 @@ const BrandDetails = () => {
     slidesToScroll: 1,
   };
 
+  // Function to construct Cloudinary URL
+  const getCloudinaryImageUrl = (imagePath) => {
+    // Extract the public ID from the image path
+    // Assuming the imagePath is something like "/uploads/image-12345.jpg"
+    const publicId = imagePath.split('/').pop().split('.')[0];
+    return `https://res.cloudinary.com/your-cloud-name/image/upload/${publicId}`;
+  };
+
   return (
     <div className="brand-details min-h-[60vh]">
       <div className="relative w-full">
@@ -44,14 +52,13 @@ const BrandDetails = () => {
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="border border-gray-300 w-96 mb-4"></span>
           <h1 className=" text-center font-extrabold text-5xl text-white">
-            Proudct Page
+            Product Page
           </h1>
           <span className="border border-gray-300 w-96 mt-4"></span>
         </div>
       </div>
       <h2 className="text-2xl mt-10 px-10 font-bold mb-4 inline-block">
         Brand: <span className="hover:text-red-500">{brandName}</span>
-        <h1>Product Page hai bhai</h1>
       </h2>
       {products.length > 0 ? (
         <div className="product-grid mt-4 mb-10">
@@ -61,7 +68,7 @@ const BrandDetails = () => {
                 {item.images?.map((image, idx) => (
                   <div key={idx} className="slider-image-container">
                     <img
-                      src={`https://finaltesting-tnim.onrender.com${image}`}
+                      src={getCloudinaryImageUrl(image)}
                       alt={`Product ${idx + 1}`}
                       className="product-image"
                     />
