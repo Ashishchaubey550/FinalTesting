@@ -166,7 +166,7 @@ const BrandDetails = () => {
             <p className="text-gray-500">
               Check back later or browse other brands
             </p>
-            <h1>Hello</h1>
+            <h1>Hello22</h1>
           </div>
         )}
       </div>
