@@ -56,26 +56,24 @@ const BrandDetails = () => {
         <div className="product-grid mt-4 mb-10">
           {products.map((item) => (
             <div key={item._id} className="product-card">
-                  <Slider {...sliderSettings} className="product-slider">
-                    {item.images?.map(
-                      (image, idx) =>
-                        image && ( // Key change here
-                          <div key={idx} className="slider-image-container">
-                            <img
-                                              onClick={() => openModal(item)}
-
-                              src={image} // Key change here
-                              alt={`${item.model} ${idx + 1}`}
-                              className="product-image w-full h-48 object-cover rounded-lg"
-                              onError={(e) => {
-                                e.target.src =
-                                  "https://via.placeholder.com/300x200?text=Car+Image";
-                              }}
-                            />
-                          </div>
-                        )
-                    )}
-                  </Slider>
+              <Slider {...sliderSettings}>
+      {item.images.filter(img => img).map((image, idx) => (
+        <div key={`${item._id}-${idx}`} className="h-full">
+          <img
+            src={image}
+            alt={`${item.model || brandName} - View ${idx + 1}`}
+            className="w-full h-full object-contain bg-gray-50"
+            loading="lazy"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/placeholder-car.jpg';
+              e.target.classList.add('object-contain');
+              e.target.classList.remove('object-cover');
+            }}
+          />
+        </div>
+      ))}
+    </Slider>
               <h3 className="mt-10 product-model">Model: {item.model}</h3>
               <p className="product-company">Company: {item.company}</p>
               <p className="product-color">Color: {item.color}</p>
