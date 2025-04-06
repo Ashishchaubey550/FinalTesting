@@ -51,6 +51,7 @@ const BrandDetails = () => {
       </div>
       <h2 className="text-2xl mt-10 px-10 font-bold mb-4 inline-block">
         Brand: <span className="hover:text-red-500">{brandName}</span>
+        <h1>Product Page hai bhai</h1>
       </h2>
       {products.length > 0 ? (
         <div className="product-grid mt-4 mb-10">
