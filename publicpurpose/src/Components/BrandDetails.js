@@ -64,7 +64,7 @@ const BrandDetails = () => {
                       <img
                         src={image}
                         alt={`${item.model || brandName} - View ${idx + 1}`}
-                        className="w-full h-64 object-cover bg-gray-50"
+                        className="w-full h-full object-cover bg-gray-50"
                         loading="lazy"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -76,7 +76,7 @@ const BrandDetails = () => {
                     </div>
                   ))}
               </Slider>
-              <h3 className="mt-10 product-model">Model: {item.model}</h3>
+              <h3 className="product-model">Model: {item.model}</h3>
               <p className="product-company">Company: {item.company}</p>
               <p className="product-color">Color: {item.color}</p>
               <p className="product-color">Variant: {item.variant}</p>
