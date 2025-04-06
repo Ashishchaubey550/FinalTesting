@@ -64,7 +64,7 @@ const BrandDetails = () => {
                       <img
                         src={image}
                         alt={`${item.model || brandName} - View ${idx + 1}`}
-                        className="w-full h-full object-contain bg-gray-50"
+                        className="w-full h-full object-cover bg-gray-50"
                         loading="lazy"
                         onError={(e) => {
                           e.target.onerror = null;
