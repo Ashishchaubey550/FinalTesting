@@ -19,11 +19,15 @@ function AddProduct() {
     const [images, setImages] = useState([]); 
     const [previewImages, setPreviewImages] = useState([]);
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate();
 
     const addProduct = async () => {
         try {
+          setIsSubmitting(true);
           setError('');
+          setIsSuccess(false);
           
           // Validate required fields
           const requiredFields = [
@@ -34,6 +38,7 @@ function AddProduct() {
           
           if (requiredFields.some(field => !field) || images.length === 0) {
             setError("All fields are required with at least one image");
+            setIsSubmitting(false);
             return;
           }
       
@@ -78,13 +83,21 @@ function AddProduct() {
             throw new Error(data.error || data || 'Failed to add car');
           }
       
-          navigate("/");
+          // Show success message before navigating
+          setIsSuccess(true);
+          setIsSubmitting(false);
+          
+          // Wait a bit before navigating so user sees the success message
+          setTimeout(() => {
+            navigate("/");
+          }, 1500);
         } catch (error) {
           console.error("Error:", error);
           setError(error.name === 'AbortError' 
             ? "Request timed out - please try again" 
             : error.message
           );
+          setIsSubmitting(false);
         }
       };
 
@@ -120,6 +133,7 @@ function AddProduct() {
                             placeholder="Enter Car Company"
                             onChange={(e) => setCompany(e.target.value)}
                             value={company}
+                            disabled={isSubmitting}
                         />
                         {error && !company && <span className="text-red-600 text-sm">Enter valid company</span>}
                     </div>
@@ -131,6 +145,7 @@ function AddProduct() {
                             placeholder="Enter Car Model"
                             onChange={(e) => setModel(e.target.value)}
                             value={model}
+                            disabled={isSubmitting}
                         />
                         {error && !model && <span className="text-red-600 text-sm">Enter valid model</span>}
                     </div>
@@ -142,6 +157,7 @@ function AddProduct() {
                             placeholder="Enter Car Variant"
                             onChange={(e) => setVariant(e.target.value)}
                             value={variant}
+                            disabled={isSubmitting}
                         />
                         {error && !variant && <span className="text-red-600 text-sm">Enter valid variant</span>}
                     </div>
@@ -153,6 +169,7 @@ function AddProduct() {
                             placeholder="Enter Car Body Type"
                             onChange={(e) => setBodyType(e.target.value)}
                             value={bodyType}
+                            disabled={isSubmitting}
                         />
                         {error && !bodyType && <span className="text-red-600 text-sm">Enter valid body type</span>}
                     </div>
@@ -168,6 +185,7 @@ function AddProduct() {
                             placeholder="Enter Car Color"
                             onChange={(e) => setColor(e.target.value)}
                             value={color}
+                            disabled={isSubmitting}
                         />
                         {error && !color && <span className="text-red-600 text-sm">Enter valid color</span>}
                     </div>
@@ -179,6 +197,7 @@ function AddProduct() {
                             placeholder="Enter Distance Covered"
                             onChange={(e) => setDistanceCovered(e.target.value)}
                             value={distanceCovered}
+                            disabled={isSubmitting}
                         />
                         {error && !distanceCovered && <span className="text-red-600 text-sm">Enter valid distance</span>}
                     </div>
@@ -190,6 +209,7 @@ function AddProduct() {
                             placeholder="Enter Model Year"
                             onChange={(e) => setModelYear(e.target.value)}
                             value={modelYear}
+                            disabled={isSubmitting}
                         />
                         {error && !modelYear && <span className="text-red-600 text-sm">Enter valid model year</span>}
                     </div>
@@ -201,6 +221,7 @@ function AddProduct() {
                             placeholder="Enter Registration Year"
                             onChange={(e) => setRegistrationYear(e.target.value)}
                             value={registrationYear}
+                            disabled={isSubmitting}
                         />
                         {error && !registrationYear && <span className="text-red-600 text-sm">Enter valid registration year</span>}
                     </div>
@@ -216,6 +237,7 @@ function AddProduct() {
                             placeholder="Enter Fuel Type"
                             onChange={(e) => setFuelType(e.target.value)}
                             value={fuelType}
+                            disabled={isSubmitting}
                         />
                         {error && !fuelType && <span className="text-red-600 text-sm">Enter valid fuel type</span>}
                     </div>
@@ -227,6 +249,7 @@ function AddProduct() {
                             placeholder="Enter Transmission Type"
                             onChange={(e) => setTransmissionType(e.target.value)}
                             value={transmissionType}
+                            disabled={isSubmitting}
                         />
                         {error && !transmissionType && <span className="text-red-600 text-sm">Enter valid transmission type</span>}
                     </div>
@@ -238,6 +261,7 @@ function AddProduct() {
                             placeholder="Enter Car Price"
                             onChange={(e) => setPrice(e.target.value)}
                             value={price}
+                            disabled={isSubmitting}
                         />
                         {error && !price && <span className="text-red-600 text-sm">Enter price in Lakhs</span>}
                     </div>
@@ -248,6 +272,7 @@ function AddProduct() {
                             type="file"
                             multiple
                             onChange={handleImageChange}
+                            disabled={isSubmitting}
                         />
                         {error && images.length === 0 && <span className="text-red-600 text-sm">Please upload at least one image</span>}
                     </div>
@@ -261,6 +286,7 @@ function AddProduct() {
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onChange={(e) => setCondition(e.target.value)}
                             value={condition}
+                            disabled={isSubmitting}
                         >
                             <option value="new">New</option>
                             <option value="preowned">Preowned</option>
@@ -272,6 +298,7 @@ function AddProduct() {
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onChange={(e) => setRegistrationStatus(e.target.value)}
                             value={registrationStatus}
+                            disabled={isSubmitting}
                         >
                             <option value="registered">Registered</option>
                             <option value="unregistered">Unregistered</option>
@@ -292,6 +319,7 @@ function AddProduct() {
                                 <button
                                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-2 py-1 text-sm"
                                     onClick={() => handleDeselect(index)}
+                                    disabled={isSubmitting}
                                 >
                                     X
                                 </button>
@@ -307,12 +335,38 @@ function AddProduct() {
                     </div>
                 )}
 
+                {/* Success Message */}
+                {isSuccess && (
+                    <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-center">
+                        Product added successfully!
+                    </div>
+                )}
+
                 {/* Submit Button */}
                 <button
                     onClick={addProduct}
-                    className="mt-6 w-full py-3 text-white bg-blue-600 rounded-lg text-xl hover:bg-blue-700 transition-all"
+                    disabled={isSubmitting}
+                    className={`mt-6 w-full py-3 text-white rounded-lg text-xl transition-all ${
+                        isSubmitting 
+                            ? 'bg-blue-400 cursor-not-allowed' 
+                            : isSuccess 
+                                ? 'bg-green-600'
+                                : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
                 >
-                    Add Car
+                    {isSubmitting ? (
+                        <span className="flex items-center justify-center">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Adding...
+                        </span>
+                    ) : isSuccess ? (
+                        'Product Added!'
+                    ) : (
+                        'Add Car'
+                    )}
                 </button>
             </div>
         </div>
