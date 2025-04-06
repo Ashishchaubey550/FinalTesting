@@ -8,6 +8,7 @@ function ContactUs() {
       <div className="relative w-full">
         {/* Background Image */}
         <img
+         loading="lazy"
           src={Contactusbg}
           alt="Contact Us Background"
           className="w-full h-[400px] sm:h-[500px] md:h-[650px] object-cover blur-[3px] border-l-neutral-950"

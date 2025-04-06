@@ -14,7 +14,7 @@ function ServicesExam() {
       {services.map((service, index) => (
         <div key={index} className="relative w-full md:w-[50%] lg:w-[40%] flex justify-center items-center">
           <div className="relative w-[40vw]">
-            <img className="w-full h-full object-cover rounded-lg" src={servicesbg} alt="Service" />
+            <img  loading="lazy" className="w-full h-full object-cover rounded-lg" src={servicesbg} alt="Service" />
           </div>
 
           <div className="absolute top-3/4 left-[20%] w-[60%] h-[40%] justify-center items-center bg-white shadow-lg p-8 flex rounded-lg">

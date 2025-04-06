@@ -14,6 +14,7 @@ function OurScale() {
             className=" bg-gray-200 rounded-3xl text-black p-4  w-42 shadow-md text-center"
           >
             <img
+             loading="lazy"
               src={elem.icon}
               alt={elem.heading}
               className="w-18 h-[240px] mx-auto"
@@ -30,6 +31,7 @@ function OurScale() {
             className="  rounded-3xl bg-gray-200 p-4 w-42 shadow-md text-center"
           >
             <img
+             loading="lazy"
               src={elem.icon}
               alt={elem.heading}
               className="w-18 h-[240px] mx-auto"

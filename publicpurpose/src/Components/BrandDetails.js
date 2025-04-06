@@ -53,6 +53,7 @@ const BrandDetails = () => {
       {/* Hero Section */}
       <div className="relative w-full">
         <img
+          loading="lazy"
           src={contactbg}
           alt="Car showcase background"
           className="w-full h-96 md:h-[500px] object-cover blur-sm"
@@ -84,6 +85,7 @@ const BrandDetails = () => {
                       {item.images.filter(img => img).map((image, idx) => (
                         <div key={idx}>
                           <img
+                           loading="lazy"
                             src={image}
                             alt={`${item.model} - ${idx + 1}`}
                             className="w-full h-64 object-cover"
@@ -98,6 +100,7 @@ const BrandDetails = () => {
                   ) : (
                     <div className="h-full bg-gray-100 flex items-center justify-center">
                       <img 
+                       loading="lazy"
                         src="/placeholder-car.jpg" 
                         alt="No images available"
                         className="h-full object-cover"

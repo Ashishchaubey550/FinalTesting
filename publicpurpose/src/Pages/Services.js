@@ -6,6 +6,7 @@ function Services() {
     <div className="min-h-[90vh] bg-neutral-300">
       <div className="relative w-full">
         <img
+         loading="lazy"
           src={servicebg}
           alt=""
           className="w-full h-[650px] object-cover blur-[5px] border-l-neutral-950"

@@ -45,6 +45,7 @@ const ValueDriveTeam = () => {
             <div className="p-6">
               <div className="flex flex-col items-center text-center">
                 <img 
+                 loading="lazy"
                   src={member.image}
                   alt={`${member.name} - ${member.role}`}
                   className="w-40 h-40 rounded-full object-cover mb-6 border-4 border-blue-100 hover:border-blue-200 transition-colors duration-300"

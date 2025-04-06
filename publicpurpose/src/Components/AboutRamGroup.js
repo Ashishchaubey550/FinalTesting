@@ -25,6 +25,7 @@ const AboutRamGroup = () => {
       {/* Right side - Text */}
       <div className="w-full lg:w-[55%] flex items-center justify-center mb-8 lg:mb-0">
         <img
+          loading="lazy"
           src={Contactusbg}
           alt="image"
           className="w-full h-auto lg:h-[95%] object-cover rounded-lg shadow-lg"

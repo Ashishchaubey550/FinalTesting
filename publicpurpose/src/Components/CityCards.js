@@ -54,7 +54,7 @@ function CityCards() {
           <div key={index} className={`p-4 ${location.bgColor} rounded-lg`}>
             <h3 className="text-lg font-semibold text-center">{location.city}</h3>
             <div className="flex justify-center">
-              <img src={location.image} alt={location.city} className="w-20 h-20 rounded-md" />
+              <img   loading="lazy" src={location.image} alt={location.city} className="w-20 h-20 rounded-md" />
             </div>
             <p className="text-center font-bold">{location.hubs} hubs · {location.cars}+ cars</p>
           </div>

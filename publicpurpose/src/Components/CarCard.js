@@ -36,6 +36,7 @@ const CarCard = ({ car }) => {
                   imageUrl && (
                     <div key={idx}>
                       <img
+                       loading="lazy"
                         src={imageUrl}
                         alt={`${car.model} ${idx + 1}`}
                         className="w-full h-48 object-cover rounded-lg"

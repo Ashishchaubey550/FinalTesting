@@ -29,6 +29,7 @@ function AboutSlider() {
           <Carousel.Slide key={index}>
             <div className="flex flex-col items-center p-4  rounded-lg shadow-md">
               <img
+               loading="lazy"
                 src={elem.image}
                 alt={elem.headings}
                 className="w-full relative h-full object-cover rounded-3xl"

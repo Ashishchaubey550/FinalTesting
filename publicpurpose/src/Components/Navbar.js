@@ -37,6 +37,7 @@ const Navbar = () => {
       {/* Logo Section */}
       <div className="flex items-center">
         <img
+         loading="lazy"
           src={LOGO}
           alt="BOth Logo"
           className="w-40 h-14 md:w-80 md:h-28 bg-white block"

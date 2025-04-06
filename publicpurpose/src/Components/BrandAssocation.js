@@ -34,6 +34,7 @@ function BrandAssocation() {
             className="p-2 transition-all duration-300 ease-in-out hover:scale-105 active:scale-105 cursor-pointer hover:border-2 hover:border-red-50 active:border-2 active:border-red-50"
           >
             <img
+              loading='lazy'
               src={elem.img}
               alt={`Brand ${index + 1}`}
               className="h-24 md:h-32 lg:h-48 w-auto"

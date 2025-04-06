@@ -27,6 +27,7 @@ function HeroInsight() {
             <div className="group-hover:opacity-100">
               {/* When hovered, the image gets full opacity and shows animation */}
               <img
+               loading="lazy"
                 src={elem.video}
                 alt="Insight"
                 className="w-12 sm:w-16 h-12 sm:h-16 mb-2 transition-all duration-300 ease-in-out"

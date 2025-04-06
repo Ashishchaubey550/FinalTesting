@@ -88,6 +88,7 @@ const CarTypeFilter = () => {
                     image && (
                       <div key={idx} className="slider-image-container">
                         <img
+                         loading="lazy"
                           src={image}
                           alt={`Car ${idx + 1}`}
                           className="w-full h-48 sm:h-52 object-cover rounded-lg"

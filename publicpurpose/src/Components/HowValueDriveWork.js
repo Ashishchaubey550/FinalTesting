@@ -17,7 +17,7 @@ function HowValueDriveWork() {
         <div className="flex flex-col sm:flex-row justify-center mt-8 gap-6 sm:gap-10">
           {/* Step 1 */}
           <div className="flex flex-col items-center max-w-xs">
-            <img src={sticker1} alt="Choose car" className="w-40 sm:w-52 h-32 sm:h-40" />
+            <img  loading="lazy" src={sticker1} alt="Choose car" className="w-40 sm:w-52 h-32 sm:h-40" />
             <h2 className="text-base sm:text-lg font-semibold mt-4 text-center">
               Choose from the best pre-owned cars
             </h2>
@@ -28,7 +28,7 @@ function HowValueDriveWork() {
 
           {/* Step 2 */}
           <div className="flex flex-col items-center max-w-xs">
-            <img src={sticker2} alt="Test drive" className="w-40 sm:w-52 h-32 sm:h-40" />
+            <img  loading="lazy" src={sticker2} alt="Test drive" className="w-40 sm:w-52 h-32 sm:h-40" />
             <h2 className="text-base sm:text-lg font-semibold mt-4 text-center">
               Take a test drive at Value Drive Hub
             </h2>
@@ -39,7 +39,7 @@ function HowValueDriveWork() {
 
           {/* Step 3 */}
           <div className="flex flex-col items-center max-w-xs">
-            <img src={sticker3} alt="Payment and delivery" className="w-40 sm:w-52 h-32 sm:h-40" />
+            <img  loading="lazy" src={sticker3} alt="Payment and delivery" className="w-40 sm:w-52 h-32 sm:h-40" />
             <h2 className="text-base sm:text-lg font-semibold mt-4 text-center">
               Online Payment. Doorstep Delivery.
             </h2>

@@ -13,6 +13,7 @@ function AboutUs() {
       {/* Banner Section */}
       <div className="relative">
         <img
+         loading="lazy"
           src={Contactusbg}
           alt="About Us Banner"
           className="w-full h-[300px] md:h-[450px] lg:h-[650px] object-cover blur-[3px]"

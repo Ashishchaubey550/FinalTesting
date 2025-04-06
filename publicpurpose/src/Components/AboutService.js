@@ -17,6 +17,7 @@ function AboutService() {
           className=" bg-gray-200 rounded-3xl text-black p-4  w-42 shadow-md text-center hover:scale-105 transition duration-400 ease-in-out" 
         >
           <img
+           loading='lazy'
             src={elem.icon}
             alt={elem.heading}
             className="w-18 h-[240px] mx-auto"
@@ -33,6 +34,7 @@ function AboutService() {
           className=" bg-gray-200 rounded-3xl text-black p-4  w-42 shadow-md text-center hover:scale-105 transition duration-400 ease-in-out"
         >
           <img
+            loading='lazy'
             src={elem.icon}
             alt={elem.heading}
             className="w-18 h-[240px] mx-auto"

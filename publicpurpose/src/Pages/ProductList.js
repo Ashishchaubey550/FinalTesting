@@ -673,6 +673,7 @@ function ProductList() {
       {/* Banner Section */}
       <div className="relative w-full">
         <img
+         loading="lazy"
           src={contactbg}
           alt="Contact Background"
           className="w-full h-[200px] sm:h-[450px] lg:h-[650px] object-cover blur-[3px]"
@@ -1128,6 +1129,7 @@ function ProductList() {
                         image && ( // Key change here
                           <div key={idx} className="slider-image-container">
                             <img
+                             loading="lazy"
                                               onClick={() => openModal(item)}
 
                               src={image} // Key change here

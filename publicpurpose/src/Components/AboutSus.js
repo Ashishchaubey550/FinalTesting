@@ -21,7 +21,7 @@ function AboutSus() {
                 <button className='px-5 py-2 bg-blue-500 text-white rounded-xl border-none hover:bg-blue-600' >Know More</button>
             </div>
             <div className='w-[40%] flex items-center justify-center'>
-                <img className=' rounded-3xl h-[500px]' src='https://cdn.cars24.com/prod/cms/2024/12/30/fd17b7f8-ad90-4fd9-a68f-8a3024516b56Content%20W%20Image.png' alt=''/>
+                <img loading='lazy' className=' rounded-3xl h-[500px]' src='https://cdn.cars24.com/prod/cms/2024/12/30/fd17b7f8-ad90-4fd9-a68f-8a3024516b56Content%20W%20Image.png' alt=''/>
             </div>
         </div>
     </div>

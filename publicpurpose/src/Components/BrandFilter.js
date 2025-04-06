@@ -198,6 +198,7 @@ const BrandFilter = () => {
             aria-label={`View ${brand} cars`}
           >
             <img
+             loading="lazy"
               src={BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car"}
               alt={brand}
               className="w-12 sm:w-16 h-12 sm:h-16 object-contain sm:mb-0"

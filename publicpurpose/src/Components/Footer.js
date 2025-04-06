@@ -50,7 +50,7 @@ function Footer() {
         <div className="w-full lg:w-[30%] p-10 bg-[#19191B] flex justify-center items-center">
           <div className="flex flex-col justify-center">
             <div className="flex items-center justify-evenly">
-              <img src={logo} alt="" className="w-20 h-20" />
+              <img  loading="lazy" src={logo} alt="" className="w-20 h-20" />
               <a href=""><i className="ri-instagram-line text-red-500 text-3xl hover:text-red-400"></i></a>
               <a href=""><i className="ri-facebook-line text-red-500 text-3xl hover:text-red-400"></i></a>
             </div>

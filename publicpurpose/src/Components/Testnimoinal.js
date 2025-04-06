@@ -78,7 +78,7 @@ function Testnimoinal() {
             <div className='w-full sm:w-96 p-6 sm:p-10 h-72 bg-white shadow-lg rounded-lg flex flex-col items-start justify-center relative border'>
               <p className='text-gray-700 text-sm'>{elem.testimonial}</p>
               <div className='mt-4 flex items-center gap-4'>
-                <img src={logo} alt='User' className='h-12 sm:h-14 w-12 sm:w-14 rounded-full border-2 border-gray-300' />
+                <img  loading="lazy" src={logo} alt='User' className='h-12 sm:h-14 w-12 sm:w-14 rounded-full border-2 border-gray-300' />
                 <div>
                   <h1 className='text-sm sm:text-md font-semibold text-gray-900'>{elem.name}</h1>
                   <h2 className='text-red-600 text-xs sm:text-sm font-medium'>{elem.designation}</h2>

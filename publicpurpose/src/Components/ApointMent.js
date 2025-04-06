@@ -8,6 +8,7 @@ export default function AppointmentForm() {
         {/* Left Section - Image */}
         <div className="w-full md:w-1/2">
           <img
+            loading="lazy"
             src={teamImage}
             alt="Car Wash"
             className="rounded-lg w-full h-full object-cover"

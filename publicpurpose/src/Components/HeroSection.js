@@ -40,7 +40,7 @@ function HeroSection() {
       <Slider {...settings} className="">
         {images.map((img, index) => (
           <div key={index}>
-            <img  src={img} alt={`Slide ${index + 1}`} className="w-full h-[700px] object-cover" />
+            <img  loading="lazy" src={img} alt={`Slide ${index + 1}`} className="w-full h-[700px] object-cover" />
           </div>
         ))}
       </Slider>
