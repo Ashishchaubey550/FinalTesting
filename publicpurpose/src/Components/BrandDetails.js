@@ -60,17 +60,17 @@ const BrandDetails = () => {
                 {item.images
                   .filter((img) => img)
                   .map((image, idx) => (
-                    <div key={`${item._id}-${idx}`} className="h-full bg-green-300">
+                    <div key={`${item._id}-${idx}`} className="h-64 bg-green-300">
                       <img
                         src={image}
                         alt={`${item.model || brandName} - View ${idx + 1}`}
-                        className="w-full h-full object-cover bg-gray-50"
+                        className="w-full h-64 object-cover bg-gray-50"
                         loading="lazy"
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = "/placeholder-car.jpg";
-                          // e.target.classList.add("object-contain");
-                          // e.target.classList.remove("object-cover");
+                          e.target.classList.add("object-contain");
+                          e.target.classList.remove("object-cover");
                         }}
                       />
                     </div>
