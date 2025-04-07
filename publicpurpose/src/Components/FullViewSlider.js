@@ -69,36 +69,36 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}   
         {/*******************************************have to make change on this***************** */}
-        <div className="flex-1 lg:max-w-[50%] p-0 lg:min-h-full">
-  <Slider
-    {...sliderSettings}
-    className="w-full h-full  "
-  >
+        <div
+  className="flex-1 lg:max-w-[50%] p-0"
+  style={{ height: `${dynamicImageHeight}px`, maxHeight: "100%" }}
+>
+  <Slider {...sliderSettings} className="w-full h-full">
     {product.images
       ?.filter((img) => !!img)
       .map((image, idx) => {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="">
+            <div key={idx} style={{ height: "100%" }}>
               <img
-  loading="lazy"
-  className="w-full h-full object-cover rounded-none"
-  style={{ height: "100%", width: "100%", objectFit: "cover" }}
-  src={imageUrl}
-  alt={`Product Image ${idx + 1}`}
-  onError={(e) => {
-    e.target.src =
-      "https://via.placeholder.com/600x400?text=Image+Not+Available";
-  }}
-/>
-
+                loading="lazy"
+                className="w-full h-full object-cover"
+                style={{ height: "100%", width: "100%", objectFit: "cover" }}
+                src={imageUrl}
+                alt={`Product Image ${idx + 1}`}
+                onError={(e) => {
+                  e.target.src =
+                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
+                }}
+              />
             </div>
           )
         );
       })}
   </Slider>
 </div>
+
 
 
 
