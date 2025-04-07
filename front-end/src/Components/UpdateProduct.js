@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams , useNavigate  } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function UpdateProduct() {
     const [company, setCompany] = useState('');
@@ -9,136 +9,197 @@ function UpdateProduct() {
     const [modelYear, setModelYear] = useState('');
     const [price, setPrice] = useState('');
     const [bodyType, setbodyType] = useState('');
-    const [image, setImage] = useState(null); // State for image
+    const [image, setImage] = useState(null);
+    const [imageUrl, setImageUrl] = useState('');
+    const [deleteCurrentImage, setDeleteCurrentImage] = useState(false);
     const [error, setError] = useState('');
+    const [isUpdated, setIsUpdated] = useState(false);
     const params = useParams();
     const navigate = useNavigate();
 
-
-    useEffect(()=>{
-        console.warn(params)
+    useEffect(() => {
         getProductDetails();
-    },[])
+    }, []);
 
-    const getProductDetails = async() =>{
-        console.log(params)
-        let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`)
+    const getProductDetails = async () => {
+        let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
         result = await result.json();
-        setCompany(result.company)
-        setModel(result.model)
-        setColor(result.color)
-        setDistanceCovered(result.distanceCovered)
-        setModelYear(result.modelYear)
-        setPrice(result.price)
-        setbodyType(result.bodyType)
-    }
+        setCompany(result.company);
+        setModel(result.model);
+        setColor(result.color);
+        setDistanceCovered(result.distanceCovered);
+        setModelYear(result.modelYear);
+        setPrice(result.price);
+        setbodyType(result.bodyType);
+        setImageUrl(result.image || '');
+    };
 
     const UpdateProd = async () => {
-        console.warn(company,model,color,distanceCovered , modelYear , price)
-        let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`,{
-            method:'Put',
-            body:JSON.stringify({company,model,color,distanceCovered , modelYear , price ,bodyType
-            }),
-            headers:{
-                'Content-Type':"application/json"
+        const formData = new FormData();
+        formData.append('company', company);
+        formData.append('model', model);
+        formData.append('color', color);
+        formData.append('distanceCovered', distanceCovered);
+        formData.append('modelYear', modelYear);
+        formData.append('price', price);
+        formData.append('bodyType', bodyType);
+        formData.append('deleteImage', deleteCurrentImage);
+        
+        if (image) {
+            formData.append('image', image);
+        }
+
+        try {
+            const result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`, {
+                method: 'PUT',
+                body: formData,
+            });
+
+            if (result.ok) {
+                setIsUpdated(true);
+                setTimeout(() => navigate("/"), 1500);
+            } else {
+                setError('Update failed. Please try again.');
             }
-        });
-        result = await result.json
-        navigate("/")
+        } catch (error) {
+            setError('An error occurred. Please try again.');
+        }
+    };
+
+    const handleImageDelete = () => {
+        setDeleteCurrentImage(true);
+        setImageUrl('');
     };
 
     return (
         <div className="flex justify-center items-center flex-col m-[25px]">
-            <h1 className="font-bold text-4xl">Update</h1>
+            <h1 className="font-bold text-4xl mb-8">Update Product</h1>
 
-            {/* Product Name Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Company Name'
-                onChange={(e) => { setCompany(e.target.value) }}
-                value={company}
-            />
-            {error && !company && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter Valid Company Name</span>}
+            <div className="w-full max-w-md">
+                {/* Current Image Preview */}
+                {imageUrl && !deleteCurrentImage && (
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                        <div className="relative">
+                            <img src={imageUrl} alt="Current" className="w-32 h-32 object-cover rounded" />
+                            <button
+                                type="button"
+                                onClick={handleImageDelete}
+                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-            {/* Product Price Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Car Model'
-                onChange={(e) => { setModel(e.target.value) }}
-                value={model}
-            />
-            {error && !model && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter Model </span>}
+                {/* Company Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='text'
+                        onChange={(e) => setCompany(e.target.value)}
+                        value={company}
+                    />
+                    {error && !company && <span className='text-red-600 text-sm'>Enter valid company name</span>}
+                </div>
 
-            {/* Product Category Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Color'
-                onChange={(e) => { setColor(e.target.value) }}
-                value={color}
-            />
-            {error && !color && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter CAR Color</span>}
+                {/* Model Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Car Model</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='text'
+                        onChange={(e) => setModel(e.target.value)}
+                        value={model}
+                    />
+                    {error && !model && <span className='text-red-600 text-sm'>Enter model</span>}
+                </div>
 
-            {/* Product Company Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Distance Covered'
-                onChange={(e) => { setDistanceCovered(e.target.value) }}
-                value={distanceCovered}
-            />
-            {error && !distanceCovered && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter distanceCovered</span>}
+                {/* Color Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='text'
+                        onChange={(e) => setColor(e.target.value)}
+                        value={color}
+                    />
+                    {error && !color && <span className='text-red-600 text-sm'>Enter color</span>}
+                </div>
 
-                {/* Product Company Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Model Year'
-                onChange={(e) => { setModelYear(e.target.value) }}
-                value={modelYear}
-            />
-            {error && !modelYear && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter modelYear</span>}
+                {/* Distance Covered Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Distance Covered (km)</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='number'
+                        onChange={(e) => setDistanceCovered(e.target.value)}
+                        value={distanceCovered}
+                    />
+                    {error && !distanceCovered && <span className='text-red-600 text-sm'>Enter distance</span>}
+                </div>
 
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type="text"
-                placeholder="Enter Car body"
-                onChange={(e) => setbodyType(e.target.value)}
-                value={bodyType}
-            />
-            {error && !bodyType && <span className="text-red-600 block mt-[-20px] ml-[-170px]">Enter valid bodyType</span>}
+                {/* Model Year Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Model Year</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='number'
+                        onChange={(e) => setModelYear(e.target.value)}
+                        value={modelYear}
+                    />
+                    {error && !modelYear && <span className='text-red-600 text-sm'>Enter model year</span>}
+                </div>
 
+                {/* Body Type Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Body Type</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type="text"
+                        onChange={(e) => setbodyType(e.target.value)}
+                        value={bodyType}
+                    />
+                    {error && !bodyType && <span className="text-red-600 text-sm">Enter body type</span>}
+                </div>
 
-              
+                {/* Price Input */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (Lakhs)</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type='number'
+                        onChange={(e) => setPrice(e.target.value)}
+                        value={price}
+                    />
+                    {error && !price && <span className='text-red-600 text-sm'>Enter price</span>}
+                </div>
 
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type='text'
-                placeholder='Enter Price in Lakhs'
-                onChange={(e) => { setPrice(e.target.value) }}
-                value={price}
-            />
-            {error && !price && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Enter Price</span>}
+                {/* New Image Upload */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">New Image</label>
+                    <input
+                        className="w-full p-2 border border-blue-400 rounded"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
+                    {error && !image && !imageUrl && <span className='text-red-600 text-sm'>Please upload an image</span>}
+                </div>
 
+                {/* Update Button */}
+                <button
+                    onClick={UpdateProd}
+                    className={`w-full py-2 px-4 rounded ${isUpdated ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
+                    disabled={isUpdated}
+                >
+                    {isUpdated ? '✓ Updated Successfully!' : 'Update Product'}
+                </button>
 
-
-            {/* Image Upload Input */}
-            <input
-                className="block m-[25px] p-2 w-[300px] border-solid border-blue-400 border-[1px]"
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])} // Update the image state
-            />
-            {error && !image && <span className=' text-red-600 block mt-[-20px] ml-[-170px]'>Please upload an image</span>}
-
-            {/* Submit Button */}
-            <button
-                onClick={UpdateProd}
-                className="m-[25px] p-[10px] w-[150px] bg-blue-300 border-black border-solid border-2"
-            >
-                Update
-            </button>
+                {error && <div className="mt-4 text-red-600 text-center">{error}</div>}
+            </div>
         </div>
     );
 }
