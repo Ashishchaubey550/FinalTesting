@@ -69,7 +69,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}   
         {/*******************************************have to make change on this***************** */}
-        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[200px] lg:min-h-full">
+        <div className="flex-1 lg:max-w-[50%] p-0 lg:min-h-full">
   <Slider
     {...sliderSettings}
     className="w-full h-full [&>*]:h-full"
