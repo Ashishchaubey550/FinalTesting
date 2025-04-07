@@ -80,7 +80,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="w-full h-full bg-red-500">
+            <div key={idx} className="">
               <img
                 loading="lazy"
                 className="w-full h-full object-fit rounded-none"
