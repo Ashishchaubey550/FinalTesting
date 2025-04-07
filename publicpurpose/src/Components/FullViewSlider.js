@@ -65,34 +65,30 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         </button>
 
         {/* Image Slider */}
-        <div className="flex-1 lg:max-w-[50%] p-4 min-h-[300px] lg:min-h-full">
-          <Slider {...sliderSettings} className="h-full [&>*]:h-full">
-            {product.images
-              ?.filter(img => !!img) // Remove empty entries
-              .map((image, idx) => {
-                const imageUrl = processImageUrl(image);
-                return (
-                  imageUrl && (
-                    <div key={idx} className="h-full flex items-center">
-                      <img
-                       loading="lazy"
-                        className="  object-fit w-full h-full rounded-lg"
-                        src={imageUrl}
-                        alt={`Product Image ${idx + 1}`}
-                        style={{
-                          maxHeight: `${dynamicImageHeight}px`,
-                          objectFit: "contain",
-                        }}
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available';
-                        }}
-                      />
-                    </div>
-                  )
-                );
-              })}
-          </Slider>
-        </div>
+        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[300px] lg:min-h-full">
+  <Slider {...sliderSettings} className="h-full [&>*]:h-full">
+    {product.images
+      ?.filter(img => !!img) // Remove empty entries
+      .map((image, idx) => {
+        const imageUrl = processImageUrl(image);
+        return (
+          imageUrl && (
+            <div key={idx} className="h-full">
+              <img
+                loading="lazy"
+                className="w-full h-full object-cover rounded-none"
+                src={imageUrl}
+                alt={`Product Image ${idx + 1}`}
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available';
+                }}
+              />
+            </div>
+          )
+        );
+      })}
+  </Slider>
+</div>
 
         {/* Product Details */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-red-200">
