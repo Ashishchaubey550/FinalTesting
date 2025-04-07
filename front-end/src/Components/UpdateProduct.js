@@ -10,9 +10,10 @@ function UpdateProduct() {
         modelYear: '',
         price: '',
         bodyType: '',
-        images: []  // Changed to array for multiple images
+        images: []
     });
     const [newImages, setNewImages] = useState([]);
+    const [imagesToDelete, setImagesToDelete] = useState([]);
     const [error, setError] = useState('');
     const params = useParams();
     const navigate = useNavigate();
@@ -44,6 +45,14 @@ function UpdateProduct() {
         setNewImages([...e.target.files]);
     };
 
+    const handleImageDeleteToggle = (imgUrl) => {
+        setImagesToDelete(prev => 
+            prev.includes(imgUrl)
+                ? prev.filter(url => url !== imgUrl)
+                : [...prev, imgUrl]
+        );
+    };
+
     const UpdateProd = async () => {
         try {
             const formDataToSend = new FormData();
@@ -56,6 +65,11 @@ function UpdateProduct() {
             // Append new images
             newImages.forEach((image) => {
                 formDataToSend.append('images', image);
+            });
+
+            // Append images to delete
+            imagesToDelete.forEach(url => {
+                formDataToSend.append('deleteImages', url);
             });
 
             const response = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`, {
@@ -88,14 +102,29 @@ function UpdateProduct() {
                 <h3 className="text-lg font-semibold mb-2">Current Images:</h3>
                 <div className="flex flex-wrap gap-4">
                     {formData.images.map((img, index) => (
-                        <img 
+                        <div 
                             key={index}
-                            src={img}
-                            alt={`Product ${index + 1}`}
-                            className="w-32 h-32 object-cover rounded-lg"
-                        />
+                            className={`relative border-2 ${imagesToDelete.includes(img) ? 'border-red-500' : 'border-transparent'} rounded-lg`}
+                        >
+                            <img 
+                                src={img}
+                                alt={`Product ${index + 1}`}
+                                className="w-32 h-32 object-cover rounded-lg"
+                            />
+                            <button
+                                onClick={() => handleImageDeleteToggle(img)}
+                                className={`absolute top-1 right-1 p-1 rounded-full ${imagesToDelete.includes(img) ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
+                            >
+                                {imagesToDelete.includes(img) ? '✓' : '×'}
+                            </button>
+                        </div>
                     ))}
                 </div>
+                {formData.images.length > 0 && (
+                    <p className="mt-2 text-sm text-gray-500">
+                        Click the × to mark images for deletion (selected {imagesToDelete.length})
+                    </p>
+                )}
             </div>
 
             {/* Form Fields */}
@@ -111,7 +140,7 @@ function UpdateProduct() {
                 />
             ))}
 
-            {/* Image Upload */}
+            {/* New Image Upload */}
             <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">
                     Upload New Images
@@ -123,7 +152,7 @@ function UpdateProduct() {
                     onChange={handleImageChange}
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                    Select one or multiple images
+                    {newImages.length} new image(s) selected
                 </p>
             </div>
 
