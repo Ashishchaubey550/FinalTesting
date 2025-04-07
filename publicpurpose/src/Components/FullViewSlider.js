@@ -80,10 +80,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="w-full h-full">
+            <div key={idx} className="w-full h-full bg-lime-400">
               <img
                 loading="lazy"
-                className="w-full h-full object-fit rounded-none min-h-[200px] lg:min-h-full"
+                className="w-full h-full object-fit rounded-none"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
