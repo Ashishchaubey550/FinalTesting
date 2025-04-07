@@ -72,7 +72,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         <div className="flex-1 lg:max-w-[50%] p-0 lg:min-h-full">
   <Slider
     {...sliderSettings}
-    className="w-full h-full [&>*]:h-full"
+    className="w-full h-full"
   >
     {product.images
       ?.filter((img) => !!img)
@@ -82,6 +82,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
           imageUrl && (
             <div key={idx} className="">
               <img
+              
               height="100%"
                 loading="lazy"
                 className="w-full h-full object-fil rounded-none"
