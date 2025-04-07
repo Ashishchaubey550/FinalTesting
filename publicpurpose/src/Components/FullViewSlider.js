@@ -67,8 +67,9 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
           ✕
         </button>
 
-        {/* Image Slider */}
-        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[300px] lg:min-h-full">
+        {/* Image Slider */}   
+        {/*******************************************have to make change on this***************** */}
+        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[200px] lg:min-h-full bg-green-400">
   <Slider
     {...sliderSettings}
     className="w-full h-full [&>*]:h-full [&>*]:flex [&>*]:items-center"
@@ -82,7 +83,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <div key={idx} className="w-full h-full">
               <img
                 loading="lazy"
-                className="w-full h-full object-cover rounded-none"
+                className="w-full h-full object-fit rounded-none"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
