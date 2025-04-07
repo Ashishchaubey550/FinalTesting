@@ -54,11 +54,11 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="relative bg-red-100 rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
+      <div className="relative bg-neutral-100 rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
-          className="absolute top-3 right-3 z-50 bg-neutral-100 text-white rounded-full p-2 hover:bg-red-600 transition-all"
+          className="absolute top-3 right-3 z-50 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-all"
           style={{ width: '40px', height: '40px' }}
         >
           ✕
