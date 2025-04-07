@@ -82,6 +82,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
           imageUrl && (
             <div key={idx} className="">
               <img
+              height="100%"
                 loading="lazy"
                 className="w-full h-full object-fil rounded-none"
                 src={imageUrl}
