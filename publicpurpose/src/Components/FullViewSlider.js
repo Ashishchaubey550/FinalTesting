@@ -76,7 +76,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
                     <div key={idx} className="h-full flex items-center">
                       <img
                        loading="lazy"
-                        className="object-contain w-full h-full rounded-lg"
+                        className="  object-cover w-full h-full rounded-lg"
                         src={imageUrl}
                         alt={`Product Image ${idx + 1}`}
                         style={{
