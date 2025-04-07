@@ -111,7 +111,7 @@ function ProductList() {
     dots: true,
     arrows: true,
     infinite: true,
-    speed: 300,
+    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
   };
@@ -1127,7 +1127,7 @@ function ProductList() {
                     {item.images?.map(
                       (image, idx) =>
                         image && ( // Key change here
-                          <div key={idx} className="slider-image-container">
+                          <div key={idx} className="slider-image-container text-xs">
                             <img
                              loading="lazy"
                                               onClick={() => openModal(item)}

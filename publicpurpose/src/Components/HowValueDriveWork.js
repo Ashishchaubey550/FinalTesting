@@ -22,7 +22,6 @@ function HowValueDriveWork() {
               Choose from the best pre-owned cars
             </h2>
             <p className="text-gray-500 text-xs sm:text-sm text-center">
-              2,000+ fully inspected cars online
             </p>
           </div>
 
@@ -33,7 +32,6 @@ function HowValueDriveWork() {
               Take a test drive at Value Drive Hub
             </h2>
             <p className="text-gray-500 text-xs sm:text-sm text-center">
-              Sanitized cars for every test drive
             </p>
           </div>
 
