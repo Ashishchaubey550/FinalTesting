@@ -57,7 +57,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="relative bg-neutral-100 rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[70vh] flex flex-col lg:flex-row">
+      <div className="relative bg-white rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[70vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
@@ -83,7 +83,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <div key={idx} className="">
               <img
                 loading="lazy"
-                className="w-full h-full object-fit rounded-none"
+                className="w-full h-full object-fil rounded-none"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
