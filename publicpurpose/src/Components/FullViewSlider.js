@@ -66,7 +66,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}
         <div className="flex-1 lg:max-w-[50%] p-4 min-h-[300px] lg:min-h-full">
-          <Slider {...sliderSettings} className="h-full">
+          <Slider {...sliderSettings} className="h-full [&>*]:h-full">
             {product.images
               ?.filter(img => !!img) // Remove empty entries
               .map((image, idx) => {
