@@ -69,10 +69,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}   
         {/*******************************************have to make change on this***************** */}
-        <div className="flex-1 lg:max-w-[50%] p-0 h-[50vh] lg:h-full relative overflow-hidden">
+        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[200px] lg:min-h-full">
   <Slider
     {...sliderSettings}
-    className="absolute inset-0 w-full h-full"
+    className="w-full h-full [&>*]:h-full"
   >
     {product.images
       ?.filter((img) => !!img)
@@ -80,10 +80,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="relative w-full h-full ">
+            <div key={idx} className="w-full h-full bg-red-500">
               <img
                 loading="lazy"
-                className="absolute w-full h-full object-cover"
+                className="w-full h-full object-fit rounded-none"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
