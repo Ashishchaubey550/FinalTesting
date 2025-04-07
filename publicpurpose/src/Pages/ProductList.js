@@ -1127,7 +1127,7 @@ function ProductList() {
                     {item.images?.map(
                       (image, idx) =>
                         image && ( // Key change here
-                          <div key={idx} className="slider-image-container text-xs">
+                          <div key={idx} className="slider-image-container">
                             <img
                              loading="lazy"
                                               onClick={() => openModal(item)}

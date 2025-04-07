@@ -12,12 +12,12 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
   }, []);
 
   const sliderSettings = {
-    dots: true,
+    // dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    adaptiveHeight: true,
+    // adaptiveHeight: true,
   };
 
   const isMobile = windowWidth < 768;
@@ -58,7 +58,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         {/* Close Button */}
         <button
           onClick={closeModal}
-          className="absolute top-3 right-3 z-50 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-all"
+          className="absolute top-3 right-3 z-50 bg-neutral-100 text-white rounded-full p-2 hover:bg-red-600 transition-all"
           style={{ width: '40px', height: '40px' }}
         >
           ✕
@@ -76,7 +76,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
                     <div key={idx} className="h-full flex items-center">
                       <img
                        loading="lazy"
-                        className="object-contain w-full rounded-lg"
+                        className="object-contain w-full h-full rounded-lg"
                         src={imageUrl}
                         alt={`Product Image ${idx + 1}`}
                         style={{
