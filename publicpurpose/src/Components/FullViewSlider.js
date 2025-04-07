@@ -69,10 +69,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}   
         {/*******************************************have to make change on this***************** */}
-        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[200px] lg:min-h-full">
+        <div className="flex-1 lg:max-w-[50%] p-0 h-full min-h-[200px]">
   <Slider
     {...sliderSettings}
-    className="w-full h-full [&>*]:h-full"
+    className="h-full w-full [&>.slick-list]:h-full [&>.slick-track]:h-full"
   >
     {product.images
       ?.filter((img) => !!img)
@@ -80,15 +80,14 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="w-full h-full bg-red-500">
+            <div key={idx} className="relative w-full h-full">
               <img
                 loading="lazy"
-                className="w-full h-full object-fit rounded-none"
+                className="absolute inset-0 w-full h-full object-cover"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
+                  e.target.src = "https://via.placeholder.com/1920x1080?text=Image+Not+Available";
                 }}
               />
             </div>
