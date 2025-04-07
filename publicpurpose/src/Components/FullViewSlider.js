@@ -57,7 +57,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="relative bg-neutral-100 rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
+      <div className="relative bg-neutral-100 rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[70vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
@@ -69,10 +69,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
         {/* Image Slider */}   
         {/*******************************************have to make change on this***************** */}
-        <div className="flex-1 lg:max-w-[50%] p-0 h-full min-h-[200px]">
+        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[200px] lg:min-h-full">
   <Slider
     {...sliderSettings}
-    className="h-full w-full [&>.slick-list]:h-full [&>.slick-track]:h-full"
+    className="w-full h-full [&>*]:h-full"
   >
     {product.images
       ?.filter((img) => !!img)
@@ -80,14 +80,15 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="relative w-full h-full">
+            <div key={idx} className="w-full h-full bg-red-500">
               <img
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="w-full h-full object-fit rounded-none"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/1920x1080?text=Image+Not+Available";
+                  e.target.src =
+                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
                 }}
               />
             </div>
