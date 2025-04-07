@@ -83,7 +83,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <div key={idx} className="w-full h-full">
               <img
                 loading="lazy"
-                className="w-full h-full object-fit rounded-none"
+                className="w-full h-full object-fit rounded-none min-h-[200px] lg:min-h-full"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
