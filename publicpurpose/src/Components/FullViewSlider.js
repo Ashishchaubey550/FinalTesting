@@ -68,25 +68,37 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         </button>
 
         {/* Image Slider */}
-        <div className="flex-1 lg:max-w-[50%] p-0 h-full">
-  <Slider {...sliderSettings} className="h-full [&>*]:h-full">
+        <div className="flex-1 lg:max-w-[50%] p-0 min-h-[300px] lg:min-h-full">
+  <Slider
+    {...sliderSettings}
+    className="w-full h-full [&>*]:h-full [&>*]:flex [&>*]:items-center"
+  >
     {product.images
       ?.filter((img) => !!img)
-      .map((image, idx) => (
-        <div key={idx} className="h-full w-full relative">
-          <img
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
-            src={processImageUrl(image)}
-            alt={`Product Image ${idx + 1}`}
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/600x400?text=Image+Not+Available";
-            }}
-          />
-        </div>
-      ))}
+      .map((image, idx) => {
+        const imageUrl = processImageUrl(image);
+        return (
+          imageUrl && (
+            <div key={idx} className="w-full h-full">
+              <img
+                loading="lazy"
+                className="w-full h-full object-cover rounded-none"
+                src={imageUrl}
+                alt={`Product Image ${idx + 1}`}
+                onError={(e) => {
+                  e.target.src =
+                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
+                }}
+              />
+            </div>
+          )
+        );
+      })}
   </Slider>
 </div>
+
+
+
         {/* Product Details */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-red-200">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left hidden md:block">
