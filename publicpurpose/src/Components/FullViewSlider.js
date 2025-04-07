@@ -80,14 +80,15 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         const imageUrl = processImageUrl(image);
         return (
           imageUrl && (
-            <div key={idx} className="relative w-full h-full">
+            <div key={idx} className="relative w-full h-full ">
               <img
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
                 src={imageUrl}
                 alt={`Product Image ${idx + 1}`}
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/1920x1080?text=Image+Not+Available";
+                  e.target.src =
+                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
                 }}
               />
             </div>
