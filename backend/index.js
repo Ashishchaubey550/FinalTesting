@@ -232,15 +232,27 @@ app.get("/product/:id", async (req, res) => {
 app.put("/product/:id", multer.array("images", 20), async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body };
-    const imagesToDelete = req.body.imagesToDelete ? JSON.parse(req.body.imagesToDelete) : [];
+    const updateData = {};
+    
+    // Extract all fields from the form data
+    const fields = [
+      'company', 'model', 'color', 'distanceCovered', 'modelYear',
+      'price', 'bodyType', 'condition', 'fuelType', 'registrationStatus',
+      'registrationYear', 'transmissionType', 'variant'
+    ];
+    
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
 
-    // Handle image deletions first
+    // Handle image deletions
+    const imagesToDelete = req.body.imagesToDelete ? JSON.parse(req.body.imagesToDelete) : [];
     if (imagesToDelete.length > 0) {
       await Promise.all(
         imagesToDelete.map(async (imageUrl) => {
           try {
-            // Extract public ID from Cloudinary URL
             const publicId = imageUrl.split('/').pop().split('.')[0];
             await cloudinary.uploader.destroy(publicId);
           } catch (err) {
@@ -249,7 +261,6 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
         })
       );
 
-      // Remove deleted images from the product
       const currentProduct = await Product.findById(id);
       updateData.images = currentProduct.images.filter(
         img => !imagesToDelete.includes(img)
@@ -286,7 +297,6 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
     });
   }
 });
-
 
 app.get("/search/:key", async (req, res) => {
   try {
