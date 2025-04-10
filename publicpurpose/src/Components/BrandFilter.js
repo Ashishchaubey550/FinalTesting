@@ -2,20 +2,17 @@ import { Button, Skeleton } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-// Brand normalization mapping
+// Brand normalization mapping (values are display names)
 const BRAND_NORMALIZATION = {
   // MG
   "morris garages": "MG",
   "mg motors": "MG",
   "mg": "MG",
-  "MG": "MG",
-  "Mg": "MG",
   
   // Maruti Suzuki
   "maruti": "Maruti Suzuki",
   "maruti suzuki": "Maruti Suzuki",
   "suzuki": "Maruti Suzuki",
-  "Maruti Suzuki": "Maruti Suzuki",
   
   // Mercedes
   "mercedes": "Mercedes",
@@ -24,30 +21,23 @@ const BRAND_NORMALIZATION = {
   
   // Honda
   "honda": "Honda",
-  "Honda": "Honda",
   
   // Ford
   "ford": "Ford",
-  "Ford": "Ford",
   
   // BMW
   "bmw": "BMW",
-  "BMW": "BMW",
-  "Bmw": "BMW",
   "bayerische motoren werke": "BMW",
   
   // Renault
   "renault": "Renault",
-  "Renault": "Renault",
   
   // Hyundai
   "hyundai": "Hyundai",
-  "Hyundai": "Hyundai",
   
   // Volkswagen
   "volkswagen": "Volkswagen",
   "vw": "Volkswagen",
-  "Volkawagen": "Volkswagen",
   
   // Kia
   "kia": "Kia",
@@ -72,15 +62,15 @@ const BRAND_NORMALIZATION = {
   "chevy": "Chevrolet"
 };
 
-// Brand logo images - updated with reliable URLs
+// Brand logo images - keys match display names exactly
 const BRAND_IMAGES = {
+  "MG": "https://www.carlogos.org/logo/MG-Motor-logo-2560x1440.png",
   "Maruti Suzuki": "https://www.carlogos.org/logo/Maruti-Suzuki-logo-2560x1440.png",
   "Honda": "https://www.carlogos.org/logo/Honda-logo-2560x1440.png",
   "Ford": "https://www.carlogos.org/logo/Ford-logo-2017-2560x1440.png",
   "BMW": "https://www.carlogos.org/logo/BMW-logo-2020-blue-2560x1440.png",
   "Mercedes": "https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-2560x1440.png",
   "Renault": "https://www.carlogos.org/logo/Renault-logo-2015-2560x1440.png",
-  "MG": "https://www.carlogos.org/logo/MG-Motor-logo-2560x1440.png",
   "Hyundai": "https://www.carlogos.org/logo/Hyundai-logo-silver-2560x1440.png",
   "Volkswagen": "https://www.carlogos.org/logo/Volkswagen-logo-2019-2560x1440.png",
   "Chevrolet": "https://www.carlogos.org/logo/Chevrolet-logo-2013-2560x1440.png",
@@ -96,20 +86,21 @@ const normalizeBrand = (brandName) => {
   
   const lowerBrand = brandName.toLowerCase().trim();
   
-  // Check if we have a normalization mapping
-  for (const [key, value] of Object.entries(BRAND_NORMALIZATION)) {
-    if (lowerBrand === key.toLowerCase()) {
-      return value;
-    }
-  }
+  // Find the first matching key in normalization map
+  const normalizedKey = Object.keys(BRAND_NORMALIZATION).find(key => 
+    key.toLowerCase() === lowerBrand
+  );
   
-  // Default case - capitalize first letters of each word
-  return lowerBrand
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  // Return the display name if found, otherwise capitalize first letters
+  return normalizedKey 
+    ? BRAND_NORMALIZATION[normalizedKey]
+    : lowerBrand
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 };
 
+// Rest of your component remains the same...
 const BrandFilter = () => {
   const navigate = useNavigate();
   const [brands, setBrands] = useState([]);
