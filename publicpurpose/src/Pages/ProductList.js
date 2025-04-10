@@ -1177,6 +1177,10 @@ function ProductList() {
                       <span className="font-semibold">Price:</span> ₹
                       {(item.price * 100000).toLocaleString()}
                     </p>
+                    <p className="text-gray-700">
+                      <span className="font-semibold">Color:</span>{" "}
+                      {formatDisplayName(item.car_number)}
+                    </p>
                   </div>
 
                   <div className="product-actions mt-4 flex flex-col sm:flex-row gap-2">
