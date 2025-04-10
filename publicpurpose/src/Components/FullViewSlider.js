@@ -68,40 +68,41 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
           ✕
         </button>
 
-        {/* Image Slider */}   
+        {/* Image Slider */}
         {/*******************************************have to make change on this***************** */}
         <div
-  className="flex-1 lg:max-w-[50%] p-0"
-  style={{ height: `${dynamicImageHeight}px`, maxHeight: "100%" }}
->
-  <Slider {...sliderSettings} className="w-full h-full">
-    {product.images
-      ?.filter((img) => !!img)
-      .map((image, idx) => {
-        const imageUrl = processImageUrl(image);
-        return (
-          imageUrl && (
-            <div key={idx} style={{ height: "100%" }}>
-              <img
-                loading="lazy"
-                className="w-full h-full object-cover"
-                style={{ height: "100%", width: "100%", objectFit: "cover" }}
-                src={imageUrl}
-                alt={`Product Image ${idx + 1}`}
-                onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                }}
-              />
-            </div>
-          )
-        );
-      })}
-  </Slider>
-</div>
-
-
-
+          className="flex-1 lg:max-w-[50%] p-0"
+          style={{ height: `${dynamicImageHeight}px`, maxHeight: "100%" }}
+        >
+          <Slider {...sliderSettings} className="w-full h-full">
+            {product.images
+              ?.filter((img) => !!img)
+              .map((image, idx) => {
+                const imageUrl = processImageUrl(image);
+                return (
+                  imageUrl && (
+                    <div key={idx} style={{ height: "100%" }}>
+                      <img
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          objectFit: "cover",
+                        }}
+                        src={imageUrl}
+                        alt={`Product Image ${idx + 1}`}
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/600x400?text=Image+Not+Available";
+                        }}
+                      />
+                    </div>
+                  )
+                );
+              })}
+          </Slider>
+        </div>
 
         {/* Product Details */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-white">
@@ -114,7 +115,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
               isMobile ? "grid-cols-1" : "grid-cols-2"
             } gap-3 md:gap-4`}
           >
-           <DetailItem label="Car Number" value={product.car_number} />
+            <DetailItem label="Car Number" value={product.car_number} />
             <DetailItem label="Company" value={product.company} />
             <DetailItem label="Color" value={product.color} />
             <DetailItem
@@ -142,6 +143,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             Share on WhatsApp
           </button>
           </div>
+
         </div>
       </div>
     </div>
