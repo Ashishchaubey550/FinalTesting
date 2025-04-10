@@ -14,6 +14,7 @@ function UpdateProduct() {
     const [deleteCurrentImage, setDeleteCurrentImage] = useState(false);
     const [error, setError] = useState('');
     const [isUpdated, setIsUpdated] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const params = useParams();
     const navigate = useNavigate();
 
@@ -22,19 +23,36 @@ function UpdateProduct() {
     }, []);
 
     const getProductDetails = async () => {
-        let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
-        result = await result.json();
-        setCompany(result.company);
-        setModel(result.model);
-        setColor(result.color);
-        setDistanceCovered(result.distanceCovered);
-        setModelYear(result.modelYear);
-        setPrice(result.price);
-        setbodyType(result.bodyType);
-        setImageUrl(result.image || '');
+        try {
+            const response = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch product details');
+            }
+            const result = await response.json();
+            setCompany(result.company);
+            setModel(result.model);
+            setColor(result.color);
+            setDistanceCovered(result.distanceCovered);
+            setModelYear(result.modelYear);
+            setPrice(result.price);
+            setbodyType(result.bodyType);
+            setImageUrl(result.image || '');
+        } catch (error) {
+            setError('Failed to load product details');
+            console.error(error);
+        }
     };
 
     const UpdateProd = async () => {
+        // Validate required fields
+        if (!company || !model || !color || !distanceCovered || !modelYear || !price || !bodyType) {
+            setError('Please fill all required fields');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
         const formData = new FormData();
         formData.append('company', company);
         formData.append('model', model);
@@ -43,32 +61,38 @@ function UpdateProduct() {
         formData.append('modelYear', modelYear);
         formData.append('price', price);
         formData.append('bodyType', bodyType);
-        formData.append('deleteImage', JSON.stringify(deleteCurrentImage)); // 🔥 Fix applied here
-
+        formData.append('deleteImage', deleteCurrentImage.toString());
+        
         if (image) {
             formData.append('image', image);
         }
 
         try {
-            const result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`, {
+            const response = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`, {
                 method: 'PUT',
                 body: formData,
             });
 
-            if (result.ok) {
-                setIsUpdated(true);
-                setTimeout(() => navigate("/"), 1500);
-            } else {
-                setError('Update failed. Please try again.');
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Update failed');
             }
+
+            setIsUpdated(true);
+            setTimeout(() => navigate("/"), 1500);
         } catch (error) {
-            setError('An error occurred. Please try again.');
+            console.error('Update error:', error);
+            setError(error.message || 'An error occurred. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleImageDelete = () => {
         setDeleteCurrentImage(true);
         setImageUrl('');
+        setImage(null);
     };
 
     return (
@@ -76,6 +100,7 @@ function UpdateProduct() {
             <h1 className="font-bold text-4xl mb-8">Update Product</h1>
 
             <div className="w-full max-w-md">
+                {/* Current Image Preview */}
                 {imageUrl && !deleteCurrentImage && (
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
@@ -92,6 +117,7 @@ function UpdateProduct() {
                     </div>
                 )}
 
+                {/* Company Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
                     <input
@@ -103,6 +129,7 @@ function UpdateProduct() {
                     {error && !company && <span className='text-red-600 text-sm'>Enter valid company name</span>}
                 </div>
 
+                {/* Model Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Car Model</label>
                     <input
@@ -114,6 +141,7 @@ function UpdateProduct() {
                     {error && !model && <span className='text-red-600 text-sm'>Enter model</span>}
                 </div>
 
+                {/* Color Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
                     <input
@@ -125,6 +153,7 @@ function UpdateProduct() {
                     {error && !color && <span className='text-red-600 text-sm'>Enter color</span>}
                 </div>
 
+                {/* Distance Covered Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Distance Covered (km)</label>
                     <input
@@ -136,6 +165,7 @@ function UpdateProduct() {
                     {error && !distanceCovered && <span className='text-red-600 text-sm'>Enter distance</span>}
                 </div>
 
+                {/* Model Year Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Model Year</label>
                     <input
@@ -147,6 +177,7 @@ function UpdateProduct() {
                     {error && !modelYear && <span className='text-red-600 text-sm'>Enter model year</span>}
                 </div>
 
+                {/* Body Type Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Body Type</label>
                     <input
@@ -158,6 +189,7 @@ function UpdateProduct() {
                     {error && !bodyType && <span className="text-red-600 text-sm">Enter body type</span>}
                 </div>
 
+                {/* Price Input */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Price (Lakhs)</label>
                     <input
@@ -169,6 +201,7 @@ function UpdateProduct() {
                     {error && !price && <span className='text-red-600 text-sm'>Enter price</span>}
                 </div>
 
+                {/* New Image Upload */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">New Image</label>
                     <input
@@ -177,15 +210,19 @@ function UpdateProduct() {
                         accept="image/*"
                         onChange={(e) => setImage(e.target.files[0])}
                     />
-                    {error && !image && !imageUrl && <span className='text-red-600 text-sm'>Please upload an image</span>}
                 </div>
 
+                {/* Update Button */}
                 <button
                     onClick={UpdateProd}
-                    className={`w-full py-2 px-4 rounded ${isUpdated ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
-                    disabled={isUpdated}
+                    className={`w-full py-2 px-4 rounded ${
+                        isUpdated ? 'bg-green-500' : 
+                        isLoading ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'
+                    } text-white transition-colors`}
+                    disabled={isUpdated || isLoading}
                 >
-                    {isUpdated ? '✓ Updated Successfully!' : 'Update Product'}
+                    {isUpdated ? '✓ Updated Successfully!' : 
+                     isLoading ? 'Updating...' : 'Update Product'}
                 </button>
 
                 {error && <div className="mt-4 text-red-600 text-center">{error}</div>}
