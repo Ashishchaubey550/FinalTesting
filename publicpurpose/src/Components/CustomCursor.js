@@ -14,8 +14,15 @@ const CustomCursor = ({
   const [isPointer, setIsPointer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    // Check if the device supports touch events
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
+    // Only proceed if not a touch device
+    if (isTouchDevice) return;
+
     const timer = setTimeout(() => setIsVisible(true), 100);
     
     const moveCursor = (e) => {
@@ -42,7 +49,10 @@ const CustomCursor = ({
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [isTouchDevice]); // Add isTouchDevice to dependency array
+
+  // Don't render anything if it's a touch device
+  if (isTouchDevice) return null;
 
   return (
     <div 

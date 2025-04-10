@@ -135,14 +135,13 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <DetailItem label="Fuel Type" value={product.fuelType} />
             <DetailItem label="Body Type" value={product.bodyType} />
             <DetailItem label="Transmission" value={product.transmissionType} />
-          </div>
-
-          <button
+            <button
             onClick={handleShare}
             className="mt-6 bg-green-500 text-white py-3 px-8 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
           >
             Share on WhatsApp
           </button>
+          </div>
         </div>
       </div>
     </div>
