@@ -2,83 +2,113 @@ import { Button, Skeleton } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-// Brand normalization mapping (values are display names)
+// Brand normalization mapping
 const BRAND_NORMALIZATION = {
-  // MG
-  "morris garages": "MG",
-  "mg motors": "MG",
-  "mg": "MG",
-  
-  // Maruti Suzuki
-  "maruti": "Maruti Suzuki",
-  "maruti suzuki": "Maruti Suzuki",
-  "suzuki": "Maruti Suzuki",
-  
-  // Mercedes
-  "mercedes": "Mercedes",
-  "mercedes-benz": "Mercedes",
-  "benz": "Mercedes",
-  
-  // Honda
-  "honda": "Honda",
-  
-  // Ford
-  "ford": "Ford",
-  
-  // BMW
-  "bmw": "BMW",
-  "bayerische motoren werke": "BMW",
-  
-  // Renault
-  "renault": "Renault",
-  
-  // Hyundai
-  "hyundai": "Hyundai",
-  
-  // Volkswagen
-  "volkswagen": "Volkswagen",
-  "vw": "Volkswagen",
-  
-  // Kia
-  "kia": "Kia",
-  
-  // Tata
-  "tata": "Tata",
-  "tata motors": "Tata",
-  
-  // Toyota
-  "toyota": "Toyota",
-  
-  // Mahindra
-  "mahindra": "Mahindra",
-  "mahindra and mahindra": "Mahindra",
-  "mahindra & mahindra": "Mahindra",
-  
-  // Nissan
-  "nissan": "Nissan",
-  
-  // Chevrolet
-  "chevrolet": "Chevrolet",
-  "chevy": "Chevrolet"
-};
+    // MG
+    "morris garages": "MG",
+    "mg motors": "MG",
+    "mg": "MG",
+    "MG": "MG",
+    "Mg": "MG",
 
-// Brand logo images - keys match display names exactly
+
+    
+    // Maruti Suzuki
+    "maruti": "MARUTI SUZUKI",
+    "maruti suzuki": "MARUTI SUZUKI",
+    "suzuki": "MARUTI SUZUKI",
+    "Maruti Suzuki": "MARUTI SUZUKI",
+
+    
+    // Mercedes
+    "mercedes": "MERCEDES",
+    "mercedes-benz": "MERCEDES",
+    "benz": "MERCEDES",
+    
+    // Honda
+    "honda": "HONDA",
+    "Honda": "HONDA",
+    "HONDA": "HONDA",
+
+
+    
+    // Ford
+    "ford": "FORD",
+    "Ford": "FORD",
+    "FORD": "FORD",
+
+
+    
+    // BMW
+    "bmw": "BMW",
+    "BMW": "BMW",
+    "Bmw": "BMW",
+    "bayerische motoren werke": "BMW",
+    
+    // Renault
+    "renault": "RENAULT",
+    "Renault": "RENAULT",
+    "RENAULT": "RENAULT",
+
+
+    
+    // Hyundai
+    "hyundai": "HYUNDAI",
+    "Hyundai": "HYUNDAI",
+    "hyundai": "HYUNDAI",
+
+
+    
+    // Volkswagen
+    "volkswagen": "VOLKSWAGEN",
+    "vw": "VOLKSWAGEN",
+    "Volkawagen": "VOLKSWAGEN",
+    "VOLKSWAGEN": "VOLKSWAGEN",
+
+
+    
+    // Kia
+    "kia": "KIA",
+    
+    // Tata
+    "tata": "TATA",
+    "tata motors": "TATA",
+    
+    // Toyota
+    "toyota": "TOYOTA",
+    
+    // Mahindra
+    "mahindra": "MAHINDRA",
+    "mahindra and mahindra": "MAHINDRA",
+    "mahindra & mahindra": "MAHINDRA",
+    
+    // Nissan
+    "nissan": "NISSAN",
+    
+    // Chevrolet
+    "chevrolet": "CHEVROLET",
+    "chevy": "CHEVROLET"
+  };
+
+  // Add other brand variations as needed
+
+// Brand logo images
 const BRAND_IMAGES = {
-  "MG": "https://www.carlogos.org/logo/MG-Motor-logo-2560x1440.png",
-  "Maruti Suzuki": "https://www.carlogos.org/logo/Maruti-Suzuki-logo-2560x1440.png",
-  "Honda": "https://www.carlogos.org/logo/Honda-logo-2560x1440.png",
-  "Ford": "https://www.carlogos.org/logo/Ford-logo-2017-2560x1440.png",
-  "BMW": "https://www.carlogos.org/logo/BMW-logo-2020-blue-2560x1440.png",
-  "Mercedes": "https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-2560x1440.png",
-  "Renault": "https://www.carlogos.org/logo/Renault-logo-2015-2560x1440.png",
-  "Hyundai": "https://www.carlogos.org/logo/Hyundai-logo-silver-2560x1440.png",
-  "Volkswagen": "https://www.carlogos.org/logo/Volkswagen-logo-2019-2560x1440.png",
-  "Chevrolet": "https://www.carlogos.org/logo/Chevrolet-logo-2013-2560x1440.png",
-  "Kia": "https://www.carlogos.org/logo/Kia-logo-2560x1440.png",
-  "Tata": "https://www.carlogos.org/logo/Tata-Motors-logo-2560x1440.png",
-  "Nissan": "https://www.carlogos.org/logo/Nissan-logo-2020-2560x1440.png",
-  "Toyota": "https://www.carlogos.org/logo/Toyota-logo-1989-2560x1440.png",
-  "Mahindra": "https://www.carlogos.org/logo/Mahindra-logo-2560x1440.png"
+  "MARUTI SUZUKI": "https://mda.spinny.com/spinny-web/media/cars/makes/maruti-suzuki/logos/maruti-suzuki.webp",
+  "HONDA": "https://mda.spinny.com/spinny-web/media/cars/makes/honda/logos/honda.webp",
+  "FORD": "https://spn-sta.spinny.com/spinny-web/oth/raMicD2JTFa1JOLFZewdpg/raw/file.webp",
+  "BMW": "https://mda.spinny.com/spinny-web/media/cars/makes/bmw/logos/v1.png",
+  "MERCEDES": "https://mda.spinny.com/spinny-web/media/cars/makes/mercedes-benz/logos/v1.png",
+  "RENAULT": "https://mda.spinny.com/spinny-web/media/cars/makes/renault/logos/renault.webp",
+  "MG": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
+  "HYUNDAI": "https://mda.spinny.com/spinny-web/media/cars/makes/hyundai/logos/hyundai.webp",
+  "VOLKSWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
+  "CHEVROLET": "https://www.carlogos.org/logo/Chevrolet-logo-2013-1920x1080.png",
+  "KIA": "https://mda.spinny.com/spinny-web/media/cars/makes/kia/logos/v1.webp",
+  "TATA": "https://mda.spinny.com/spinny-web/media/cars/makes/tata/logos/tata.webp",
+  "NISSAN": "https://e7.pngegg.com/pngimages/132/969/png-clipart-nissan-car-logo-automotive-industry-brand-nissan-emblem-trademark.png",
+  "TOYOTA": "https://www.carlogos.org/logo/Toyota-logo-1989-1920x1080.png",
+  "MAHINDRA": "https://www.carlogos.org/logo/Mahindra-logo-2000x2500.png"
 };
 
 const normalizeBrand = (brandName) => {
@@ -86,21 +116,20 @@ const normalizeBrand = (brandName) => {
   
   const lowerBrand = brandName.toLowerCase().trim();
   
-  // Find the first matching key in normalization map
-  const normalizedKey = Object.keys(BRAND_NORMALIZATION).find(key => 
-    key.toLowerCase() === lowerBrand
-  );
+  // Check if we have a normalization mapping
+  for (const [key, value] of Object.entries(BRAND_NORMALIZATION)) {
+    if (lowerBrand.includes(key)) {
+      return value;
+    }
+  }
   
-  // Return the display name if found, otherwise capitalize first letters
-  return normalizedKey 
-    ? BRAND_NORMALIZATION[normalizedKey]
-    : lowerBrand
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+  // Default case - capitalize first letters of each word
+  return lowerBrand
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
-// Rest of your component remains the same...
 const BrandFilter = () => {
   const navigate = useNavigate();
   const [brands, setBrands] = useState([]);
@@ -136,7 +165,7 @@ const BrandFilter = () => {
         // Sort by count (descending) and take top 12
         const sortedBrands = Object.entries(brandCounts)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 10);
+          .slice(0, 12);
         
         setBrands(sortedBrands);
       }
@@ -187,33 +216,30 @@ const BrandFilter = () => {
       </h2>
 
       <div className="flex flex-wrap gap-4 sm:gap-6 justify-center w-full max-w-6xl">
-        {brands.map(([brand, count], index) => {
-          const logoUrl = BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car";
-          return (
-            <button
-              key={index}
-              onClick={() => handleBrandClick(brand)}
-              className="w-28 sm:w-36 h-24 sm:h-28 p-3 sm:p-4 hover:bg-red-50 hover:scale-105 transition-all duration-300 ease-in-out flex flex-col justify-center items-center bg-white rounded-lg shadow-md border border-gray-100"
-              aria-label={`View ${brand} cars`}
-            >
-              <img
-                loading="lazy"
-                src={logoUrl}
-                alt={brand}
-                className="w-12 sm:w-16 h-12 sm:h-16 object-contain sm:mb-0"
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/64?text=Car";
-                }}
-              />
-              <p className="text-sm sm:text-base font-semibold text-center line-clamp-1">
-                {brand}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-600 text-center">
-                {count}+ cars
-              </p>
-            </button>
-          );
-        })}
+        {brands.map(([brand, count], index) => (
+          <button
+            key={index}
+            onClick={() => handleBrandClick(brand)}
+            className="w-28 sm:w-36 h-24 sm:h-28 p-3 sm:p-4 hover:bg-red-50 hover:scale-105 transition-all duration-300 ease-in-out flex flex-col justify-center items-center bg-white rounded-lg shadow-md border border-gray-100"
+            aria-label={`View ${brand} cars`}
+          >
+            <img
+             loading="lazy"
+              src={BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car"}
+              alt={brand}
+              className="w-12 sm:w-16 h-12 sm:h-16 object-contain sm:mb-0"
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/64?text=Car";
+              }}
+            />
+            <p className="text-sm sm:text-base font-semibold text-center line-clamp-1">
+              {brand}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-600 text-center">
+              {count}+ cars
+            </p>
+          </button>
+        ))}
       </div>
 
       <Link to="/productlist" className="mt-4 sm:mt-6">
