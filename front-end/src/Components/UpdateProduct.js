@@ -22,19 +22,32 @@ function UpdateProduct() {
     }, []);
 
     const getProductDetails = async () => {
-        let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
-        result = await result.json();
-        setCompany(result.company);
-        setModel(result.model);
-        setColor(result.color);
-        setDistanceCovered(result.distanceCovered);
-        setModelYear(result.modelYear);
-        setPrice(result.price);
-        setbodyType(result.bodyType);
-        setImageUrl(result.image || '');
+        try {
+            let result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
+            if (!result.ok) {
+                throw new Error('Failed to fetch product details');
+            }
+            result = await result.json();
+            setCompany(result.company);
+            setModel(result.model);
+            setColor(result.color);
+            setDistanceCovered(result.distanceCovered);
+            setModelYear(result.modelYear);
+            setPrice(result.price);
+            setbodyType(result.bodyType);
+            setImageUrl(result.image || '');
+        } catch (error) {
+            setError('Failed to load product details');
+            console.error(error);
+        }
     };
 
     const UpdateProd = async () => {
+        if (!company || !model || !color || !distanceCovered || !modelYear || !price || !bodyType) {
+            setError('Please fill all required fields');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('company', company);
         formData.append('model', model);
@@ -43,7 +56,7 @@ function UpdateProduct() {
         formData.append('modelYear', modelYear);
         formData.append('price', price);
         formData.append('bodyType', bodyType);
-        formData.append('deleteImage', deleteCurrentImage);
+        formData.append('deleteImage', deleteCurrentImage.toString()); // Convert boolean to string
         
         if (image) {
             formData.append('image', image);
@@ -53,22 +66,28 @@ function UpdateProduct() {
             const result = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`, {
                 method: 'PUT',
                 body: formData,
+                // Don't set Content-Type header when using FormData
+                // The browser will set it automatically with the correct boundary
             });
 
+            const response = await result.json();
+            
             if (result.ok) {
                 setIsUpdated(true);
                 setTimeout(() => navigate("/"), 1500);
             } else {
-                setError('Update failed. Please try again.');
+                setError(response.message || 'Update failed. Please try again.');
             }
         } catch (error) {
             setError('An error occurred. Please try again.');
+            console.error(error);
         }
     };
 
     const handleImageDelete = () => {
         setDeleteCurrentImage(true);
         setImageUrl('');
+        setImage(null); // Also clear any newly selected image
     };
 
     return (
@@ -186,7 +205,6 @@ function UpdateProduct() {
                         accept="image/*"
                         onChange={(e) => setImage(e.target.files[0])}
                     />
-                    {error && !image && !imageUrl && <span className='text-red-600 text-sm'>Please upload an image</span>}
                 </div>
 
                 {/* Update Button */}
