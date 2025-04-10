@@ -9,8 +9,16 @@ const User = require("./DB/User");
 const Product = require("./DB/Product");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Middleware
 app.use(express.json());
@@ -43,7 +51,7 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log("Database connected"))
 .catch((err) => console.error("Database connection error:", err));
 
-// User Routes (Unchanged)
+// User Routes
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -95,18 +103,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-// same ouput for image
-app.get("/product", async (req, res) => {
-  const products = await Product.find();
-  console.log("Sample Product:", products[0]); // Check URLs in logs
-  res.send(products);
-});
-
-
-// Modified Product Creation with Cloudinary
 // Product Routes
-// Backend: Add validation before saving
 app.post("/add", multer.array("images", 20), async (req, res) => {
   try {
     // Validate images
@@ -114,12 +111,38 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
       return res.status(400).json({ error: "At least one image required" });
     }
 
-    // Filter out null/undefined files
-    const validFiles = req.files.filter(file => file?.path);
-    
-    // Get image URLs
-    const imageUrls = validFiles.map(file => file.path); // <- this line changed
+    // Validate required fields
+    const requiredFields = ['company', 'model', 'car_number'];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `${field} is required` });
+      }
+    }
 
+    // Validate car number format
+    const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+    if (!carNumberRegex.test(req.body.car_number)) {
+      return res.status(400).json({ 
+        error: "Invalid car number format. Example: MH12AB1234" 
+      });
+    }
+
+    // Check if car number already exists
+    const existingProduct = await Product.findOne({ car_number: req.body.car_number });
+    if (existingProduct) {
+      return res.status(400).json({ 
+        error: "Car with this number already exists" 
+      });
+    }
+
+    // Upload images to Cloudinary
+    const imageUploads = req.files.map(file => {
+      return cloudinary.uploader.upload(file.path);
+    });
+    const uploadedImages = await Promise.all(imageUploads);
+    const imageUrls = uploadedImages.map(img => img.secure_url);
+
+    // Create new product
     const product = new Product({
       ...req.body,
       images: imageUrls
@@ -129,12 +152,13 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
     res.status(201).json(product);
   } catch (error) {
     console.error("Error:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "Car number must be unique" });
+    }
     res.status(500).json({ error: "Server error" });
   }
 });
 
-
-// Rest of Product Routes (Unchanged)
 app.get("/product", async (req, res) => {
   try {
     const { 
@@ -143,7 +167,8 @@ app.get("/product", async (req, res) => {
       minPrice,
       maxPrice,
       company,
-      bodyType
+      bodyType,
+      car_number
     } = req.query;
 
     let query = {};
@@ -153,6 +178,7 @@ app.get("/product", async (req, res) => {
     if (minPrice && maxPrice) query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
     if (company) query.company = { $regex: new RegExp(company, "i") };
     if (bodyType) query.bodyType = bodyType;
+    if (car_number) query.car_number = { $regex: new RegExp(car_number, "i") };
 
     const products = await Product.find(query);
     if (products.length > 0) {
@@ -166,33 +192,20 @@ app.get("/product", async (req, res) => {
   }
 });
 
-// delet the product
 app.delete('/product/:id', async (req, res) => {
   try {
-    // 1. Find the product first
     const product = await Product.findById(req.params.id);
     
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // 2. Delete images from Cloudinary
+    // Delete images from Cloudinary
     if (product.images?.length > 0) {
       await Promise.all(
         product.images.map(async (imageUrl) => {
           try {
-            // Extract public ID from Cloudinary URL
-            const urlParts = imageUrl.split('/upload/');
-            
-            if (urlParts.length < 2) {
-              console.log('Invalid Cloudinary URL:', imageUrl);
-              return;
-            }
-
-            const publicIdWithExtension = urlParts[1];
-            const publicId = publicIdWithExtension.split('.')[0];
-
-            // Delete the image
+            const publicId = imageUrl.split('/').pop().split('.')[0];
             await cloudinary.uploader.destroy(publicId);
           } catch (error) {
             console.error('Error deleting image:', imageUrl, error);
@@ -201,7 +214,7 @@ app.delete('/product/:id', async (req, res) => {
       );
     }
 
-    // 3. Delete from database
+    // Delete from database
     const result = await Product.deleteOne({ _id: req.params.id });
 
     res.status(200).json({
@@ -221,11 +234,16 @@ app.delete('/product/:id', async (req, res) => {
 });
 
 app.get("/product/:id", async (req, res) => {
-  let result = await Product.findOne({ _id: req.params.id });
-  if (result) {
-    res.send(result);
-  } else {
-    res.send({ result: "No Record Found." });
+  try {
+    const result = await Product.findOne({ _id: req.params.id });
+    if (result) {
+      res.send(result);
+    } else {
+      res.status(404).send({ result: "No Record Found." });
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -238,7 +256,7 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
     const fields = [
       'company', 'model', 'color', 'distanceCovered', 'modelYear',
       'price', 'bodyType', 'condition', 'fuelType', 'registrationStatus',
-      'registrationYear', 'transmissionType', 'variant','car_number',
+      'registrationYear', 'transmissionType', 'variant', 'car_number'
     ];
     
     fields.forEach(field => {
@@ -246,6 +264,27 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
+
+    // Validate car number if being updated
+    if (updateData.car_number) {
+      const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+      if (!carNumberRegex.test(updateData.car_number)) {
+        return res.status(400).json({ 
+          error: "Invalid car number format. Example: MH12AB1234" 
+        });
+      }
+
+      // Check if car number already exists for another product
+      const existingProduct = await Product.findOne({
+        car_number: updateData.car_number,
+        _id: { $ne: id }
+      });
+      if (existingProduct) {
+        return res.status(400).json({ 
+          error: "Car with this number already exists" 
+        });
+      }
+    }
 
     // Handle image deletions
     const imagesToDelete = req.body.imagesToDelete ? JSON.parse(req.body.imagesToDelete) : [];
@@ -269,7 +308,11 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
 
     // Handle new image uploads
     if (req.files && req.files.length > 0) {
-      const newImageUrls = req.files.map(file => file.path);
+      const imageUploads = req.files.map(file => {
+        return cloudinary.uploader.upload(file.path);
+      });
+      const uploadedImages = await Promise.all(imageUploads);
+      const newImageUrls = uploadedImages.map(img => img.secure_url);
       updateData.images = [...(updateData.images || []), ...newImageUrls];
     }
 
@@ -290,6 +333,13 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
     });
   } catch (error) {
     console.error("Update error:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Car number must be unique",
+        error: error.message 
+      });
+    }
     res.status(500).json({ 
       success: false,
       message: "Failed to update product",
@@ -308,7 +358,8 @@ app.get("/search/:key", async (req, res) => {
       maxPrice,
       company,
       bodyType,
-      fuelType
+      fuelType,
+      car_number
     } = req.query;
 
     let query = {};
@@ -317,10 +368,12 @@ app.get("/search/:key", async (req, res) => {
       query.$or = [
         { company: { $regex: searchKey, $options: "i" } },
         { model: { $regex: searchKey, $options: "i" } },
-        { variant: { $regex: searchKey, $options: "i" } }
+        { variant: { $regex: searchKey, $options: "i" } },
+        { car_number: { $regex: searchKey, $options: "i" } }
       ];
     }
 
+    if (car_number) query.car_number = { $regex: new RegExp(car_number, "i") };
     if (condition) query.condition = condition;
     if (registrationStatus) query.registrationStatus = registrationStatus;
     if (minPrice && maxPrice) query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
@@ -349,7 +402,8 @@ app.get("/productlist", async (req, res) => {
       condition,
       registrationStatus,
       minPrice,
-      maxPrice
+      maxPrice,
+      car_number
     } = req.query;
 
     let query = {};
@@ -358,6 +412,7 @@ app.get("/productlist", async (req, res) => {
     if (condition) query.condition = condition;
     if (registrationStatus) query.registrationStatus = registrationStatus;
     if (minPrice && maxPrice) query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+    if (car_number) query.car_number = { $regex: new RegExp(car_number, "i") };
 
     const products = await Product.find(query).limit(4);
 

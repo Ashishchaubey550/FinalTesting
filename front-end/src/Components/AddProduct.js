@@ -33,11 +33,20 @@ function AddProduct() {
           
           // Validate required fields
           const requiredFields = [
-            company, model, variant, color, distanceCovered,
-            modelYear, registrationYear, fuelType, transmissionType,
-            price, bodyType, condition, registrationStatus , car_number,
+            car_number, company, model, variant, color, 
+            distanceCovered, modelYear, registrationYear, 
+            fuelType, transmissionType, price, bodyType, 
+            condition, registrationStatus
           ];
           
+          // Validate car number format
+          const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+          if (!carNumberRegex.test(car_number)) {
+            setError("Please enter a valid car number (e.g. MH12AB1234)");
+            setIsSubmitting(false);
+            return;
+          }
+
           if (requiredFields.some(field => !field) || images.length === 0) {
             setError("All fields are required with at least one image");
             setIsSubmitting(false);
@@ -128,6 +137,18 @@ function AddProduct() {
                 {/* First Row */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
+                        <label className="block text-gray-700 font-medium mb-2">Car Number Plate</label>
+                        <input
+                            className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            type="text"
+                            placeholder="e.g. MH12AB1234"
+                            onChange={(e) => setCar_number(e.target.value)}
+                            value={car_number}
+                            disabled={isSubmitting}
+                        />
+                        {error && !car_number && <span className="text-red-600 text-sm">Enter valid car number</span>}
+                    </div>
+                    <div>
                         <label className="block text-gray-700 font-medium mb-2">Car Company</label>
                         <input
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -147,18 +168,6 @@ function AddProduct() {
                             placeholder="Enter Car Model"
                             onChange={(e) => setModel(e.target.value)}
                             value={model}
-                            disabled={isSubmitting}
-                        />
-                        {error && !model && <span className="text-red-600 text-sm">Enter valid model</span>}
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-2">Car Number</label>
-                        <input
-                            className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            type="text"
-                            placeholder="Enter Car Model"
-                            onChange={(e) => setCar_number(e.target.value)}
-                            value={car_number}
                             disabled={isSubmitting}
                         />
                         {error && !model && <span className="text-red-600 text-sm">Enter valid model</span>}

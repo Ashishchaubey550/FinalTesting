@@ -16,7 +16,7 @@ function UpdateProduct() {
         registrationYear: '',
         transmissionType: '',
         variant: '',
-        car_number:'',
+        car_number: '',
     });
     const [newImages, setNewImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
@@ -41,14 +41,13 @@ function UpdateProduct() {
                     modelYear: data.modelYear || '',
                     price: data.price || '',
                     bodyType: data.bodyType || '',
-                    condition: data.condition || '',
+                    condition: data.condition || 'new',
                     fuelType: data.fuelType || '',
-                    registrationStatus: data.registrationStatus || '',
+                    registrationStatus: data.registrationStatus || 'registered',
                     registrationYear: data.registrationYear || '',
                     transmissionType: data.transmissionType || '',
                     variant: data.variant || '',
                     car_number: data.car_number || ''
-
                 });
                 if (data.images) setExistingImages(data.images);
             } catch (err) {
@@ -82,6 +81,12 @@ function UpdateProduct() {
         setSuccess(false);
 
         try {
+            // Validate car number format
+            const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+            if (!carNumberRegex.test(product.car_number)) {
+                throw new Error("Please enter a valid car number (e.g. MH12AB1234)");
+            }
+
             const formData = new FormData();
             
             // Append all product data
@@ -127,23 +132,34 @@ function UpdateProduct() {
             {success && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">Product updated successfully!</div>}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Car Number Field - Placed first */}
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium">Car Number Plate</label>
+                        <input
+                            type="text"
+                            name="car_number"
+                            value={product.car_number}
+                            onChange={handleChange}
+                            placeholder="e.g. MH12AB1234"
+                            className="w-full p-2 border rounded"
+                            required
+                        />
+                    </div>
+
+                    {/* Other fields */}
                     {[
                         { name: 'company', label: 'Company', type: 'text' },
                         { name: 'model', label: 'Model', type: 'text' },
-                        { name: 'color', label: 'Color', type: 'text' },
-                        { name: 'distanceCovered', label: 'Distance Covered', type: 'number' },
-                        { name: 'modelYear', label: 'Model Year', type: 'number' },
-                        { name: 'price', label: 'Price', type: 'number' },
-                        { name: 'bodyType', label: 'Body Type', type: 'text' },
-                        { name: 'condition', label: 'Condition', type: 'text' },
-                        { name: 'fuelType', label: 'Fuel Type', type: 'text' },
-                        { name: 'registrationStatus', label: 'Registration Status', type: 'text' },
-                        { name: 'registrationYear', label: 'Registration Year', type: 'number' },
-                        { name: 'transmissionType', label: 'Transmission', type: 'text' },
                         { name: 'variant', label: 'Variant', type: 'text' },
-                        { name: 'car_numer', label: 'Car Number', type: 'String' },
-
+                        { name: 'color', label: 'Color', type: 'text' },
+                        { name: 'distanceCovered', label: 'Distance Covered (km)', type: 'number' },
+                        { name: 'modelYear', label: 'Model Year', type: 'number' },
+                        { name: 'registrationYear', label: 'Registration Year', type: 'number' },
+                        { name: 'price', label: 'Price (₹)', type: 'number' },
+                        { name: 'bodyType', label: 'Body Type', type: 'text' },
+                        { name: 'fuelType', label: 'Fuel Type', type: 'text' },
+                        { name: 'transmissionType', label: 'Transmission', type: 'text' },
                     ].map(field => (
                         <div key={field.name} className="space-y-1">
                             <label className="block text-sm font-medium">{field.label}</label>
@@ -157,8 +173,37 @@ function UpdateProduct() {
                             />
                         </div>
                     ))}
-                </div>
 
+                    {/* Condition Dropdown */}
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium">Condition</label>
+                        <select
+                            name="condition"
+                            value={product.condition}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded"
+                            required
+                        >
+                            <option value="new">New</option>
+                            <option value="preowned">Preowned</option>
+                        </select>
+                    </div>
+
+                    {/* Registration Status Dropdown */}
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium">Registration Status</label>
+                        <select
+                            name="registrationStatus"
+                            value={product.registrationStatus}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded"
+                            required
+                        >
+                            <option value="registered">Registered</option>
+                            <option value="unregistered">Unregistered</option>
+                        </select>
+                    </div>
+                </div>
 
                 {/* Existing Images */}
                 <div className="space-y-2">
