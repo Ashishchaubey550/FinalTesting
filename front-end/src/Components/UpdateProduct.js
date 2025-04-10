@@ -124,9 +124,36 @@ function UpdateProduct() {
             {success && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">Product updated successfully!</div>}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Form fields remain the same as previous example */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                        { name: 'company', label: 'Company', type: 'text' },
+                        { name: 'model', label: 'Model', type: 'text' },
+                        { name: 'color', label: 'Color', type: 'text' },
+                        { name: 'distanceCovered', label: 'Distance Covered', type: 'number' },
+                        { name: 'modelYear', label: 'Model Year', type: 'number' },
+                        { name: 'price', label: 'Price', type: 'number' },
+                        { name: 'bodyType', label: 'Body Type', type: 'text' },
+                        { name: 'condition', label: 'Condition', type: 'text' },
+                        { name: 'fuelType', label: 'Fuel Type', type: 'text' },
+                        { name: 'registrationStatus', label: 'Registration Status', type: 'text' },
+                        { name: 'registrationYear', label: 'Registration Year', type: 'number' },
+                        { name: 'transmissionType', label: 'Transmission', type: 'text' },
+                        { name: 'variant', label: 'Variant', type: 'text' },
+                    ].map(field => (
+                        <div key={field.name} className="space-y-1">
+                            <label className="block text-sm font-medium">{field.label}</label>
+                            <input
+                                type={field.type}
+                                name={field.name}
+                                value={product[field.name]}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded"
+                                required
+                            />
+                        </div>
+                    ))}
                 </div>
+
 
                 {/* Existing Images */}
                 <div className="space-y-2">
