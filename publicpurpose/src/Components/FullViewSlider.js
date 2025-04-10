@@ -48,6 +48,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
       `- Registration Year: ${product.registrationYear}\n` +
       `- Fuel Type: ${product.fuelType}\n` +
       `- Body Type: ${product.bodyType}\n` +
+      `- Car Number: ${product.car_number}\n` +
       `- Transmission Type: ${product.transmissionType}\n\n` +
       `Check it out here: ${window.location.href}`;
 
@@ -103,7 +104,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-red-200">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-white">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left hidden md:block">
             {product.model}
           </h2>
@@ -113,6 +114,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
               isMobile ? "grid-cols-1" : "grid-cols-2"
             } gap-3 md:gap-4`}
           >
+           <DetailItem label="Car Number" value={product.car_number} />
             <DetailItem label="Company" value={product.company} />
             <DetailItem label="Color" value={product.color} />
             <DetailItem
