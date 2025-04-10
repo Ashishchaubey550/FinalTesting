@@ -55,7 +55,7 @@ const BRAND_NORMALIZATION = {
     // Hyundai
     "hyundai": "HYUNDAI",
     "Hyundai": "HYUNDAI",
-    "HYUNDAI": "HYUNDAI",
+    "hyundai": "HYUNDAI",
 
 
     
@@ -165,7 +165,7 @@ const BrandFilter = () => {
         // Sort by count (descending) and take top 12
         const sortedBrands = Object.entries(brandCounts)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 12);
+          .slice(0, 10);
         
         setBrands(sortedBrands);
       }
