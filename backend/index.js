@@ -229,13 +229,54 @@ app.get("/product/:id", async (req, res) => {
   }
 });
 
-app.put("/product/:id", async (req, res) => {
-  let result = await Product.updateOne(
-    { _id: req.params.id },
-    { $set: req.body }
-  );
-  res.send(result);
+// Update the product PUT endpoint
+app.put("/product/:id", multer.array("images", 20), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+
+    // Handle image updates if any
+    if (req.files && req.files.length > 0) {
+      const imageUrls = req.files.map(file => file.path);
+      
+      // If client sent images to delete (via req.body.imagesToDelete)
+      if (req.body.imagesToDelete) {
+        const imagesToDelete = JSON.parse(req.body.imagesToDelete);
+        const currentProduct = await Product.findById(id);
+        const remainingImages = currentProduct.images.filter(
+          img => !imagesToDelete.includes(img)
+        );
+        updateData.images = [...remainingImages, ...imageUrls];
+      } else {
+        updateData.images = imageUrls;
+      }
+    }
+
+    const result = await Product.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.json({ 
+      success: true,
+      message: "Product updated successfully",
+      product: result 
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to update product",
+      error: error.message 
+    });
+  }
 });
+
 
 app.get("/search/:key", async (req, res) => {
   try {
