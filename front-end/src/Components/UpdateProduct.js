@@ -2,14 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 function UpdateProduct() {
-    const [productData, setProductData] = useState({
+    const [product, setProduct] = useState({
         company: '',
         model: '',
         color: '',
         distanceCovered: '',
         modelYear: '',
         price: '',
-        bodyType: ''
+        bodyType: '',
+        condition: '',
+        fuelType: '',
+        registrationStatus: '',
+        registrationYear: '',
+        transmissionType: '',
+        variant: ''
     });
     const [image, setImage] = useState(null);
     const [existingImages, setExistingImages] = useState([]);
@@ -36,14 +42,20 @@ function UpdateProduct() {
             let result = await response.json();
             console.log('Product details received:', result);
             
-            setProductData({
+            setProduct({
                 company: result.company || '',
                 model: result.model || '',
                 color: result.color || '',
                 distanceCovered: result.distanceCovered || '',
                 modelYear: result.modelYear || '',
                 price: result.price || '',
-                bodyType: result.bodyType || ''
+                bodyType: result.bodyType || '',
+                condition: result.condition || '',
+                fuelType: result.fuelType || '',
+                registrationStatus: result.registrationStatus || '',
+                registrationYear: result.registrationYear || '',
+                transmissionType: result.transmissionType || '',
+                variant: result.variant || ''
             });
             
             if (result.images && Array.isArray(result.images)) {
@@ -57,7 +69,7 @@ function UpdateProduct() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setProductData(prev => ({
+        setProduct(prev => ({
             ...prev,
             [name]: value
         }));
@@ -73,8 +85,12 @@ function UpdateProduct() {
 
     const UpdateProd = async () => {
         // Validate required fields
-        const requiredFields = ['company', 'model', 'color', 'distanceCovered', 'modelYear', 'price', 'bodyType'];
-        const missingFields = requiredFields.filter(field => !productData[field]);
+        const requiredFields = [
+            'company', 'model', 'color', 'distanceCovered', 
+            'modelYear', 'price', 'bodyType', 'condition',
+            'fuelType', 'registrationStatus', 'transmissionType'
+        ];
+        const missingFields = requiredFields.filter(field => !product[field]);
         
         if (missingFields.length > 0) {
             setError(`Please fill all required fields: ${missingFields.join(', ')}`);
@@ -89,8 +105,10 @@ function UpdateProduct() {
             const formData = new FormData();
             
             // Add all product data
-            Object.entries(productData).forEach(([key, value]) => {
-                formData.append(key, value);
+            Object.entries(product).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, value);
+                }
             });
             
             // Add new image if selected
@@ -100,10 +118,10 @@ function UpdateProduct() {
             
             // Add images to keep (filter out selected images to delete)
             const imagesToKeep = existingImages.filter(img => !selectedImages.includes(img));
-            imagesToKeep.forEach(img => formData.append('existingImages', img));
+            imagesToKeep.forEach(img => formData.append('images', img));
 
             console.log('Submitting update with form data:', {
-                productData,
+                ...product,
                 newImage: image ? image.name : 'none',
                 imagesToKeep,
                 imagesToDelete: selectedImages
@@ -117,15 +135,13 @@ function UpdateProduct() {
 
             console.log('Update response status:', response.status);
             
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('Update failed with error:', errorData);
-                throw new Error(errorData.message || 'Update failed');
+            const result = await response.json();
+            console.log('Update response:', result);
+            
+            if (!response.ok || (result.acknowledged !== undefined && !result.acknowledged)) {
+                throw new Error(result.message || 'Update failed on server');
             }
 
-            const result = await response.json();
-            console.log('Update successful with result:', result);
-            
             setUpdateSuccess(true);
             setTimeout(() => navigate("/"), 1500);
         } catch (error) {
@@ -142,14 +158,14 @@ function UpdateProduct() {
 
             {/* Error message */}
             {error && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded w-full max-w-md">
                     {error}
                 </div>
             )}
 
             {/* Success message */}
             {updateSuccess && (
-                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded w-full max-w-md">
                     Product updated successfully! Redirecting...
                 </div>
             )}
@@ -202,10 +218,16 @@ function UpdateProduct() {
                     { name: 'company', label: 'Company Name', placeholder: 'Enter Company Name' },
                     { name: 'model', label: 'Car Model', placeholder: 'Enter Car Model' },
                     { name: 'color', label: 'Color', placeholder: 'Enter Color' },
-                    { name: 'distanceCovered', label: 'Distance Covered', placeholder: 'Enter Distance Covered' },
-                    { name: 'modelYear', label: 'Model Year', placeholder: 'Enter Model Year' },
+                    { name: 'distanceCovered', label: 'Distance Covered', placeholder: 'Enter Distance Covered', type: 'number' },
+                    { name: 'modelYear', label: 'Model Year', placeholder: 'Enter Model Year', type: 'number' },
                     { name: 'bodyType', label: 'Car Body Type', placeholder: 'Enter Car Body Type' },
-                    { name: 'price', label: 'Price (in Lakhs)', placeholder: 'Enter Price in Lakhs', type: 'number' }
+                    { name: 'price', label: 'Price (in Lakhs)', placeholder: 'Enter Price in Lakhs', type: 'number' },
+                    { name: 'condition', label: 'Condition', placeholder: 'Enter Condition (new/preowned)' },
+                    { name: 'fuelType', label: 'Fuel Type', placeholder: 'Enter Fuel Type' },
+                    { name: 'registrationStatus', label: 'Registration Status', placeholder: 'Enter Registration Status' },
+                    { name: 'registrationYear', label: 'Registration Year', placeholder: 'Enter Registration Year', type: 'number' },
+                    { name: 'transmissionType', label: 'Transmission Type', placeholder: 'Enter Transmission Type' },
+                    { name: 'variant', label: 'Variant', placeholder: 'Enter Variant' }
                 ].map((field) => (
                     <div key={field.name}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -217,11 +239,8 @@ function UpdateProduct() {
                             name={field.name}
                             placeholder={field.placeholder}
                             onChange={handleInputChange}
-                            value={productData[field.name]}
+                            value={product[field.name]}
                         />
-                        {error && !productData[field.name] && (
-                            <p className="mt-1 text-sm text-red-600">This field is required</p>
-                        )}
                     </div>
                 ))}
 
