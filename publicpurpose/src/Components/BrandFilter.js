@@ -8,11 +8,17 @@ const BRAND_NORMALIZATION = {
     "morris garages": "MG",
     "mg motors": "MG",
     "mg": "MG",
+    "MG": "MG",
+    "Mg": "MG",
+
+
     
     // Maruti Suzuki
     "maruti": "MARUTI SUZUKI",
     "maruti suzuki": "MARUTI SUZUKI",
     "suzuki": "MARUTI SUZUKI",
+    "Maruti Suzuki": "MARUTI SUZUKI",
+
     
     // Mercedes
     "mercedes": "MERCEDES",
@@ -21,9 +27,17 @@ const BRAND_NORMALIZATION = {
     
     // Honda
     "honda": "HONDA",
+    "Honda": "HONDA",
+    "HONDA": "HONDA",
+
+
     
     // Ford
     "ford": "FORD",
+    "Ford": "FORD",
+    "FORD": "FORD",
+
+
     
     // BMW
     "bmw": "BMW",
@@ -33,13 +47,25 @@ const BRAND_NORMALIZATION = {
     
     // Renault
     "renault": "RENAULT",
+    "Renault": "RENAULT",
+    "RENAULT": "RENAULT",
+
+
     
     // Hyundai
     "hyundai": "HYUNDAI",
+    "Hyundai": "HYUNDAI",
+    "HYUNDAI": "HYUNDAI",
+
+
     
     // Volkswagen
     "volkswagen": "VOLKSWAGEN",
     "vw": "VOLKSWAGEN",
+    "Volkawagen": "VOLKSWAGEN",
+    "VOLKSWAGEN": "VOLKSWAGEN",
+
+
     
     // Kia
     "kia": "KIA",
