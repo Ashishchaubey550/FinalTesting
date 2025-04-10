@@ -105,8 +105,8 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-white">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left hidden md:block">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-4 border-t lg:border-t-0 lg:border-l border-white">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-center lg:text-left hidden md:block">
             {product.model}
           </h2>
 
@@ -138,7 +138,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <DetailItem label="Transmission" value={product.transmissionType} />
             <button
             onClick={handleShare}
-            className="mt-6 bg-green-500 text-white py-3 px-8 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
+            className="mt-2 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
           >
             Share on WhatsApp
           </button>
