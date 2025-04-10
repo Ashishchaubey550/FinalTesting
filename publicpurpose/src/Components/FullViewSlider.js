@@ -151,13 +151,13 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
 
 // DetailItem component remains unchanged
 const DetailItem = ({ label, value, highlight }) => (
-  <div className="space-y-1 p-3 bg-red-50 rounded-lg">
-    <span className="text-sm md:text-base font-medium text-red-700">
+  <div className="space-y-1 p-3 bg-white rounded-lg">
+    <span className="text-sm md:text-base font-medium text-black">
       {label}:
     </span>
     <p
       className={`text-base md:text-lg ${
-        highlight ? "font-bold text-green-600" : "text-gray-900"
+        highlight ? "font-bold text-green-600" : "text-gray-500"
       }`}
     >
       {value}
