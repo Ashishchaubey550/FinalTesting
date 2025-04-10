@@ -229,27 +229,37 @@ app.get("/product/:id", async (req, res) => {
   }
 });
 
-// Update the product PUT endpoint
 app.put("/product/:id", multer.array("images", 20), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
+    const imagesToDelete = req.body.imagesToDelete ? JSON.parse(req.body.imagesToDelete) : [];
 
-    // Handle image updates if any
+    // Handle image deletions first
+    if (imagesToDelete.length > 0) {
+      await Promise.all(
+        imagesToDelete.map(async (imageUrl) => {
+          try {
+            // Extract public ID from Cloudinary URL
+            const publicId = imageUrl.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(publicId);
+          } catch (err) {
+            console.error(`Error deleting image ${imageUrl}:`, err);
+          }
+        })
+      );
+
+      // Remove deleted images from the product
+      const currentProduct = await Product.findById(id);
+      updateData.images = currentProduct.images.filter(
+        img => !imagesToDelete.includes(img)
+      );
+    }
+
+    // Handle new image uploads
     if (req.files && req.files.length > 0) {
-      const imageUrls = req.files.map(file => file.path);
-      
-      // If client sent images to delete (via req.body.imagesToDelete)
-      if (req.body.imagesToDelete) {
-        const imagesToDelete = JSON.parse(req.body.imagesToDelete);
-        const currentProduct = await Product.findById(id);
-        const remainingImages = currentProduct.images.filter(
-          img => !imagesToDelete.includes(img)
-        );
-        updateData.images = [...remainingImages, ...imageUrls];
-      } else {
-        updateData.images = imageUrls;
-      }
+      const newImageUrls = req.files.map(file => file.path);
+      updateData.images = [...(updateData.images || []), ...newImageUrls];
     }
 
     const result = await Product.findByIdAndUpdate(
