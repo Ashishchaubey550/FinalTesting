@@ -15,7 +15,8 @@ function UpdateProduct() {
         registrationStatus: '',
         registrationYear: '',
         transmissionType: '',
-        variant: ''
+        variant: '',
+        car_number:'',
     });
     const [newImages, setNewImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
@@ -45,7 +46,9 @@ function UpdateProduct() {
                     registrationStatus: data.registrationStatus || '',
                     registrationYear: data.registrationYear || '',
                     transmissionType: data.transmissionType || '',
-                    variant: data.variant || ''
+                    variant: data.variant || '',
+                    car_number: data.car_number || ''
+
                 });
                 if (data.images) setExistingImages(data.images);
             } catch (err) {
@@ -139,6 +142,8 @@ function UpdateProduct() {
                         { name: 'registrationYear', label: 'Registration Year', type: 'number' },
                         { name: 'transmissionType', label: 'Transmission', type: 'text' },
                         { name: 'variant', label: 'Variant', type: 'text' },
+                        { name: 'car_numer', label: 'Car Number', type: 'String' },
+
                     ].map(field => (
                         <div key={field.name} className="space-y-1">
                             <label className="block text-sm font-medium">{field.label}</label>

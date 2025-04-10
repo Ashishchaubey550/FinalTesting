@@ -238,7 +238,7 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
     const fields = [
       'company', 'model', 'color', 'distanceCovered', 'modelYear',
       'price', 'bodyType', 'condition', 'fuelType', 'registrationStatus',
-      'registrationYear', 'transmissionType', 'variant'
+      'registrationYear', 'transmissionType', 'variant','car_number',
     ];
     
     fields.forEach(field => {

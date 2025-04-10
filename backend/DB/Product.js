@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema({
   transmissionType: { type: String, required: true }, 
   bodyType: { type: String, required: true }, 
   price: { type: Number, required: true },
+  car_number: { type: String, required: true },
   images: { type: [String], required: true },
   // New fields for filtering
   condition: { 

@@ -12,6 +12,8 @@ function AddProduct() {
     const [fuelType, setFuelType] = useState('');
     const [transmissionType, setTransmissionType] = useState('');
     const [price, setPrice] = useState('');
+    const [car_number, setCar_number] = useState('');
+
     const [bodyType, setBodyType] = useState('');
     const [condition, setCondition] = useState('new');
     const [registrationStatus, setRegistrationStatus] = useState('registered');
@@ -33,7 +35,7 @@ function AddProduct() {
           const requiredFields = [
             company, model, variant, color, distanceCovered,
             modelYear, registrationYear, fuelType, transmissionType,
-            price, bodyType, condition, registrationStatus
+            price, bodyType, condition, registrationStatus , car_number,
           ];
           
           if (requiredFields.some(field => !field) || images.length === 0) {
@@ -58,7 +60,7 @@ function AddProduct() {
           Object.entries({
             company, model, variant, color, 
             fuelType, transmissionType, bodyType,
-            condition, registrationStatus,
+            condition, registrationStatus, car_number,
             ...numericFields
           }).forEach(([key, value]) => formData.append(key, String(value)));
       
@@ -145,6 +147,18 @@ function AddProduct() {
                             placeholder="Enter Car Model"
                             onChange={(e) => setModel(e.target.value)}
                             value={model}
+                            disabled={isSubmitting}
+                        />
+                        {error && !model && <span className="text-red-600 text-sm">Enter valid model</span>}
+                    </div>
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Car Number</label>
+                        <input
+                            className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            type="text"
+                            placeholder="Enter Car Model"
+                            onChange={(e) => setCar_number(e.target.value)}
+                            value={car_number}
                             disabled={isSubmitting}
                         />
                         {error && !model && <span className="text-red-600 text-sm">Enter valid model</span>}
