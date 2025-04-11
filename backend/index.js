@@ -120,7 +120,7 @@ app.post("/add", multer.array("images", 20), async (req, res) => {
     }
 
     // Validate car number format
-    const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}$/i;
+    const carNumberRegex = /^[A-Z]{2}[0-9]{2}$/;
     if (!carNumberRegex.test(req.body.car_number)) {
       return res.status(400).json({ 
         error: "Invalid car number format. Example: MH12" 
@@ -267,7 +267,7 @@ app.put("/product/:id", multer.array("images", 20), async (req, res) => {
 
     // Validate car number if being updated
     if (updateData.car_number) {
-      const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}$/i;
+      const carNumberRegex = /^[A-Z]{2}[0-9]{2}$/;
       if (!carNumberRegex.test(updateData.car_number)) {
         return res.status(400).json({ 
           error: "Invalid car number format. Example: MH12AB1234" 
