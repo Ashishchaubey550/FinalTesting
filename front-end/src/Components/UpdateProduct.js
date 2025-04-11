@@ -82,9 +82,9 @@ function UpdateProduct() {
 
         try {
             // Validate car number format
-            const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+            const carNumberRegex = /^[A-Z]{2}[0-9]{2}$/i;
             if (!carNumberRegex.test(product.car_number)) {
-                throw new Error("Please enter a valid car number (e.g. MH12AB1234)");
+                throw new Error("Please enter a valid car number (e.g. MH12)");
             }
 
             const formData = new FormData();
