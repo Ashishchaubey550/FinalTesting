@@ -16,13 +16,12 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    adaptiveHeight: false, // Disable adaptive height for consistent sizing
+    adaptiveHeight: false,
   };
 
   const isMobile = windowWidth < 768;
   const dynamicImageHeight = isMobile ? Math.min(windowWidth * 0.9, 400) : imageHeight;
 
-  // Image URL normalization function
   const processImageUrl = (url) => {
     if (!url) return null;
     if (url.includes("res.cloudinary.com")) {
@@ -64,7 +63,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[50%] p-0 flex items-center justify-center">
+        <div className="flex-1 lg:max-w-[50%] p-0">
           <div 
             className="w-full"
             style={{ 
@@ -82,7 +81,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                     imageUrl && (
                       <div 
                         key={idx} 
-                        className="flex items-center justify-center"
+                        className="h-full w-full"
                         style={{ 
                           height: `${dynamicImageHeight}px`,
                           backgroundColor: "#f5f5f5"
@@ -90,19 +89,13 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                       >
                         <img
                           loading="lazy"
-                          className="max-h-full max-w-full object-contain"
+                          className="h-full w-full object-cover"
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           onError={(e) => {
                             e.target.src =
                               "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                            e.target.className = "max-h-full max-w-full object-cover";
-                          }}
-                          style={{
-                            height: "auto",
-                            width: "auto",
-                            maxHeight: "100%",
-                            maxWidth: "100%",
+                            e.target.className = "h-full w-full object-cover";
                           }}
                         />
                       </div>
