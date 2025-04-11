@@ -20,11 +20,10 @@ function FullViewSlider({ product, closeModal }) {
 
   const isMobile = windowWidth < 768;
   
-  // Fixed aspect ratio container (4:3 ratio)
+  // Container style - full height and fixed width
   const imageContainerStyle = {
-    width: isMobile ? '100%' : '500px',
-    height: isMobile ? '300px' : '375px',
-    maxHeight: '70vh',
+    width: isMobile ? '100%' : '50%',
+    height: '70vh',
     position: 'relative',
     overflow: 'hidden'
   };
@@ -32,12 +31,10 @@ function FullViewSlider({ product, closeModal }) {
   // Image URL normalization function
   const processImageUrl = (url) => {
     if (!url) return null;
-    // Handle Cloudinary URLs with any prefixes
     if (url.includes("res.cloudinary.com")) {
       const cloudinaryPath = url.split("res.cloudinary.com")[1];
       return `https://res.cloudinary.com${cloudinaryPath}`;
     }
-    // Force HTTPS for all URLs
     return url.replace("http://", "https://");
   };
 
@@ -72,7 +69,7 @@ function FullViewSlider({ product, closeModal }) {
           ✕
         </button>
 
-        {/* Image Slider with fixed dimensions */}
+        {/* Image Slider - full container size */}
         <div className="flex-1 lg:max-w-[50%] p-0" style={imageContainerStyle}>
           <Slider {...sliderSettings} className="w-full h-full">
             {product.images
@@ -84,17 +81,13 @@ function FullViewSlider({ product, closeModal }) {
                     <div key={idx} className="w-full h-full">
                       <img
                         loading="lazy"
-                        className="w-full h-full object-contain bg-gray-100"
+                        className="w-full h-full object-cover"
                         src={imageUrl}
                         alt={`Product Image ${idx + 1}`}
                         onError={(e) => {
                           e.target.src =
                             "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                          e.target.className = "w-full h-full object-contain bg-gray-200";
-                        }}
-                        style={{
-                          objectFit: 'contain',
-                          backgroundColor: '#f3f4f6'
+                          e.target.className = "w-full h-full object-cover";
                         }}
                       />
                     </div>
