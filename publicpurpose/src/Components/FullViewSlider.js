@@ -20,7 +20,9 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
   };
 
   const isMobile = windowWidth < 768;
-  const dynamicImageHeight = isMobile ? Math.min(windowWidth * 0.9, 400) : imageHeight;
+  const dynamicImageHeight = isMobile
+    ? Math.min(windowWidth * 1, 400)
+    : imageHeight;
 
   // Image URL normalization function
   const processImageUrl = (url) => {
@@ -57,23 +59,18 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         {/* Close Button */}
         <button
           onClick={closeModal}
-          className="absolute top-3 right-3 z-50 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-all"
+          className="absolute top-3 right-3 z-50 mt-1 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-all"
           style={{ width: "40px", height: "40px" }}
         >
           ✕
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[50%] p-0 flex items-center justify-center">
-          <div
-            className="w-full"
-            style={{
-              height: `${dynamicImageHeight}px`,
-              maxHeight: "100%",
-              position: "relative"
-            }}
-          >
-            <Slider {...sliderSettings} className="h-full">
+        <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
+          <div className="w-[600px] h-[750px] relative">
+            {" "}
+            {/* Fixed container size */}
+            <Slider {...sliderSettings} className="w-full h-full">
               {product.images
                 ?.filter((img) => !!img)
                 .map((image, idx) => {
@@ -82,20 +79,22 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                     imageUrl && (
                       <div
                         key={idx}
-                        className="flex items-center justify-center h-full"
-                        style={{
-                          backgroundColor: "#f5f5f5"
-                        }}
+                        className="w-[960px] h-[1280px] flex justify-center items-center overflow-hidden bg-black"
                       >
                         <img
                           loading="lazy"
-                          className="w-full h-full object-cover"
+                          className="object-cover w-full h-full p-2 pl-5 pt-5 rounded-3xl" // Crop to fit 960×1280
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
+                          style={{
+                            width: "600px",
+                            height: "750px",
+                            objectPosition: "center", // Focus on center (adjust if needed)
+                          }}
                           onError={(e) => {
                             e.target.src =
-                              "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                            e.target.className = "w-full h-full object-cover";
+                              "https://via.placeholder.com/960x1280?text=Image+Not+Available";
+                            e.target.className = "";
                           }}
                         />
                       </div>
@@ -107,24 +106,37 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6 border-t lg:border-t-0 lg:border-l border-gray-200">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 border-t lg:border-t-0 lg:border-l  mt-16">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left">
             {product.model}
           </h2>
 
-          <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-3 md:gap-4`}>
+          <div
+            className={`grid ${
+              isMobile ? "grid-cols-1" : "grid-cols-2"
+            } gap-3 md:gap-4`}
+          >
             <DetailItem label="Car Number" value={product.car_number} />
             <DetailItem label="Company" value={product.company} />
             <DetailItem label="Color" value={product.color} />
-            <DetailItem label="Distance Covered" value={`${product.distanceCovered} km`} />
+            <DetailItem
+              label="Distance Covered"
+              value={`${product.distanceCovered} km`}
+            />
             <DetailItem label="Model Year" value={product.modelYear} />
-            <DetailItem label="Price" value={`₹${product.price} Lakhs`} highlight />
+            <DetailItem
+              label="Price"
+              value={`₹${product.price} Lakhs`}
+              highlight
+            />
             <DetailItem label="Variant" value={product.variant} />
-            <DetailItem label="Registration Year" value={product.registrationYear} />
+            <DetailItem
+              label="Registration Year"
+              value={product.registrationYear}
+            />
             <DetailItem label="Fuel Type" value={product.fuelType} />
             <DetailItem label="Body Type" value={product.bodyType} />
             <DetailItem label="Transmission" value={product.transmissionType} />
-          </div>
 
           <button
             onClick={handleShare}
@@ -132,6 +144,8 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
           >
             Share on WhatsApp
           </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -143,7 +157,11 @@ const DetailItem = ({ label, value, highlight }) => (
     <span className="text-sm md:text-base font-medium text-gray-700">
       {label}:
     </span>
-    <p className={`text-base md:text-lg ${highlight ? "font-bold text-green-600" : "text-gray-800"}`}>
+    <p
+      className={`text-base md:text-lg ${
+        highlight ? "font-bold text-green-600" : "text-gray-800"
+      }`}
+    >
       {value}
     </p>
   </div>
