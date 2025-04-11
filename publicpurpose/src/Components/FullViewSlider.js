@@ -116,7 +116,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
               isMobile ? "grid-cols-1" : "grid-cols-2"
             } gap-3 md:gap-4`}
           >
-            <DetailItem label="Car Number" value={product.car_number} />
+            <DetailItem label="Registration Number" value={product.car_number} />
             <DetailItem label="Company" value={product.company} />
             <DetailItem label="Color" value={product.color} />
             <DetailItem
