@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "../CSS/PrevButoon.css";
 
-function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
+function FullViewSlider({ product, closeModal }) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -12,18 +12,22 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
   }, []);
 
   const sliderSettings = {
-    // dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    // adaptiveHeight: true,
   };
 
   const isMobile = windowWidth < 768;
-  const dynamicImageHeight = isMobile
-    ? Math.min(windowWidth * 0.7, 300)
-    : imageHeight;
+  
+  // Fixed aspect ratio container (4:3 ratio)
+  const imageContainerStyle = {
+    width: isMobile ? '100%' : '500px',
+    height: isMobile ? '300px' : '375px',
+    maxHeight: '70vh',
+    position: 'relative',
+    overflow: 'hidden'
+  };
 
   // Image URL normalization function
   const processImageUrl = (url) => {
@@ -68,12 +72,8 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
           ✕
         </button>
 
-        {/* Image Slider */}
-        {/*******************************************have to make change on this***************** */}
-        <div
-          className="flex-1 lg:max-w-[50%] p-0"
-          style={{ height: `${dynamicImageHeight}px`, maxHeight: "100%" }}
-        >
+        {/* Image Slider with fixed dimensions */}
+        <div className="flex-1 lg:max-w-[50%] p-0" style={imageContainerStyle}>
           <Slider {...sliderSettings} className="w-full h-full">
             {product.images
               ?.filter((img) => !!img)
@@ -81,20 +81,20 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
                 const imageUrl = processImageUrl(image);
                 return (
                   imageUrl && (
-                    <div key={idx} style={{ height: "100%" }}>
+                    <div key={idx} className="w-full h-full">
                       <img
                         loading="lazy"
-                        className="w-full h-full object-cover"
-                        style={{
-                          height: "100%",
-                          width: "100%",
-                          objectFit: "cover",
-                        }}
+                        className="w-full h-full object-contain bg-gray-100"
                         src={imageUrl}
                         alt={`Product Image ${idx + 1}`}
                         onError={(e) => {
                           e.target.src =
                             "https://via.placeholder.com/600x400?text=Image+Not+Available";
+                          e.target.className = "w-full h-full object-contain bg-gray-200";
+                        }}
+                        style={{
+                          objectFit: 'contain',
+                          backgroundColor: '#f3f4f6'
                         }}
                       />
                     </div>
@@ -137,20 +137,18 @@ function FullViewSlider({ product, closeModal, imageHeight = 400 }) {
             <DetailItem label="Body Type" value={product.bodyType} />
             <DetailItem label="Transmission" value={product.transmissionType} />
             <button
-            onClick={handleShare}
-            className="mt-2 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
-          >
-            Share on WhatsApp
-          </button>
+              onClick={handleShare}
+              className="mt-2 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
+            >
+              Share on WhatsApp
+            </button>
           </div>
-
         </div>
       </div>
     </div>
   );
 }
 
-// DetailItem component remains unchanged
 const DetailItem = ({ label, value, highlight }) => (
   <div className="space-y-1 p-3 bg-white rounded-lg">
     <span className="text-sm md:text-base font-medium text-black">
