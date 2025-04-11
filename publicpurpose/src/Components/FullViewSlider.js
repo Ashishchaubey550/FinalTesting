@@ -19,14 +19,6 @@ function FullViewSlider({ product, closeModal }) {
   };
 
   const isMobile = windowWidth < 768;
-  
-  // Container style - full height and fixed width
-  const imageContainerStyle = {
-    width: isMobile ? '100%' : '50%',
-    height: '70vh',
-    position: 'relative',
-    overflow: 'hidden'
-  };
 
   // Image URL normalization function
   const processImageUrl = (url) => {
@@ -69,8 +61,8 @@ function FullViewSlider({ product, closeModal }) {
           ✕
         </button>
 
-        {/* Image Slider - full container size */}
-        <div className="flex-1 lg:max-w-[50%] p-0" style={imageContainerStyle}>
+        {/* Image Slider - Full container size without maintaining aspect ratio */}
+        <div className="flex-1 lg:max-w-[50%] p-0 h-full">
           <Slider {...sliderSettings} className="w-full h-full">
             {product.images
               ?.filter((img) => !!img)
@@ -81,13 +73,18 @@ function FullViewSlider({ product, closeModal }) {
                     <div key={idx} className="w-full h-full">
                       <img
                         loading="lazy"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-fill"
                         src={imageUrl}
                         alt={`Product Image ${idx + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'fill' // This will stretch the image to fill container
+                        }}
                         onError={(e) => {
                           e.target.src =
                             "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                          e.target.className = "w-full h-full object-cover";
+                          e.target.className = "w-full h-full object-fill";
                         }}
                       />
                     </div>
