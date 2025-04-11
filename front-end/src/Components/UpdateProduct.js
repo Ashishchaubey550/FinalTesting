@@ -141,7 +141,7 @@ function UpdateProduct() {
                             name="car_number"
                             value={product.car_number}
                             onChange={handleChange}
-                            placeholder="e.g. MH12AB1234"
+                            placeholder="e.g. MH12"
                             className="w-full p-2 border rounded"
                             required
                         />
