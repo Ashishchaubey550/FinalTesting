@@ -16,12 +16,13 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    adaptiveHeight: false,
+    adaptiveHeight: false, // Disable adaptive height for consistent sizing
   };
 
   const isMobile = windowWidth < 768;
   const dynamicImageHeight = isMobile ? Math.min(windowWidth * 0.9, 400) : imageHeight;
 
+  // Image URL normalization function
   const processImageUrl = (url) => {
     if (!url) return null;
     if (url.includes("res.cloudinary.com")) {
@@ -63,10 +64,10 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[50%] p-0">
-          <div 
+        <div className="flex-1 lg:max-w-[50%] p-0 flex items-center justify-center">
+          <div
             className="w-full"
-            style={{ 
+            style={{
               height: `${dynamicImageHeight}px`,
               maxHeight: "100%",
               position: "relative"
@@ -79,23 +80,22 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                   const imageUrl = processImageUrl(image);
                   return (
                     imageUrl && (
-                      <div 
-                        key={idx} 
-                        className="h-full w-full"
-                        style={{ 
-                          height: `${dynamicImageHeight}px`,
+                      <div
+                        key={idx}
+                        className="flex items-center justify-center h-full"
+                        style={{
                           backgroundColor: "#f5f5f5"
                         }}
                       >
                         <img
                           loading="lazy"
-                          className="h-full w-full object-cover"
+                          className="w-full h-full object-cover"
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           onError={(e) => {
                             e.target.src =
                               "https://via.placeholder.com/600x400?text=Image+Not+Available";
-                            e.target.className = "h-full w-full object-cover";
+                            e.target.className = "w-full h-full object-cover";
                           }}
                         />
                       </div>
@@ -116,26 +116,16 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
             <DetailItem label="Car Number" value={product.car_number} />
             <DetailItem label="Company" value={product.company} />
             <DetailItem label="Color" value={product.color} />
-            <DetailItem
-              label="Distance Covered"
-              value={`${product.distanceCovered} km`}
-            />
+            <DetailItem label="Distance Covered" value={`${product.distanceCovered} km`} />
             <DetailItem label="Model Year" value={product.modelYear} />
-            <DetailItem
-              label="Price"
-              value={`₹${product.price} Lakhs`}
-              highlight
-            />
+            <DetailItem label="Price" value={`₹${product.price} Lakhs`} highlight />
             <DetailItem label="Variant" value={product.variant} />
-            <DetailItem
-              label="Registration Year"
-              value={product.registrationYear}
-            />
+            <DetailItem label="Registration Year" value={product.registrationYear} />
             <DetailItem label="Fuel Type" value={product.fuelType} />
             <DetailItem label="Body Type" value={product.bodyType} />
             <DetailItem label="Transmission" value={product.transmissionType} />
           </div>
-          
+
           <button
             onClick={handleShare}
             className="mt-4 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
@@ -153,11 +143,7 @@ const DetailItem = ({ label, value, highlight }) => (
     <span className="text-sm md:text-base font-medium text-gray-700">
       {label}:
     </span>
-    <p
-      className={`text-base md:text-lg ${
-        highlight ? "font-bold text-green-600" : "text-gray-800"
-      }`}
-    >
+    <p className={`text-base md:text-lg ${highlight ? "font-bold text-green-600" : "text-gray-800"}`}>
       {value}
     </p>
   </div>
