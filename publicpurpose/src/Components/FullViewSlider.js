@@ -54,8 +54,8 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-12 sm:p-4 z-50">
-      <div className="relative bg-white rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[80vh] flex flex-col lg:flex-row">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="relative bg-white rounded-xl w-full max-w-7xl mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
@@ -66,7 +66,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[80%] p-10 flex  bg-white justify-center items-center">
+        <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
           <div className="w-[600px] h-[750px] relative">
             {" "}
             {/* Fixed container size */}
@@ -106,7 +106,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-[20px] p-6 lg:p-8 border-t lg:border-t-0 lg:border-l">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 border-t lg:border-t-0 lg:border-l">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left">
             {product.model}
           </h2>
