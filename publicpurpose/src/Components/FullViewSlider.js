@@ -183,6 +183,7 @@ const DetailItem = ({ label, value, highlight }) => (
     >
       {value || "N/A"}
     </p>
+    <p>Hello</p>
   </div>
 );
 
