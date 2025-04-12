@@ -16,13 +16,12 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    adaptiveHeight: false, // Disable adaptive height for consistent sizing
+    adaptiveHeight: false,
   };
 
   const isMobile = windowWidth < 768;
-  const dynamicImageHeight = isMobile
-    ? Math.min(windowWidth * 1, 400)
-    : imageHeight;
+  const isLaptop = windowWidth >= 768 && windowWidth < 1440;
+  const isDesktop = windowWidth >= 1440;
 
   // Image URL normalization function
   const processImageUrl = (url) => {
@@ -55,7 +54,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="relative bg-white rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[80vh] flex flex-col lg:flex-row">
+      <div className="relative bg-white rounded-xl w-full max-w-[90vw] xl:max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
@@ -66,10 +65,14 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
-          <div className="w-[600px] h-[750px] relative">
-            {" "}
-            {/* Fixed container size */}
+        <div className="flex-1 lg:max-w-[50%] p-4 md:p-6 lg:p-8 flex bg-white justify-center items-center">
+          <div 
+            className="relative"
+            style={{
+              width: isLaptop ? "500px" : "600px",
+              height: isLaptop ? "625px" : "750px"
+            }}
+          >
             <Slider {...sliderSettings} className="w-full h-full">
               {product.images
                 ?.filter((img) => !!img)
@@ -79,17 +82,17 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                     imageUrl && (
                       <div
                         key={idx}
-                        className="w-[960px] h-[1280px] flex justify-center items-center overflow-hidden bg-black"
+                        className="flex justify-center items-center overflow-hidden bg-black"
                       >
                         <img
                           loading="lazy"
-                          className="object-cover w-full h-full p-2 pl-5 pt-5 rounded-3xl" // Crop to fit 960×1280
+                          className="object-cover w-full h-full p-2 pl-5 pt-5 rounded-3xl"
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           style={{
-                            width: "600px",
-                            height: "750px",
-                            objectPosition: "center", // Focus on center (adjust if needed)
+                            width: "100%",
+                            height: "100%",
+                            objectPosition: "center",
                           }}
                           onError={(e) => {
                             e.target.src =
@@ -106,7 +109,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8 border-t lg:border-t-0 lg:border-l  mt-16">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 border-t lg:border-t-0 lg:border-l mt-16">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left">
             {product.model}
           </h2>
@@ -138,14 +141,13 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
             <DetailItem label="Body Type" value={product.bodyType} />
             <DetailItem label="Transmission" value={product.transmissionType} />
 
-          <button
-            onClick={handleShare}
-            className="mt-4 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
-          >
-            Share on WhatsApp
-          </button>
+            <button
+              onClick={handleShare}
+              className="mt-4 bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 transition-all w-full md:w-auto text-lg"
+            >
+              Share on WhatsApp
+            </button>
           </div>
-
         </div>
       </div>
     </div>
