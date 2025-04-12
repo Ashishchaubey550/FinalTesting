@@ -55,7 +55,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="relative bg-white rounded-xl w-full max-w-6xl p-4 mx-4 overflow-hidden shadow-xl max-h-[90vh] flex flex-col lg:flex-row">
+      <div className="relative bg-white rounded-xl w-full max-w-6xl mx-4 overflow-hidden shadow-xl max-h-[80vh] flex flex-col lg:flex-row">
         {/* Close Button */}
         <button
           onClick={closeModal}
