@@ -8,7 +8,7 @@ import PriceFilter from "../Components/PriceFilter";
 
 Modal.setAppElement("#root");
 
-// Enhanced Normalization Functions
+// Enhanced Normalization Functions with memoization
 const normalizeString = (str) => {
   if (!str) return "";
   return str.toLowerCase().trim().replace(/\s+/g, " ");
@@ -106,15 +106,15 @@ function ProductList() {
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Slider settings
-  const sliderSettings = {
+  // Optimized slider settings
+  const sliderSettings = useMemo(() => ({
     dots: true,
     arrows: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-  };
+  }), []);
 
   // Detect mobile devices
   useEffect(() => {
@@ -126,59 +126,89 @@ function ProductList() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch products
+  // Fetch products with optimized loading
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const getProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "https://finaltesting-tnim.onrender.com/product",
+          { signal }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result?.length > 0) {
+          // Process data in chunks to prevent UI freeze
+          const chunkSize = 20;
+          const chunks = [];
+          for (let i = 0; i < result.length; i += chunkSize) {
+            chunks.push(result.slice(i, i + chunkSize));
+          }
+
+          // Process first chunk immediately
+          const firstChunk = chunks.shift();
+          let normalizedProducts = firstChunk.map(normalizeProduct);
+
+          setProducts(normalizedProducts);
+          setFilteredProducts(normalizedProducts);
+
+          // Process remaining chunks in background
+          if (chunks.length > 0) {
+            setTimeout(() => {
+              for (const chunk of chunks) {
+                const newProducts = chunk.map(normalizeProduct);
+                setProducts(prev => [...prev, ...newProducts]);
+                setFilteredProducts(prev => [...prev, ...newProducts]);
+              }
+            }, 100);
+          }
+        } else {
+          setProducts([]);
+          setFilteredProducts([]);
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error("Error fetching products:", error);
+          setError(error.message);
+          setProducts([]);
+          setFilteredProducts([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const normalizeProduct = (p) => ({
+      ...p,
+      company: normalizeBrand(p.company),
+      color: normalizeColor(p.color),
+      bodyType: normalizeBodyType(p.bodyType),
+      fuelType: normalizeFuelType(p.fuelType),
+      distanceCovered: Number(p.distanceCovered) || 0,
+      modelYear: Number(p.modelYear) || 0,
+      price: Number(p.price) || 0,
+      condition: p.condition ? normalizeString(p.condition) : "",
+      registrationStatus: p.registrationStatus
+        ? normalizeString(p.registrationStatus)
+        : "",
+      searchText:
+        `${p.model} ${p.company} ${p.color} ${p.bodyType} ${p.fuelType}`.toLowerCase(),
+    });
+
     getProducts();
+
+    return () => controller.abort();
   }, []);
 
-  const getProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        "https://finaltesting-tnim.onrender.com/product"
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch products: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result?.length > 0) {
-        const normalizedProducts = result.map((p) => ({
-          ...p,
-          company: normalizeBrand(p.company),
-          color: normalizeColor(p.color),
-          bodyType: normalizeBodyType(p.bodyType),
-          fuelType: normalizeFuelType(p.fuelType),
-          distanceCovered: Number(p.distanceCovered) || 0,
-          modelYear: Number(p.modelYear) || 0,
-          price: Number(p.price) || 0,
-          condition: p.condition ? normalizeString(p.condition) : "",
-          registrationStatus: p.registrationStatus
-            ? normalizeString(p.registrationStatus)
-            : "",
-          searchText:
-            `${p.model} ${p.company} ${p.color} ${p.bodyType} ${p.fuelType}`.toLowerCase(),
-        }));
-
-        setProducts(normalizedProducts);
-        setFilteredProducts(normalizedProducts);
-      } else {
-        setProducts([]);
-        setFilteredProducts([]);
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setError(error.message);
-      setProducts([]);
-      setFilteredProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Enhanced filter function
+  // Optimized filter function
   const filterProducts = useCallback(
     (
       priceRange,
@@ -193,48 +223,50 @@ function ProductList() {
       search = "",
       dataset = products
     ) => {
-      const filtered = dataset.filter((p) => {
-        const priceInRupees = p.price * 100000;
-        const isPreowned = p.condition === "preowned";
-        const isUnregistered = p.registrationStatus === "unregistered";
+      requestIdleCallback(() => {
+        const filtered = dataset.filter((p) => {
+          const priceInRupees = p.price * 100000;
+          const isPreowned = p.condition === "preowned";
+          const isUnregistered = p.registrationStatus === "unregistered";
 
-        // Check if distance falls within selected ranges
-        const distanceMatch =
-          distances.length === 0 ||
-          distances.some((range) => {
-            if (range === "0-10,000 km") return p.distanceCovered <= 10000;
-            if (range === "10,001-30,000 km")
-              return p.distanceCovered > 10000 && p.distanceCovered <= 30000;
-            if (range === "30,001-50,000 km")
-              return p.distanceCovered > 30000 && p.distanceCovered <= 50000;
-            if (range === "50,001-80,000 km")
-              return p.distanceCovered > 50000 && p.distanceCovered <= 80000;
-            if (range === "80,001+ km") return p.distanceCovered > 80000;
-            return false;
-          });
+          // Check if distance falls within selected ranges
+          const distanceMatch =
+            distances.length === 0 ||
+            distances.some((range) => {
+              if (range === "0-10,000 km") return p.distanceCovered <= 10000;
+              if (range === "10,001-30,000 km")
+                return p.distanceCovered > 10000 && p.distanceCovered <= 30000;
+              if (range === "30,001-50,000 km")
+                return p.distanceCovered > 30000 && p.distanceCovered <= 50000;
+              if (range === "50,001-80,000 km")
+                return p.distanceCovered > 50000 && p.distanceCovered <= 80000;
+              if (range === "80,001+ km") return p.distanceCovered > 80000;
+              return false;
+            });
 
-        // Search filter
-        const searchMatch =
-          !search || p.searchText.includes(search.toLowerCase());
+          // Search filter
+          const searchMatch =
+            !search || p.searchText.includes(search.toLowerCase());
 
-        return (
-          priceInRupees >= priceRange[0] &&
-          priceInRupees <= priceRange[1] &&
-          (brands.length === 0 || brands.some((b) => p.company.includes(b))) &&
-          (colors.length === 0 || colors.some((c) => p.color.includes(c))) &&
-          (bodyTypes.length === 0 ||
-            bodyTypes.some((bt) => p.bodyType.includes(bt))) &&
-          (fuelTypes.length === 0 ||
-            fuelTypes.some((ft) => p.fuelType.includes(ft))) &&
-          (modelYears.length === 0 || modelYears.includes(p.modelYear)) &&
-          distanceMatch &&
-          (!preowned || isPreowned) &&
-          (!unregistered || isUnregistered) &&
-          searchMatch
-        );
+          return (
+            priceInRupees >= priceRange[0] &&
+            priceInRupees <= priceRange[1] &&
+            (brands.length === 0 || brands.some((b) => p.company.includes(b))) &&
+            (colors.length === 0 || colors.some((c) => p.color.includes(c))) &&
+            (bodyTypes.length === 0 ||
+              bodyTypes.some((bt) => p.bodyType.includes(bt))) &&
+            (fuelTypes.length === 0 ||
+              fuelTypes.some((ft) => p.fuelType.includes(ft))) &&
+            (modelYears.length === 0 || modelYears.includes(p.modelYear)) &&
+            distanceMatch &&
+            (!preowned || isPreowned) &&
+            (!unregistered || isUnregistered) &&
+            searchMatch
+          );
+        });
+
+        setFilteredProducts(filtered.length ? filtered : []);
       });
-
-      setFilteredProducts(filtered.length ? filtered : []);
     },
     [products]
   );
@@ -598,7 +630,7 @@ function ProductList() {
     setFilteredProducts(products);
   }, [products]);
 
-  // Enhanced unique values calculation
+  // Enhanced unique values calculation with memoization
   const uniqueBrands = useMemo(() => {
     const brands = [...new Set(products.map((p) => p.company))].filter(Boolean);
     return brands.sort((a, b) => a.localeCompare(b));
@@ -637,13 +669,31 @@ function ProductList() {
     return distanceRanges;
   }, []);
 
-  const formatDisplayName = (str) => {
+  const formatDisplayName = useCallback((str) => {
     if (!str) return "";
     return str
       .split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
-  };
+  }, []);
+
+  // Preload images on component mount
+  useEffect(() => {
+    if (products.length > 0) {
+      // Preload first few images for better perceived performance
+      const imagesToPreload = products.slice(0, 6).flatMap(p => 
+        p.images?.filter(img => img) || []
+      );
+      
+      imagesToPreload.forEach(img => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = img;
+        document.head.appendChild(link);
+      });
+    }
+  }, [products]);
 
   // Loading and error states
   if (loading) {
@@ -670,13 +720,14 @@ function ProductList() {
 
   return (
     <div className="flex flex-col">
-      {/* Banner Section */}
+      {/* Banner Section with optimized image loading */}
       <div className="relative w-full">
         <img
-         loading="lazy"
           src={contactbg}
           alt="Contact Background"
           className="w-full h-[200px] sm:h-[450px] lg:h-[650px] object-cover blur-[3px]"
+          loading="eager"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -1121,20 +1172,19 @@ function ProductList() {
                 <div
                   key={item._id}
                   className="product-card p-4 border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow bg-white"
-                  // onClick={() => openModal(item)}
                 >
                   <Slider {...sliderSettings} className="product-slider">
                     {item.images?.map(
                       (image, idx) =>
-                        image && ( // Key change here
+                        image && (
                           <div key={idx} className="slider-image-container">
                             <img
-                             loading="lazy"
-                                              onClick={() => openModal(item)}
-
-                              src={image} // Key change here
+                              src={image}
                               alt={`${item.model} ${idx + 1}`}
                               className="product-image w-full h-48 object-cover rounded-lg"
+                              loading="lazy"
+                              decoding="async"
+                              onClick={() => openModal(item)}
                               onError={(e) => {
                                 e.target.src =
                                   "https://via.placeholder.com/300x200?text=Car+Image";
