@@ -106,7 +106,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8 border-t lg:border-t-0 lg:border-l">
+        <div className="flex-1  p-12 lg:p-8 border-t lg:border-t-0 lg:border-l">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left">
             {product.model}
           </h2>
