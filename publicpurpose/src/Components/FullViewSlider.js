@@ -83,7 +83,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                       >
                         <img
                           loading="lazy"
-                          className="object-cover w-full h-full p-8 rounded-3xl" // Crop to fit 960×1280
+                          className="object-cover w-full h-full p-2 rounded-3xl" // Crop to fit 960×1280
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           style={{
