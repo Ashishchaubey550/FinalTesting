@@ -66,7 +66,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </button>
 
         {/* Image Slider with Fixed Size Container */}
-        <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
+        <div className="flex-1 lg:max-w-[80%] p-10 flex  bg-white justify-center items-center">
           <div className="w-[600px] h-[750px] relative">
             {" "}
             {/* Fixed container size */}
