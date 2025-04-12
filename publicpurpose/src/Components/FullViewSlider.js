@@ -67,7 +67,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
 
         {/* Image Slider with Fixed Size Container */}
         <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
-          <div className="w-[600px] h-[800px] relative p-6">
+          <div className="w-[650px] h-[800px] relative p-6">
             {" "}
             {/* Fixed container size */}
             <Slider {...sliderSettings} className="w-full h-full">
@@ -87,7 +87,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           style={{
-                            width: "600px",
+                            width: "650px",
                             height: "800px",
                             objectPosition: "center", // Focus on center (adjust if needed)
                           }}
@@ -106,7 +106,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
         </div>
 
         {/* Product Details */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8 border-t lg:border-t-0 lg:border-l">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-10 border-t lg:border-t-0 lg:border-l">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center lg:text-left">
             {product.model}
           </h2>
