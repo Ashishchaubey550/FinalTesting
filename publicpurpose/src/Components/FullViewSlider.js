@@ -67,7 +67,7 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
 
         {/* Image Slider with Fixed Size Container */}
         <div className="flex-1 lg:max-w-[50%] p-10 flex  bg-white justify-center items-center">
-          <div className="w-[600px] h-[700px] relative">
+          <div className="w-[600px] h-[800px] relative p-6">
             {" "}
             {/* Fixed container size */}
             <Slider {...sliderSettings} className="w-full h-full">
@@ -87,8 +87,8 @@ function FullViewSlider({ product, closeModal, imageHeight = 500 }) {
                           src={imageUrl}
                           alt={`Product Image ${idx + 1}`}
                           style={{
-                            width: "100%",
-                            height: "100%",
+                            width: "600px",
+                            height: "800px",
                             objectPosition: "center", // Focus on center (adjust if needed)
                           }}
                           onError={(e) => {
