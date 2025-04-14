@@ -216,13 +216,13 @@ app.delete('/product/:id', async (req, res) => {
     }
 
     // Delete from database
-    // const result = await Product.deleteOne({ _id: req.params.id });
+    const result = await Product.deleteOne({ _id: req.params.id });
 
-    // res.status(200).json({
-    //   success: true,
-    //   message: 'Product and associated images deleted successfully',
-    //   deletedCount: result.deletedCount
-    // });
+    res.status(200).json({
+      success: true,
+      message: 'Product and associated images deleted successfully',
+      deletedCount: result.deletedCount
+    });
 
   } catch (error) {
     console.error('Delete error:', error);
