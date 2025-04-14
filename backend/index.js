@@ -276,15 +276,15 @@ if (updateData.car_number) {
   }
 
       // Check if car number already exists for another product
-      const existingProduct = await Product.findOne({
-        car_number: updateData.car_number,
-        _id: { $ne: id }
-      });
-      if (existingProduct) {
-        return res.status(400).json({ 
-          error: "Car with this number already exists" 
-        });
-      }
+      // const existingProduct = await Product.findOne({
+      //   car_number: updateData.car_number,
+      //   _id: { $ne: id }
+      // });
+      // if (existingProduct) {
+      //   return res.status(400).json({ 
+      //     error: "Car with this number already exists" 
+      //   });
+      // }
     }
 
     // Handle image deletions
