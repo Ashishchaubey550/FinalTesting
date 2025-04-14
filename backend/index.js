@@ -129,12 +129,12 @@ if (!carNumberRegex.test(req.body.car_number)) {
 
 
     // Check if car number already exists
-    const existingProduct = await Product.findOne({ car_number: req.body.car_number });
-    if (existingProduct) {
-      return res.status(400).json({ 
-        error: "Car with this number already exists" 
-      });
-    }
+    // const existingProduct = await Product.findOne({ car_number: req.body.car_number });
+    // if (existingProduct) {
+    //   return res.status(400).json({ 
+    //     error: "Car with this number already exists" 
+    //   });
+    // }
 
     // Upload images to Cloudinary
     const imageUploads = req.files.map(file => {
@@ -216,13 +216,13 @@ app.delete('/product/:id', async (req, res) => {
     }
 
     // Delete from database
-    const result = await Product.deleteOne({ _id: req.params.id });
+    // const result = await Product.deleteOne({ _id: req.params.id });
 
-    res.status(200).json({
-      success: true,
-      message: 'Product and associated images deleted successfully',
-      deletedCount: result.deletedCount
-    });
+    // res.status(200).json({
+    //   success: true,
+    //   message: 'Product and associated images deleted successfully',
+    //   deletedCount: result.deletedCount
+    // });
 
   } catch (error) {
     console.error('Delete error:', error);
