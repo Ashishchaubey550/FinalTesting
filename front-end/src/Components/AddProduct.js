@@ -40,9 +40,9 @@ function AddProduct() {
           ];
           
           // Validate car number format
-          const carNumberRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/i;
+          const carNumberRegex = /^[A-Z]{2}[0-9]{2}$/i;
           if (!carNumberRegex.test(car_number)) {
-            setError("Please enter a valid car number (e.g. MH12AB1234)");
+            setError("Please enter a valid car number (e.g. MH12)");
             setIsSubmitting(false);
             return;
           }
@@ -137,11 +137,11 @@ function AddProduct() {
                 {/* First Row */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Car Number Plate</label>
+                        <label className="block text-gray-700 font-medium mb-2">Car Registeration Number</label>
                         <input
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             type="text"
-                            placeholder="e.g. MH12AB1234"
+                            placeholder="e.g. MH12"
                             onChange={(e) => setCar_number(e.target.value)}
                             value={car_number}
                             disabled={isSubmitting}
