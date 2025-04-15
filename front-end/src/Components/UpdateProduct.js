@@ -135,7 +135,7 @@ function UpdateProduct() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Car Number Field - Placed first */}
                     <div className="space-y-1">
-                        <label className="block text-sm font-medium">Car Number Plate</label>
+                        <label className="block text-sm font-medium">Car Registration Number</label>
                         <input
                             type="text"
                             name="car_number"
