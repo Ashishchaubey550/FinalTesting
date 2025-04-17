@@ -1178,7 +1178,7 @@ function ProductList() {
                       {(item.price * 100000).toLocaleString()}
                     </p>
                     <p className="text-gray-700">
-                      <span className="font-bold">Car Registration Number:</span>{" "}
+                      <span className="font-bold">Vehicle Registration Number:</span>{" "}
                       {formatDisplayName(item.car_number)}
                     </p>
                   </div>
