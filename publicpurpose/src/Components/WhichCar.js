@@ -13,54 +13,27 @@ const WhichCar = () => {
 
   const fetchCars = async () => {
     try {
-      // Fetch preowned cars
+      // Fetch preowned registered cars
       const preownedResponse = await fetch(
-        "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&limit=4"
+        "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&registrationStatus=registered&limit=4"
       );
       const preownedData = await preownedResponse.json();
       
-      // Process images: Fix URL formatting
+      // Process images
       const processedPreowned = preownedData.map(car => ({
         ...car,
-        images: (car.images || [])
-          .filter(img => !!img)
-          .map(img => {
-            // Handle different URL formats
-            if (img.startsWith('http')) {
-              return img.replace('http://', 'https://');
-            }
-            if (img.startsWith('//')) {
-              return `https:${img}`;
-            }
-            if (img.startsWith('res.cloudinary.com')) {
-              return `https://${img}`;
-            }
-            return img;
-          })
+        images: processImageUrls(car.images)
       }));
 
-      // Fetch unregistered cars
+      // Fetch unregistered new cars
       const unregisteredResponse = await fetch(
-        "https://finaltesting-tnim.onrender.com/productlist?registrationStatus=unregistered&limit=4"
+        "https://finaltesting-tnim.onrender.com/productlist?condition=new&registrationStatus=unregistered&limit=4"
       );
       const unregisteredData = await unregisteredResponse.json();
 
       const processedUnregistered = unregisteredData.map(car => ({
         ...car,
-        images: (car.images || [])
-          .filter(img => !!img)
-          .map(img => {
-            if (img.startsWith('http')) {
-              return img.replace('http://', 'https://');
-            }
-            if (img.startsWith('//')) {
-              return `https:${img}`;
-            }
-            if (img.startsWith('res.cloudinary.com')) {
-              return `https://${img}`;
-            }
-            return img;
-          })
+        images: processImageUrls(car.images)
       }));
 
       setPreownedCars(processedPreowned);
@@ -70,16 +43,34 @@ const WhichCar = () => {
     }
   };
 
+  // Helper function to process image URLs
+  const processImageUrls = (images) => {
+    return (images || [])
+      .filter(img => !!img)
+      .map(img => {
+        if (img.startsWith('http')) {
+          return img.replace('http://', 'https://');
+        }
+        if (img.startsWith('//')) {
+          return `https:${img}`;
+        }
+        if (img.startsWith('res.cloudinary.com')) {
+          return `https://${img}`;
+        }
+        return img;
+      });
+  };
+
   return (
     <div className="bg-neutral-100 py-12 px-4 sm:px-8 lg:px-16">
-      {/* Preowned Cars Section */}
+      {/* Preowned Registered Cars Section */}
       <div className="mb-16">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
             Preowned Cars
           </h2>
           <button
-            onClick={() => navigate("/productList")}
+            onClick={() => navigate("/productList?condition=preowned&registrationStatus=registered")}
             className="text-red-600 font-semibold hover:underline"
           >
             View All →
@@ -99,14 +90,14 @@ const WhichCar = () => {
         )}
       </div>
 
-      {/* Unregistered Cars Section */}
+      {/* Unregistered New Cars Section */}
       <div>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
             Unregistered Cars
           </h2>
           <button
-            onClick={() => navigate("/productList")}
+            onClick={() => navigate("/productList?condition=new&registrationStatus=unregistered")}
             className="text-red-600 font-semibold hover:underline"
           >
             View All →

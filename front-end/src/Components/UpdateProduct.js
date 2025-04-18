@@ -10,9 +10,9 @@ function UpdateProduct() {
         modelYear: '',
         price: '',
         bodyType: '',
-        condition: '',
+        condition: 'preowned',
         fuelType: '',
-        registrationStatus: '',
+        registrationStatus: 'registered',
         registrationYear: '',
         transmissionType: '',
         variant: '',
@@ -33,6 +33,7 @@ function UpdateProduct() {
                 const response = await fetch(`https://finaltesting-tnim.onrender.com/product/${params.id}`);
                 if (!response.ok) throw new Error('Failed to fetch product');
                 const data = await response.json();
+                
                 setProduct({
                     company: data.company || '',
                     model: data.model || '',
@@ -41,7 +42,7 @@ function UpdateProduct() {
                     modelYear: data.modelYear || '',
                     price: data.price || '',
                     bodyType: data.bodyType || '',
-                    condition: data.condition || 'new',
+                    condition: data.condition || 'preowned',
                     fuelType: data.fuelType || '',
                     registrationStatus: data.registrationStatus || 'registered',
                     registrationYear: data.registrationYear || '',
@@ -49,6 +50,7 @@ function UpdateProduct() {
                     variant: data.variant || '',
                     car_number: data.car_number || ''
                 });
+                
                 if (data.images) setExistingImages(data.images);
             } catch (err) {
                 setError(err.message);
@@ -59,7 +61,19 @@ function UpdateProduct() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setProduct(prev => ({ ...prev, [name]: value }));
+        
+        if (name === 'carStatus') {
+            const newCondition = value === 'unregistered_new' ? 'new' : 'preowned';
+            const newRegistrationStatus = value === 'unregistered_new' ? 'unregistered' : 'registered';
+            
+            setProduct(prev => ({
+                ...prev,
+                condition: newCondition,
+                registrationStatus: newRegistrationStatus
+            }));
+        } else {
+            setProduct(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleImageChange = (e) => {
@@ -81,7 +95,6 @@ function UpdateProduct() {
         setSuccess(false);
 
         try {
-            // Validate car number format
             const carNumberRegex = /^[A-Z]{2}[0-9]{2}$/i;
             if (!carNumberRegex.test(product.car_number)) {
                 throw new Error("Please enter a valid car number (e.g. MH12)");
@@ -89,17 +102,14 @@ function UpdateProduct() {
 
             const formData = new FormData();
             
-            // Append all product data
             Object.entries(product).forEach(([key, value]) => {
                 formData.append(key, value);
             });
 
-            // Append images to delete
             if (imagesToDelete.length > 0) {
                 formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
             }
 
-            // Append new images
             Array.from(newImages).forEach((file) => {
                 formData.append('images', file);
             });
@@ -133,7 +143,7 @@ function UpdateProduct() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Car Number Field - Placed first */}
+                    {/* Car Number Field */}
                     <div className="space-y-1">
                         <label className="block text-sm font-medium">Car Registration Number</label>
                         <input
@@ -145,6 +155,23 @@ function UpdateProduct() {
                             className="w-full p-2 border rounded"
                             required
                         />
+                    </div>
+
+                    {/* Combined Status Dropdown */}
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium">Car Status</label>
+                        <select
+                            name="carStatus"
+                            value={product.condition === 'new' && product.registrationStatus === 'unregistered' 
+                                ? 'unregistered_new' 
+                                : 'preowned_registered'}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded"
+                            required
+                        >
+                            <option value="unregistered_new">Unregistered New Car</option>
+                            <option value="preowned_registered">Preowned Registered Car</option>
+                        </select>
                     </div>
 
                     {/* Other fields */}
@@ -173,34 +200,6 @@ function UpdateProduct() {
                             />
                         </div>
                     ))}
-
-                    {/* Condition Dropdown */}
-                    <div className="space-y-1">
-                        <label className="block text-sm font-medium">Condition</label>
-                        <select
-                            name="condition"
-                            value={product.condition}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        >
-                            <option value="preowned">Preowned</option>
-                        </select>
-                    </div>
-
-                    {/* Registration Status Dropdown */}
-                    <div className="space-y-1">
-                        <label className="block text-sm font-medium">Registration Status</label>
-                        <select
-                            name="registrationStatus"
-                            value={product.registrationStatus}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        >
-                            <option value="unregistered">Unregistered</option>
-                        </select>
-                    </div>
                 </div>
 
                 {/* Existing Images */}

@@ -15,7 +15,7 @@ function AddProduct() {
     const [car_number, setCar_number] = useState('');
 
     const [bodyType, setBodyType] = useState('');
-    const [condition, setCondition] = useState('new');
+    const [condition, setCondition] = useState('preowned');
     const [registrationStatus, setRegistrationStatus] = useState('registered');
 
     const [images, setImages] = useState([]); 
@@ -55,8 +55,8 @@ function AddProduct() {
       
           // Create FormData with AbortController for timeout
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute timeout
-      
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+
           const formData = new FormData();
           const numericFields = {
             distanceCovered,
@@ -137,7 +137,7 @@ function AddProduct() {
                 {/* First Row */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Car Registeration Number</label>
+                        <label className="block text-gray-700 font-medium mb-2">Car Registration Number</label>
                         <input
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             type="text"
@@ -301,28 +301,27 @@ function AddProduct() {
                     </div>
                 </div>
 
-                {/* Fourth Row - New Fields */}
+                {/* Combined Status Dropdown */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Car Condition</label>
+                        <label className="block text-gray-700 font-medium mb-2">Car Status</label>
                         <select
                             className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onChange={(e) => setCondition(e.target.value)}
-                            value={condition}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === 'unregistered_new') {
+                                    setCondition('new');
+                                    setRegistrationStatus('unregistered');
+                                } else {
+                                    setCondition('preowned');
+                                    setRegistrationStatus('registered');
+                                }
+                            }}
+                            value={condition === 'new' && registrationStatus === 'unregistered' ? 'unregistered_new' : 'preowned_registered'}
                             disabled={isSubmitting}
                         >
-                            <option value="preowned">Preowned</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-2">Registration Status</label>
-                        <select
-                            className="block w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onChange={(e) => setRegistrationStatus(e.target.value)}
-                            value={registrationStatus}
-                            disabled={isSubmitting}
-                        >
-                            <option value="unregistered">Unregistered</option>
+                            <option value="unregistered_new">Unregistered New Car</option>
+                            <option value="preowned_registered">Preowned Registered Car</option>
                         </select>
                     </div>
                 </div>
