@@ -184,7 +184,6 @@ function UpdateProduct() {
                             className="w-full p-2 border rounded"
                             required
                         >
-                            <option value="new">New</option>
                             <option value="preowned">Preowned</option>
                         </select>
                     </div>
@@ -199,7 +198,6 @@ function UpdateProduct() {
                             className="w-full p-2 border rounded"
                             required
                         >
-                            <option value="registered">Registered</option>
                             <option value="unregistered">Unregistered</option>
                         </select>
                     </div>
