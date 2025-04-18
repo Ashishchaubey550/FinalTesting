@@ -12,58 +12,47 @@ const WhichCar = () => {
   }, []);
 
   const fetchCars = async () => {
+    // Fetch preowned cars independently
     try {
-      // Fetch preowned registered cars
       const preownedResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=preowned&registrationStatus=registered&limit=4"
       );
       const preownedData = await preownedResponse.json();
-      
-      // Process images
-      const processedPreowned = preownedData.map(car => ({
-        ...car,
-        images: processImageUrls(car.images)
-      }));
+      setPreownedCars(processImageUrls(preownedData));
+    } catch (error) {
+      console.error("Error fetching preowned cars:", error);
+    }
 
-      // Fetch unregistered new cars
+    // Fetch unregistered cars independently
+    try {
       const unregisteredResponse = await fetch(
         "https://finaltesting-tnim.onrender.com/productlist?condition=new&registrationStatus=unregistered&limit=4"
       );
       const unregisteredData = await unregisteredResponse.json();
-
-      const processedUnregistered = unregisteredData.map(car => ({
-        ...car,
-        images: processImageUrls(car.images)
-      }));
-
-      setPreownedCars(processedPreowned);
-      setUnregisteredCars(processedUnregistered);
+      setUnregisteredCars(processImageUrls(unregisteredData));
     } catch (error) {
-      console.error("Error fetching cars:", error);
+      console.error("Error fetching unregistered cars:", error);
     }
   };
 
-  // Helper function to process image URLs
-  const processImageUrls = (images) => {
-    return (images || [])
-      .filter(img => !!img)
-      .map(img => {
-        if (img.startsWith('http')) {
-          return img.replace('http://', 'https://');
-        }
-        if (img.startsWith('//')) {
-          return `https:${img}`;
-        }
-        if (img.startsWith('res.cloudinary.com')) {
-          return `https://${img}`;
-        }
-        return img;
-      });
+  // Process images and ensure valid URLs
+  const processImageUrls = (cars) => {
+    return cars.map(car => ({
+      ...car,
+      images: (car.images || [])
+        .filter(img => !!img)
+        .map(img => {
+          if (img.startsWith('http')) return img.replace('http://', 'https://');
+          if (img.startsWith('//')) return `https:${img}`;
+          if (img.startsWith('res.cloudinary.com')) return `https://${img}`;
+          return img;
+        })
+    }));
   };
 
   return (
     <div className="bg-neutral-100 py-12 px-4 sm:px-8 lg:px-16">
-      {/* Preowned Registered Cars Section */}
+      {/* Preowned Cars Section - Always rendered */}
       <div className="mb-16">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
@@ -90,7 +79,7 @@ const WhichCar = () => {
         )}
       </div>
 
-      {/* Unregistered New Cars Section */}
+      {/* Unregistered Cars Section - Always rendered */}
       <div>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
