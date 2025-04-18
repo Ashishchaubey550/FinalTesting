@@ -311,7 +311,6 @@ function AddProduct() {
                             value={condition}
                             disabled={isSubmitting}
                         >
-                            <option value="new">New</option>
                             <option value="preowned">Preowned</option>
                         </select>
                     </div>
@@ -323,7 +322,6 @@ function AddProduct() {
                             value={registrationStatus}
                             disabled={isSubmitting}
                         >
-                            <option value="registered">Registered</option>
                             <option value="unregistered">Unregistered</option>
                         </select>
                     </div>
