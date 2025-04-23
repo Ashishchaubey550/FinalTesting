@@ -4,64 +4,93 @@ import { Link, useNavigate } from "react-router-dom";
 
 // Brand normalization mapping
 const BRAND_NORMALIZATION = {
-  // MG
-  "morris garages": "MG",
-  "mg motors": "MG",
-  "mg": "MG",
+    // MG
+    "morris garages": "MG",
+    "mg motors": "MG",
+    "mg": "MG",
+    "MG": "MG",
+    "Mg": "MG",
 
-  // Maruti Suzuki
-  "maruti": "MARUTI SUZUKI",
-  "maruti suzuki": "MARUTI SUZUKI",
-  "suzuki": "MARUTI SUZUKI",
 
-  // Mercedes
-  "mercedes": "MERCEDES",
-  "mercedes-benz": "MERCEDES",
-  "benz": "MERCEDES",
+    
+    // Maruti Suzuki
+    "maruti": "MARUTI SUZUKI",
+    "maruti suzuki": "MARUTI SUZUKI",
+    "suzuki": "MARUTI SUZUKI",
+    "Maruti Suzuki": "MARUTI SUZUKI",
 
-  // Honda
-  "honda": "HONDA",
+    
+    // Mercedes
+    "mercedes": "MERCEDES",
+    "mercedes-benz": "MERCEDES",
+    "benz": "MERCEDES",
+    
+    // Honda
+    "honda": "HONDA",
+    "Honda": "HONDA",
+    "HONDA": "HONDA",
 
-  // Ford
-  "ford": "FORD",
 
-  // BMW
-  "bmw": "BMW",
-  "bayerische motoren werke": "BMW",
+    
+    // Ford
+    "ford": "FORD",
+    "Ford": "FORD",
+    "FORD": "FORD",
 
-  // Renault
-  "renault": "RENAULT",
 
-  // Hyundai
-  "hyundai": "HYUNDAI",
+    
+    // BMW
+    "bmw": "BMW",
+    "BMW": "BMW",
+    "Bmw": "BMW",
+    "bayerische motoren werke": "BMW",
+    
+    // Renault
+    "renault": "RENAULT",
+    "Renault": "RENAULT",
+    "RENAULT": "RENAULT",
 
-  // Volkswagen
-  "volkswagen": "VOLKSWAGEN",
-  "vw": "VOLKSWAGEN",
-  "volkawagen": "VOLKSWAGEN",
 
-  // Kia
-  "kia": "KIA",
+    
+    // Hyundai
+    "hyundai": "HYUNDAI",
+    "Hyundai": "HYUNDAI",
+    "hyundai": "HYUNDAI",
 
-  // Tata
-  "tata": "TATA",
-  "tata motors": "TATA",
 
-  // Toyota
-  "toyota": "TOYOTA",
+    
+    // Volkswagen
+    "volkswagen": "VOLKSWAGEN",
+    "vw": "VOLKSWAGEN",
+    "Volkawagen": "VOLKSWAGEN",
+    "VOLKSWAGEN": "VOLKSWAGEN",
 
-  // Mahindra
-  "mahindra": "MAHINDRA",
-  "mahindra and mahindra": "MAHINDRA",
-  "mahindra & mahindra": "MAHINDRA",
 
-  // Nissan
-  "nissan": "NISSAN",
+    
+    // Kia
+    "kia": "KIA",
+    
+    // Tata
+    "tata": "TATA",
+    "tata motors": "TATA",
+    
+    // Toyota
+    "toyota": "TOYOTA",
+    
+    // Mahindra
+    "mahindra": "MAHINDRA",
+    "mahindra and mahindra": "MAHINDRA",
+    "mahindra & mahindra": "MAHINDRA",
+    
+    // Nissan
+    "nissan": "NISSAN",
+    
+    // Chevrolet
+    "chevrolet": "CHEVROLET",
+    "chevy": "CHEVROLET"
+  };
 
-  // Chevrolet
-  "chevrolet": "CHEVROLET",
-  "chevy": "CHEVROLET"
-};
+  // Add other brand variations as needed
 
 // Brand logo images
 const BRAND_IMAGES = {
@@ -84,15 +113,17 @@ const BRAND_IMAGES = {
 
 const normalizeBrand = (brandName) => {
   if (!brandName) return '';
-
+  
   const lowerBrand = brandName.toLowerCase().trim();
-
+  
+  // Check if we have a normalization mapping
   for (const [key, value] of Object.entries(BRAND_NORMALIZATION)) {
     if (lowerBrand.includes(key)) {
       return value;
     }
   }
-
+  
+  // Default case - capitalize first letters of each word
   return lowerBrand
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -112,14 +143,14 @@ const BrandFilter = () => {
   const fetchBrands = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://finaltesting-tnim.onrender.com/productlist");
-
+      const response = await fetch("https://finaltesting-tnim.onrender.com/product");
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status}`);
       }
-
+      
       const data = await response.json();
-
+      
       if (data?.length > 0) {
         const brandCounts = data.reduce((acc, item) => {
           if (item.company) {
@@ -130,11 +161,12 @@ const BrandFilter = () => {
           }
           return acc;
         }, {});
-
+        
         const sortedBrands = Object.entries(brandCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 12);
-
+        .sort((a, b) => b[1] - a[1]) // Descending: higher count first
+        .slice(0, 12);               // Take top 12
+      
+        
         setBrands(sortedBrands);
       }
     } catch (error) {
@@ -166,7 +198,11 @@ const BrandFilter = () => {
     return (
       <div className="brand-filter flex flex-col gap-6 justify-center items-center min-h-[40vh] p-8">
         <p className="text-red-500">Error loading brands: {error}</p>
-        <Button onClick={fetchBrands} color="red" variant="outline">
+        <Button 
+          onClick={fetchBrands}
+          color="red"
+          variant="outline"
+        >
           Retry
         </Button>
       </div>
@@ -188,9 +224,9 @@ const BrandFilter = () => {
             aria-label={`View ${brand} cars`}
           >
             <img
-              loading="lazy"
+             loading="lazy"
               src={BRAND_IMAGES[brand] || "https://via.placeholder.com/64?text=Car"}
-              alt={`${brand} logo`}
+              alt={brand}
               className="w-12 sm:w-16 h-12 sm:h-16 object-contain sm:mb-0"
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/64?text=Car";
@@ -207,7 +243,7 @@ const BrandFilter = () => {
       </div>
 
       <Link to="/productlist" className="mt-4 sm:mt-6">
-        <Button
+        <Button 
           className="text-white font-semibold text-lg sm:text-xl bg-[#e23b3d] px-6 sm:px-8 py-1.5 rounded-xl hover:bg-[#a3282a] transition-all duration-300 shadow-lg"
           size="md"
         >
