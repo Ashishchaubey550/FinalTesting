@@ -10,7 +10,7 @@ const Preloader = () => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => setLoading(false), 1000);
+          setTimeout(() => setLoading(false), 2000);
           return 100;
         }
         return prev + 2;
