@@ -87,7 +87,22 @@ const BRAND_NORMALIZATION = {
     
     // Chevrolet
     "chevrolet": "CHEVROLET",
-    "chevy": "CHEVROLET"
+    "chevy": "CHEVROLET",
+
+    //JEEP
+    "JEEP":"JEEP",
+    "jeep":"JEEP",
+    "Jeep":"JEEP",
+
+    //SKODA
+    "SKODA":"SKODA",
+    "skoda":"SKODA",
+    "Skoda":"SKODA",
+
+    //DATSON
+    "DATSON":"DATSON",
+    "Datson":"DATSON",
+    "datson":"DATSON",
   };
 
   // Add other brand variations as needed
@@ -102,13 +117,16 @@ const BRAND_IMAGES = {
   "RENAULT": "https://mda.spinny.com/spinny-web/media/cars/makes/renault/logos/renault.webp",
   "MG": "https://spinny-images.gumlet.io/images/cars/new/makes/mg-motors/logos/197x71.png?q=85&w=100&dpr=1.0",
   "HYUNDAI": "https://mda.spinny.com/spinny-web/media/cars/makes/hyundai/logos/hyundai.webp",
-  "VOLKSWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
+  "VOLKAWAGEN": "https://mda.spinny.com/spinny-web/media/cars/makes/volkswagen/logos/volkswagen.webp",
   "CHEVROLET": "https://www.carlogos.org/logo/Chevrolet-logo-2013-1920x1080.png",
   "KIA": "https://mda.spinny.com/spinny-web/media/cars/makes/kia/logos/v1.webp",
   "TATA": "https://mda.spinny.com/spinny-web/media/cars/makes/tata/logos/tata.webp",
   "NISSAN": "https://e7.pngegg.com/pngimages/132/969/png-clipart-nissan-car-logo-automotive-industry-brand-nissan-emblem-trademark.png",
   "TOYOTA": "https://www.carlogos.org/logo/Toyota-logo-1989-1920x1080.png",
-  "MAHINDRA": "https://www.carlogos.org/logo/Mahindra-logo-2000x2500.png"
+  "MAHINDRA": "https://www.carlogos.org/logo/Mahindra-logo-2000x2500.png",
+  "JEEP":"https://imgs.search.brave.com/8GAJntrJRwWbuasuaUFua6iP3lZMl4cfjEmwfzafVkk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzU3LzZh/Lzk2LzU3NmE5NjUy/YWM1NzhhNmQ2MmQ1/MDM4ZTNmYjcxZWRm/LmpwZw",
+  "SKODA":"https://imgs.search.brave.com/7gii-HIwuhL4OhKxv6Xu3EGkhi9aHmABJOCQygHUPrs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/emVyb3RvNjB0aW1l/cy5jb20vYmxvZy93/cC1jb250ZW50L3Vw/bG9hZHMvMjAxMy8w/Mi9za29kYS1jYXJz/LWxvZ28tZW1ibGVt/LTMwMHgyOTMuanBn",
+  "DATSON":"https://imgs.search.brave.com/4JNQl1KfVbA8SUjqegsyKV1r4ANH-ZyXv-xaZAAeP9o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi9mL2Y4L0Rh/dHN1bl9sb2dvLnBu/Zy8yNTBweC1EYXRz/dW5fbG9nby5wbmc",
 };
 
 const normalizeBrand = (brandName) => {
