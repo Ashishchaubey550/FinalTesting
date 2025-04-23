@@ -60,10 +60,10 @@ const BRAND_NORMALIZATION = {
 
     
     // Volkswagen
-    "volkswagen": "VOLKSWAGEN",
-    "vw": "VOLKSWAGEN",
-    "Volkawagen": "VOLKSWAGEN",
-    "VOLKSWAGEN": "VOLKSWAGEN",
+    "volkawagen": "VOLKAWAGEN",
+    "vw": "VOLKAWAGEN",
+    "Volkawagen": "VOLKAWAGEN",
+    "VOLKAWAGEN": "VOLKAWAGEN",
 
 
     
@@ -100,9 +100,9 @@ const BRAND_NORMALIZATION = {
     "Skoda":"SKODA",
 
     //DATSON
-    "DATSON":"DATSON",
-    "Datson":"DATSON",
-    "datson":"DATSON",
+    "DATSUN":"DATSUN",
+    "Datsun":"DATSUN",
+    "datsun":"DATSUN",
   };
 
   // Add other brand variations as needed
