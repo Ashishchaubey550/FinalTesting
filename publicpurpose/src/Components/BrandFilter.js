@@ -162,10 +162,8 @@ const BrandFilter = () => {
           return acc;
         }, {});
         
-        const sortedBrands = Object.entries(brandCounts)
-        .sort((a, b) => b[1] - a[1]) // Descending: higher count first
-        .slice(0, 12);               // Take top 12
-      
+        const randomBrands = Object.entries(brandCounts).slice(0, 12);
+
         
         setBrands(sortedBrands);
       }
