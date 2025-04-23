@@ -162,8 +162,10 @@ const BrandFilter = () => {
           return acc;
         }, {});
         
-        const randomBrands = Object.entries(brandCounts).slice(0, 12);
-
+        const randomBrands = Object.entries(brandCounts)
+        .sort(() => 0.5 - Math.random()) // shuffle
+        .slice(0, 12);
+      
         
         setBrands(sortedBrands);
       }
