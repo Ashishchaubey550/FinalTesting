@@ -26,6 +26,7 @@ const allowedOrigins = [
   "https://final-testing-adminpage.vercel.app",
   "https://www.thevaluedrive.in",
   "https://thevaluedrive.in",
+  "https://newpublicwebsite.vercel.app"
 ];
 
 app.use(
