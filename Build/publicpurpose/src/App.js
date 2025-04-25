@@ -14,6 +14,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Analytics } from "@vercel/analytics/react";
 import Preloader from './Components/Preloader';
 import CustomCursor from './Components/CustomCursor'; // Import the new CustomCursor component
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   return (
