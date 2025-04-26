@@ -16,7 +16,6 @@ const app = express();
 const compression = require('compression');
 app.use(compression());
 
-res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
 
 
 
@@ -90,6 +89,8 @@ app.get('/api/products', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Always parse to integer
     const limit = parseInt(req.query.limit) || 10; // You can also pass limit from frontend
+    res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
+
 
     const products = await Product.find()
       .skip((page - 1) * limit)
