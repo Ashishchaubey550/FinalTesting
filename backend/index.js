@@ -13,6 +13,13 @@ const cloudinary = require('cloudinary').v2;
 
 const app = express();
 
+const compression = require('compression');
+app.use(compression());
+
+res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
+
+
+
 // Cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -78,6 +85,31 @@ app.post("/register", async (req, res) => {
     res.status(500).send({ error });
   }
 });
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Always parse to integer
+    const limit = parseInt(req.query.limit) || 10; // You can also pass limit from frontend
+
+    const products = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await Product.countDocuments(); // total products in database
+
+    res.json({
+      products,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
